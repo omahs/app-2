@@ -1128,6 +1128,30 @@
   resolved "https://registry.yarnpkg.com/@chaitanyapotti/random-id/-/random-id-1.0.3.tgz#f52f647cfe9f79fc7723ea2b01b0ad3889204002"
   integrity sha512-xiVWA2vTL3jQeuZ+yebXAtwIeEbh/13RAFxvRq0YxeUc02RBOGyC9eyDKXjwlN0uxPtnEwWxsELkSwnaH5kxjg==
 
+"@elastic/apm-rum-core@^5.12.1":
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/@elastic/apm-rum-core/-/apm-rum-core-5.12.1.tgz#ad78787876c68b9ce718d1c42b8e7b12b12eaa69"
+  integrity sha512-b9CyqLdu2rSdjqi5Pc2bNfQCRQT26GjQzCTpJq1WoewDaoivsPoUDrY7tCJV+j3rmRSxG7vX91pM5SygjFr7aA==
+  dependencies:
+    error-stack-parser "^1.3.5"
+    opentracing "^0.14.3"
+    promise-polyfill "^8.1.3"
+
+"@elastic/apm-rum-react@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@elastic/apm-rum-react/-/apm-rum-react-1.3.1.tgz#2b1a5cfe3763538d7e655816a333162696f906c9"
+  integrity sha512-nJebgxMUWsWWz93v39ok0DwFGUvv9qZkA+oElUzCKyVvWpgHsWE2pvgjthrvay64qzfEg5QeM56ywaef9V13rw==
+  dependencies:
+    "@elastic/apm-rum" "^5.9.1"
+    hoist-non-react-statics "^3.3.0"
+
+"@elastic/apm-rum@^5.9.1":
+  version "5.9.1"
+  resolved "https://registry.yarnpkg.com/@elastic/apm-rum/-/apm-rum-5.9.1.tgz#23b12650d443ec0a5f7c6b7b4039334e42d2fe8a"
+  integrity sha512-NJAdzxXxf+LeCI0Dz3P+RMVY66C8sAztIg4tvnrhvBqxf8d7se+FpYw3oYjw3BZ8UDycmXEaIqEGcynUUndgqA==
+  dependencies:
+    "@elastic/apm-rum-core" "^5.12.1"
+
 "@emotion/is-prop-valid@^0.8.8":
   version "0.8.8"
   resolved "https://registry.yarnpkg.com/@emotion/is-prop-valid/-/is-prop-valid-0.8.8.tgz#db28b1c4368a259b60a97311d6a952d4fd01ac1a"
@@ -1714,6 +1738,23 @@
     ethereumjs-util "5.2.0"
     penpal "3.0.7"
     pocket-js-core "0.0.3"
+
+"@rollup/plugin-typescript@^8.3.0":
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-typescript/-/plugin-typescript-8.3.0.tgz#bc1077fa5897b980fc27e376c4e377882c63e68b"
+  integrity sha512-I5FpSvLbtAdwJ+naznv+B4sjXZUcIvLLceYpITAn7wAP8W0wqc5noLdGIp9HGVntNhRWXctwPYrSSFQxtl0FPA==
+  dependencies:
+    "@rollup/pluginutils" "^3.1.0"
+    resolve "^1.17.0"
+
+"@rollup/pluginutils@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-3.1.0.tgz#706b4524ee6dc8b103b3c995533e5ad680c02b9b"
+  integrity sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==
+  dependencies:
+    "@types/estree" "0.0.39"
+    estree-walker "^1.0.1"
+    picomatch "^2.2.2"
 
 "@rollup/pluginutils@^4.1.1":
   version "4.1.1"
@@ -4904,6 +4945,13 @@ error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
+error-stack-parser@^1.3.5:
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/error-stack-parser/-/error-stack-parser-1.3.6.tgz#e0e73b93e417138d1cd7c0b746b1a4a14854c292"
+  integrity sha1-4Oc7k+QXE40c18C3RrGkoUhUwpI=
+  dependencies:
+    stackframe "^0.3.1"
+
 es-abstract@^1.18.5, es-abstract@^1.19.0, es-abstract@^1.19.1:
   version "1.19.1"
   resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.19.1.tgz#d4885796876916959de78edaa0df456627115ec3"
@@ -5281,6 +5329,11 @@ estree-walker@^0.6.0:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-0.6.1.tgz#53049143f40c6eb918b23671d1fe3219f3a1b362"
   integrity sha512-SqmZANLWS0mnatqbSfRP5g8OXZC12Fgg1IwNtLsyHDzJizORW4khDfjPqJZsemPWBB2uqykUah5YpQ6epsqC/w==
+
+estree-walker@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-1.0.1.tgz#31bc5d612c96b704106b477e6dd5d8aa138cb700"
+  integrity sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==
 
 estree-walker@^2.0.1:
   version "2.0.2"
@@ -9076,6 +9129,11 @@ onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
+opentracing@^0.14.3:
+  version "0.14.5"
+  resolved "https://registry.yarnpkg.com/opentracing/-/opentracing-0.14.5.tgz#891fa92cd90a24e64f99bc964370227310926c85"
+  integrity sha512-XLKtEfHxqrWyF1fzxznsv78w3csW41ucHnjiKnfzZLD5FN8UBDZZL1i4q0FR29zjxXhm+2Hop+5Vr/b8tKIvEg==
+
 optionator@^0.8.1:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/optionator/-/optionator-0.8.3.tgz#84fa1d036fe9d3c7e21d99884b601167ec8fb495"
@@ -9526,6 +9584,11 @@ progress@^2.0.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
+
+promise-polyfill@^8.1.3:
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-8.2.1.tgz#1fa955b325bee4f6b8a4311e18148d4e5b46d254"
+  integrity sha512-3p9zj0cEHbp7NVUxEYUWjQlffXqnXaZIMPkAO7HhFh8u5636xLRDHOUo2vpWSK0T2mqm6fKLXYn1KP6PAZ2gKg==
 
 promise-to-callback@^1.0.0:
   version "1.0.0"
@@ -10100,7 +10163,7 @@ resolve-url@^0.2.1:
   resolved "https://registry.yarnpkg.com/resolve-url/-/resolve-url-0.2.1.tgz#2c637fe77c893afd2a663fe21aa9080068e2052a"
   integrity sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
 
-resolve@^1.14.2, resolve@^1.20.0, resolve@~1.20.0:
+resolve@^1.14.2, resolve@^1.17.0, resolve@^1.20.0, resolve@~1.20.0:
   version "1.20.0"
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.20.0.tgz#629a013fb3f70755d6f0b7935cc1c2c5378b1975"
   integrity sha512-wENBPt4ySzg4ybFQW2TT1zMQucPK95HSh/nq2CFTZVOGut2+pQvSsgtda4d26YrYcr067wjbmzOG8byDPBX63A==
@@ -10675,6 +10738,11 @@ stack-utils@^2.0.3:
   integrity sha512-xrQcmYhOsn/1kX+Vraq+7j4oE2j/6BFscZ0etmYg81xuM8Gq0022Pxb8+IqgOFUIaxHs0KaSb7T1+OegiNrNFA==
   dependencies:
     escape-string-regexp "^2.0.0"
+
+stackframe@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/stackframe/-/stackframe-0.3.1.tgz#33aa84f1177a5548c8935533cbfeb3420975f5a4"
+  integrity sha1-M6qE8Rd6VUjIk1Uzy/6zQgl19aQ=
 
 static-extend@^0.1.1:
   version "0.1.2"
@@ -11462,10 +11530,10 @@ usb@^1.6.0:
     node-addon-api "^4.2.0"
     node-gyp-build "^4.3.0"
 
-use-wallet@^0.12.1:
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/use-wallet/-/use-wallet-0.12.1.tgz#b86ebe2e82a914f7830eaa24a053fad53f7d2912"
-  integrity sha512-07SXQh2g9RK9ky36fqCv7zef5raUiRd6gGJgNYm3OtNDM/vW7KweOQODEVldUCe+CcGvUepidSFjBTtl7NxT3A==
+use-wallet@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/use-wallet/-/use-wallet-0.13.0.tgz#887794ea7a8f346870e53d42dc8ec7273d813f26"
+  integrity sha512-cOmSlnUGhxk9RbKMiVApbsIYTqoSyRFyG4JqNRob2VgAqIj9hEA0L+bxO1goZjgBFrL9+zEeimMX19NFTCyO6Q==
   dependencies:
     "@aragon/provided-connector" "^6.0.8"
     "@typescript-eslint/parser" "^4.1.0"
