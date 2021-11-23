@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: yarn --dev
+        run: npm install
       - name: Run Hardhat Tests
         env:
           REPORT_GAS: true
-        run: yarn test
+        run: npm run test
 
   test-slither-echidna:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: yarn --dev
+        run: npm install
       - uses: actions/setup-python@v2
         with:
           python-version: 3.6
