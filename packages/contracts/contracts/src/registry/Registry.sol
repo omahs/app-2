@@ -19,7 +19,7 @@ contract Registry {
     /// @param name The name of the DAO
     /// @param dao The address of the DAO contract
     function register(string calldata name, DAO dao) external {
-        require(daos[name] != DAO(address(0)), "This name is already in use!");
+        require(daos[name] == DAO(address(0)), "This name is already in use!");
 
         daos[name] = dao;
         
