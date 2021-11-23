@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - 'packages/contracts/**'
-      - '.github/workflows/contracts-*.yml'
+      - '.github/workflows/contract-*.yml'
 
 env:
   working-directory: packages/contracts
