@@ -17,11 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: npm install
+        run: yarn --dev
       - name: Run Hardhat Tests
         env:
           REPORT_GAS: true
-        run: npm test
+        run: yarn test
 
   test-slither-echidna:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: npm install
+        run: yarn --dev
       - uses: actions/setup-python@v2
         with:
           python-version: 3.6
@@ -45,7 +45,7 @@ jobs:
 
       - name: Install solc
         env:
-          SOLC_VERSION: 0.7.6
+          SOLC_VERSION: 0.8.4
         run: |
           pip install solc-select
           solc-select install ${{ env.SOLC_VERSION }}
