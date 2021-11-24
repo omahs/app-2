@@ -8,4 +8,4 @@ coverage: false
 seqLen: 1
 #testLimit is the number of test sequences to run
 testLimit: 500000
-cryticArgs: ["--solc-args --allow-paths node_modules"]
+cryticArgs: ["--solc-args --include-path node_modules"]
