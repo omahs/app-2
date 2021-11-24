@@ -62,4 +62,4 @@ jobs:
 
       - name: Run echina tests
         run: |
-          echidna-test . --contract RegistryEchidnaTest  --config echidna.config.yml
+          echidna-test contracts/tests/RegistryEchidnaTest.sol
