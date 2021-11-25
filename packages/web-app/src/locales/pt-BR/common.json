@@ -5,11 +5,19 @@
     "part2": "A infraestrutura de DAOs focada em humanos."
   },
   "testnetIndicator": "TESTNET ACTIVE",
+  "menu": "Menu",
   "navLinks": {
     "dashboard": "Dashboard",
     "governance": "Governance",
     "finance": "Finance",
     "community": "Community"
+  },
+  "daoCard": {
+    "switchLabel": "Switch"
+  },
+  "daoSwitcher": {
+    "title": "Explore",
+    "subtitle": "Find other DAOs to join"
   },
   "navButtons": {
     "connectWallet": "Connect account"
