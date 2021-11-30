@@ -16,22 +16,24 @@ abstract contract VotingGovernancePrimitive is GovernancePrimitive {
     /// @notice If called a new vote does get added.
     /// @param executionId The identifier of the current execution
     /// @param data The arbitrary custom data used for the concrete implementation
-    function vote(uint256 executionId, bytes calldata data) external {
+    function vote(uint256 executionId, bytes calldata data) external executionExist(executionId) {
         Execution memory execution = _getExecution(executionId);
         
+        require(execution.state == State.RUNNING, ERROR_EXECUTION_STATE_WRONG);
         require(
             Permissions(dao.permissions.address).checkPermission(
                 execution.process.permissions.vote
             ),
-            "Not allowed to execute!"
+            ERROR_EXECUTION_STATE_WRONG
         );
 
-        _vote(data);
+        _vote(executionId, data);
 
         emit VotedOnGovernancePrimitive(execution, data, executionId);
     }
 
-    // @dev The concrete implementation of vote.
+    /// @dev The concrete implementation of vote.
     /// @param data The arbitrary custom data used for the concrete implementation
-    function _vote(bytes calldata data) internal virtual;
+    function _vote(uint256 executionId, bytes calldata data) internal virtual;
 }
+

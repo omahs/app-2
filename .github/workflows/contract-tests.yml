@@ -58,8 +58,8 @@ jobs:
           sudo chmod +x /usr/bin/echidna-test
 
       - name: Run Slither Static Analyzer
-        run: echo slither .
+        run: slither .
 
       - name: Run echina tests
         run: |
-          echidna-test contracts/tests/RegistryEchidnaTest.sol
+          echidna-test . --contract RegistryEchidnaTest  --config echidna.config.yml

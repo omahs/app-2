@@ -18,19 +18,20 @@ abstract contract DisputableGovernancePrimitive is StoppableGovernancePrimitive 
     /// @dev The state of the container does get changed to HALTED and the concrete implementation in _halt called.
     /// @param executionId The identifier of the current execution
     /// @param data The arbitrary custom data used for the concrete implementation
-    function halt(uint256 executionId, bytes calldata data) external {
+    function halt(uint256 executionId, bytes calldata data) public executionExist(executionId) {
         Execution storage execution = _getExecution(executionId);
-
+        
+        require(execution.state == State.RUNNING, ERROR_EXECUTION_STATE_WRONG); 
         require(
             Permissions(dao.permissions.address).checkPermission(
                 execution.process.permissions.halt
             ),
-            "Not allowed to execute!"
+            ERROR_EXECUTION_STATE_WRONG
         );
+        
+        execution.state = State.HALTED;
 
         _halt(data);
-
-        execution.state = State.HALTED;
 
         emit GovernancePrimitiveHalted(execution, executionId);
     }
@@ -39,19 +40,20 @@ abstract contract DisputableGovernancePrimitive is StoppableGovernancePrimitive 
     /// @dev The state of the container does get changed to RUNNING and the concrete implementation in _forward called.
     /// @param executionId The identifier of the current execution
     /// @param data The arbitrary custom data used for the concrete implementation
-    function forward(uint256 executionId, bytes calldata data) external {
+    function forward(uint256 executionId, bytes calldata data) public executionExist(executionId) {
         Execution storage execution = _getExecution(executionId);
 
+        require(execution.state == State.RUNNING, ERROR_EXECUTION_STATE_WRONG);
         require(
             Permissions(dao.permissions.address).checkPermission(
                 execution.process.permissions.halt
             ),
-            "Not allowed to execute!"
+            ERROR_EXECUTION_STATE_WRONG
         );
+        
+        execution.state = State.RUNNING;
 
         _forward(data);
-
-        execution.state = State.RUNNING;
 
         emit GovernancePrimitiveForwarded(execution, executionId);
     }
