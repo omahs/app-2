@@ -7,7 +7,7 @@ import "../src/registry/Registry.sol";
 import "../src/DAO.sol";
 
 /// @title Fuzzer test for Registry contract
-/// @notice Test the Registry contract functionalities.
+/// @notice Test the register functionalities.
 contract RegistryEchidnaTest {
     Registry public registry;
     DAO public dao;
@@ -15,17 +15,12 @@ contract RegistryEchidnaTest {
 
     constructor() {
         registry = new Registry();
-        /*
         dao = new DAO();
         daoName = "hello";
         registry.register(daoName, dao);
-        */
     }
 
-    /// @notice Registers a DAO by his name
-    function echidna_register() external view {
-        assert(registry != Registry(address(0)));
-        //assert(registry.daos(daoName) != DAO(address(0)));
-        //assert(registry.daos(daoName) == dao);
+    function echidna_register() external view returns (bool) {
+        return address(dao) != address(0) && registry.daos(daoName) == dao;
     }
 }
