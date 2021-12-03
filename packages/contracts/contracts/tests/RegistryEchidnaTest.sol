@@ -14,10 +14,13 @@ contract RegistryEchidnaTest {
 
     constructor() {
         registry = new Registry();
-        dao = new DAO();
+        //dao = new DAO();
+        dao = DAO(address(registry));
     }
 
-    function echidna_register() external view returns (bool) {
-        return address(dao) != address(0) && address(registry) != address(0);
+    function echidna_register() external returns (bool) {
+        string memory name = "hello";
+        registry.register(name, dao);
+        return registry.daos(name) == dao && address(dao) != address(0);
     }
 }
