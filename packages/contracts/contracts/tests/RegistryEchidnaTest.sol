@@ -10,17 +10,15 @@ import "../src/DAO.sol";
 /// @notice Test the register functionalities.
 contract RegistryEchidnaTest {
     Registry public registry;
-    DAO public dao;
 
     constructor() {
         registry = new Registry();
-        //dao = new DAO();
-        dao = DAO(address(registry));
     }
 
     function echidna_register() external returns (bool) {
         string memory name = "hello";
+        DAO dao = DAO(address(0x1));
         registry.register(name, dao);
-        return registry.daos(name) == dao && address(dao) != address(0);
+        return registry.daos(name) == dao;
     }
 }

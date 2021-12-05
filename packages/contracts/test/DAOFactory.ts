@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {ethers} from 'hardhat';
 
-describe('DAOFactory', function () {
+describe.skip('DAOFactory', function () {
   let registry: any;
   let daoFactory: any;
 
