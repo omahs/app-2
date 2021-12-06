@@ -1,73 +1,82 @@
-import React, {ButtonHTMLAttributes} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /**
-   * Is this the principal call to action on the page?
-   */
-  primary?: boolean;
-  /**
-   * What background color to use
-   */
-  backgroundColor?: string;
-  /**
-   * How large should the button be?
-   */
-  size?: 'small' | 'medium' | 'large';
-  /**
-   * Button contents
-   */
-  label: string;
-}
+// Simple Button ===============================================================
 
-/**
- * Primary UI component for user interaction
- */
+export type ButtonProps = {
+  /** Changes a button's color scheme */
+  mode?: 'primary' | 'secondary' | 'tertiary' | 'ghost';
+  /** Changes a button's size */
+  size?: 'small' | 'default';
+  /** Text displayed on the button */
+  label: string;
+  /** Function to be called when the button is clicked */
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  /** Whether the button is disabled */
+  disabled?: boolean;
+};
+
+/** Simple button with variable styling (depending on mode) and variable sizin */
 export const Button: React.FC<ButtonProps> = ({
-  size = 'medium',
+  mode = 'primary',
+  size = 'default',
   label,
-  primary = false,
-  backgroundColor,
-  ...props
+  onClick,
+  disabled = false,
 }) => {
   return (
-    <StyledButton
-      size={size}
-      primary={primary}
-      backgroundColor={backgroundColor}
-      {...props}
-    >
+    <StyledButton mode={mode} size={size} onClick={onClick} disabled={disabled}>
       {label}
     </StyledButton>
   );
 };
 
-type StyledButtonProps = {
-  backgroundColor?: string;
-  primary: boolean;
+// Auxiliary Components ========================================================
+
+type SizedButtonProps = {
   size: ButtonProps['size'];
 };
 
-const variantSizeStyles = {
-  small: {fontSize: '12px', padding: '10px 16px'},
-  medium: {fontSize: '14px', padding: '11px 20px'},
-  large: {fontSize: '16px', padding: '12px 24px'},
-  default: {fontSize: '14px', padding: '11px 20px'},
+/**
+ * Extends the html button element with the desired size.
+ * Furthermore, the button comes with rounded corners and a focus ring, as this
+ * is shared by all buttons in this library.
+ */
+export const SizedButton = styled.button.attrs(({size}: SizedButtonProps) => {
+  let baseClasses =
+    'px-2 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold';
+  let sizedClasses =
+    size === 'default' ? 'py-1.5 rounded-2xl' : 'py-1 rounded-xl text-sm';
+  return {className: `${baseClasses} ${sizedClasses}`};
+})<SizedButtonProps>``;
+
+type StyledButtonProps = {
+  mode: ButtonProps['mode'];
+  size: ButtonProps['size'];
 };
 
-const StyledButton = styled.button.attrs(
-  ({primary, size, backgroundColor}: StyledButtonProps) => {
-    const className: string = `font-bold cursor-pointer leading-none inline-block ${
-      primary ? 'text-white bg-blue-500' : 'text-gray-800 bg-transparent shadow'
-    }`;
+/**
+ * Extends the SizedButton element with the desired styling
+ */
+export const StyledButton = styled(SizedButton).attrs(
+  ({mode}: StyledButtonProps) => {
+    let className;
 
-    const style: any = {
-      ...(size ? variantSizeStyles[size] : variantSizeStyles.default),
-      backgroundColor,
-    };
+    //TODO add disabled styling once design is finalized
+    if (mode === 'primary') {
+      className =
+        'text-ui-0 bg-primary-400 hover:bg-primary-500 active:bg-primary-700 font-semibold';
+    } else if (mode === 'secondary') {
+      className =
+        'text-primary-500 bg-primary-100 hover:text-primary-800 active:bg-primary-200 active:text-primary-800 font-semibold';
+    } else if (mode === 'tertiary') {
+      className =
+        'text-ui-600 bg-ui-0 border-2 border-ui-100 hover:border-ui-300 active:border-ui-800 font-semibold';
+    } else if (mode === 'ghost') {
+      className =
+        'text-primary-500 bg-ui-0 hover:text-primary-800 active:bg-primary-50 font-semibold';
+    }
 
-    return {className, style};
+    return {className};
   }
-)<StyledButtonProps>`
-  border-radius: 3em;
-`;
+)<StyledButtonProps>``;
