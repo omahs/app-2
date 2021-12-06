@@ -2,7 +2,15 @@ import React,{useRef} from 'react';
 import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
-const options: Highcharts.Options = {
+export type AreaProps = {
+  /** chart input data [Date, Value] */
+  data: number[][];
+} & HighchartsReact.Props;
+
+export const AreaChart: React.FC<AreaProps> = ({data, ...props}) => {
+  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+
+  const options: Highcharts.Options = {
     chart: {
       backgroundColor: 'transparent',
       style: {
@@ -10,81 +18,73 @@ const options: Highcharts.Options = {
       }
     },
     title: {
-        text: '',
-        style: {
-            display: 'none'
-        }
+      style: {
+        display: 'none'
+      }
     },
     yAxis: {
       title: {
-          text: '',
-          style: {
-              display: 'none'
-          }
+        style: {
+          display: 'none'
+        }
       },
-      gridLineWidth: 0,
+      gridLineWidth: 0, // remove grid line
       labels: {
-        enabled:false,
+        enabled:false, // disable Axis label
       },
       lineWidth: 0,
       minorGridLineWidth: 0,
     },
     xAxis: {
+      type: 'datetime',
       gridLineWidth: 0,
       alignTicks:false,
       labels: {
-          style: {
-              color: 'transparent'
-          }
+        enabled:false, 
       },
       lineWidth: 0,
       minorGridLineWidth: 0,
-      tickWidth: 0,
+      tickWidth: 0, // remove xAxis tick lines
     },
     legend: {
-      enabled: false,
+      enabled: false, // remove legend
     },
     plotOptions: {
       areaspline: {
-          fillColor: {
-              linearGradient: {
-                  x1: 0,
-                  y1: 0,
-                  x2: 0,
-                  y2: 1
-              },
-              stops: [
-                [0, '#003BF516'],
-                [1, '#003BF500']
-              ]
+        fillColor: {
+          linearGradient: { // defining gradient direction
+              x1: 0,
+              y1: 0,
+              x2: 0,
+              y2: 1
           },
-          marker: {
-              radius: 2
-          },
-          lineWidth: 2,
-          states: {
-              hover: {
-                  lineWidth: 2
-              }
-          },
-          threshold: null
+          stops: [
+            [0, '#003BF516'],
+            [1, '#003BF500']
+          ]
+        },
+        lineWidth: 2, // defining series width
+        states: { // defining different views based on events(hover,inactive,normal,select)
+          hover: {
+            lineWidth: 2 // need to be because default is 1 px
+          }
+        },
+        threshold: null // controlling chart bottom area
       }
     },
     series: [{
-      marker: {
-        enabled: false
+      name:'Price',
+      marker: { 
+        enabled: false // remove series points
       },
       color:'#003BF5',
       type: 'areaspline',
-      data: [1, 2, 1.5, 4, 3.25, 6, 2.11, 7, 1, 2, 1.5, 4, 5, 6, 2.11, 7]
+      data: data
     }],
-    credits: {
+    credits: {  // remove highchart credits label
       enabled: false
     }
-}
-
-export const AreaChart = (props: HighchartsReact.Props) => {
-  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+  };
 
   return (
     <HighchartsReact
