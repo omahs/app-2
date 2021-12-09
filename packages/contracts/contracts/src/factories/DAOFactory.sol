@@ -17,11 +17,18 @@ import "../registry/Registry.sol";
 import "../processes/Processes.sol";
 import "../permissions/Permissions.sol";
 import "../executor/Executor.sol";
+import "../../lib/permissions/PermissionValidator.sol";
+import "../../lib/proxy/ProxyHelpers.sol";
 
 contract DAOFactory {
 
     using Address for address;
     
+    uint256 public constant MAX_VALIDATORS_LENGTH = 10;
+
+    string private constant FACTORY_VALIDATORS_MISMATCH = "FACTORY_VALIDATORS_LENGTH_MISMATCH";
+    string private constant FACTORY_VALIDATORS_TOO_MANY = "FACTORY_VALIDATORS_TOO_MANY";
+
     address private votingBase;
     address private vaultBase;
     address private daoBase;
@@ -32,6 +39,13 @@ contract DAOFactory {
     address private executorBase;
 
     Registry private registry;
+
+    
+
+    struct PermissionValidators {
+        address[] bases;
+        bytes[] data;
+    }
 
     struct TokenConfig {
         address addr;
@@ -47,9 +61,14 @@ contract DAOFactory {
     function newDAO(
         bytes calldata _metadata,
         TokenConfig calldata _tokenConfig,
+        PermissionValidators calldata _validators,
         uint256[3] calldata _votingSettings,
         uint256[3] calldata _vaultSettings
     ) external {
+        // validate validators length
+        require(_validators.bases.length == _validators.data.length, FACTORY_VALIDATORS_MISMATCH);
+        require(_validators.bases.length <= MAX_VALIDATORS_LENGTH, FACTORY_VALIDATORS_TOO_MANY);
+
         // setup Token
         // TODO: Do we wanna leave the option not to use any proxy pattern in such case ? 
         // delegateCall is costly if so many calls are needed for a contract after the deployment.
@@ -64,16 +83,14 @@ contract DAOFactory {
             GovernanceWrappedERC20(token).initialize(IERC20Upgradeable(_tokenConfig.addr), _tokenConfig.name, _tokenConfig.symbol);
         }
 
-        // Creates necessary contracts for dao.
-
         // Don't call initialize yet as DAO's initialize need contracts
         // that haven't been deployed yet.
-        DAO dao = DAO(createProxy(daoBase, bytes("")));
-        address voting = createProxy(votingBase, abi.encodeWithSelector(SimpleVoting.initialize.selector, dao, token, _votingSettings));
-        address vault = createProxy(vaultBase, abi.encodeWithSelector(Vault.initialize.selector, dao, _vaultSettings));
-        address processes = createProxy(processesBase, abi.encodeWithSelector(Processes.initialize.selector, dao));
-        address permissions = createProxy(permissionsBase, abi.encodeWithSelector(Permissions.initialize.selector, dao));
-        address executor = createProxy(executorBase, abi.encodeWithSelector(Executor.initialize.selector, dao));
+        DAO dao = DAO(ProxyHelpers.createProxy(daoBase, bytes("")));
+        address voting = ProxyHelpers.createProxy(votingBase, abi.encodeWithSelector(SimpleVoting.initialize.selector, dao, token, _votingSettings));
+        address vault = ProxyHelpers.createProxy(vaultBase, abi.encodeWithSelector(Vault.initialize.selector, dao, _vaultSettings));
+        address processes = ProxyHelpers.createProxy(processesBase, abi.encodeWithSelector(Processes.initialize.selector, dao));
+        address permissions = ProxyHelpers.createProxy(permissionsBase, abi.encodeWithSelector(Permissions.initialize.selector, dao));
+        address executor = ProxyHelpers.createProxy(executorBase, abi.encodeWithSelector(Executor.initialize.selector, dao));
         
         dao.initialize(
             _metadata,
@@ -81,10 +98,20 @@ contract DAOFactory {
             Permissions(permissions),
             Executor(executor),
             address(this) // initial ACL root on DAO itself.
-        );
-        
-        // create permissions
+        );  
 
+        // INSTALLING PERMISSION VALIDATORS
+        dao.grant(permissions, address(this), Permissions(permissions).PERMISSIONS_ADD_VALIDATOR_ROLE());
+        for(uint i = 0; i < _validators.bases.length; i++) {
+            address addr = ProxyHelpers.createProxy(
+                _validators.bases[i], 
+                abi.encodeWithSelector(PermissionValidator.initialize.selector, _validators.data[i])
+            );
+            Permissions(permissions).addValidator(PermissionValidator(addr));
+        }
+        dao.revoke(permissions, address(this), Permissions(permissions).PERMISSIONS_ADD_VALIDATOR_ROLE());
+
+        // CREATING FINAL PERMISSIONS
         // The below line means that on any contract's function that has UPGRADE_ROLE, executor will be able to call it.
         dao.grant(address(type(uint160).max), executor, Executor(executor).UPGRADE_ROLE()); // TODO: we can bring address(type(uint160).max) from ACL for consistency.
        
@@ -104,10 +131,6 @@ contract DAOFactory {
         dao.grant(voting, address(dao), SimpleVoting(voting).PRIMITIVE_EXECUTE_ROLE());
         dao.grant(voting, executor, SimpleVoting(voting).MODIFY_SUPPORT_ROLE());
         dao.grant(voting, executor, SimpleVoting(voting).MODIFY_QUORUM_ROLE());
-    }
-
-    function createProxy(address _logic, bytes memory _data) private returns(address) {
-        return address(new ERC1967Proxy(_logic, _data));
     }
 
     function setupBases() private {

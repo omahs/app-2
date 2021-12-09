@@ -12,6 +12,10 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 /// @notice This contract can be used to implement concrete permission validators and being fully compatible with the DAO framework and UI of Aragon
 /// @dev You only have to define the specific custom logic for your needs in isValid
 abstract contract PermissionValidator {
+      /// @notice The method to initialize the validator.
+      /// @dev Inherited contracts can override this and implement their own initialization logic.
+      /// @param data The encoded data that each inherited contract decodes.
+      function initialize(bytes memory data) external virtual {}
       /// @notice The method to validate a user permission.
       /// @dev The state of the container does get changed to RUNNING, the execution struct gets created, and the concrete implementation in _start called.
       /// @param caller The caler of this contract
