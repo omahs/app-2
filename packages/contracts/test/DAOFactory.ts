@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {ethers} from 'hardhat';
 
-describe.skip('DAOFactory', function () {
+describe('DAOFactory', function () {
   let registry: any;
   let daoFactory: any;
 
@@ -16,17 +16,16 @@ describe.skip('DAOFactory', function () {
   });
 
   it('should create dao successfully', async function () {
-    const metadata = '0x';
     const tokenConfig = {
+      // zero address to force creation of new token
       addr: ethers.constants.AddressZero,
       name: 'token',
       symbol: 'TOK',
     };
     const votingSettings = [1, 2, 3];
     const vaultSettings = [4, 5, 6];
+    const metadata = '0x';
 
-    expect(true);
-    /*
     const tx = await daoFactory.newDAO(
       metadata,
       tokenConfig,
@@ -35,6 +34,5 @@ describe.skip('DAOFactory', function () {
     );
 
     await tx.wait();
-    */
   });
 });
