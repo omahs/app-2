@@ -34,7 +34,7 @@ describe('Processes', function () {
 
       const tx = await processes.setProcess('name', process);
       const receipt = await tx.wait();
-      expect(receipt.events[0].event).to.eq('NewProcessAdded');
+      expect(receipt.events[0].event).to.eq('ProcessSet');
     });
   });
 });

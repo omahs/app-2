@@ -21,7 +21,7 @@ describe('Permissions', function () {
       const permission = {operator: 1, validators: [], data: []};
       await expect(permissions.setRole('TEST_ROLE', permission)).to.emit(
         permissions,
-        'NewRoleAdded'
+        'RoleSet'
       );
     });
 

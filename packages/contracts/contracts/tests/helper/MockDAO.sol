@@ -13,7 +13,7 @@ contract MockDAO {
       permissions = _permissions;
     }
 
-    function hasPermission(address, address, bytes32) public pure returns(bool) {
+    function hasPermission(address, address, bytes32, bytes calldata) public pure returns(bool) {
       return true;
     }
 }
