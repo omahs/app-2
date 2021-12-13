@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -12,9 +12,6 @@
     "finance": "Finance",
     "community": "Community"
   },
-  "daoCard": {
-    "switchLabel": "Switch"
-  },
   "daoSwitcher": {
     "title": "Explore",
     "subtitle": "Find other DAOs to join"
@@ -23,12 +20,15 @@
     "connectWallet": "Login"
   },
   "labels": {
-    "seeAll": "See all"
+    "seeAll": "See all",
+    "seeAllTokens": "See All Tokens",
+    "seeAllTransfers": "See All Transfers"
   },
   "finance": {
-    "tokenSection": "Token Section",
-    "transferSection": "Transfer Section",
+    "tokenSection": "Tokens",
+    "transferSection": "Transfers",
     "unknownUSDValue": "Value unknown",
-    "tokens": "Tokens"
+    "tokens": "Tokens",
+    "newTransfer": "New Transfer"
   }
 }
