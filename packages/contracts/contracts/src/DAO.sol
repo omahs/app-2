@@ -24,6 +24,7 @@ contract DAO is IDAO, Initializable, UUPSUpgradeable, ACL {
     bytes32 public constant UPGRADE_ROLE = keccak256("UPGRADE_ROLE");
 
     event NewProposal(GovernancePrimitive.Proposal indexed proposal, Processes.Process indexed process, address indexed submitter, uint256 executionId);
+    event SetMetadata(bytes metadata);
 
     bytes public metadata;
     Processes public processes;
@@ -44,12 +45,13 @@ contract DAO is IDAO, Initializable, UUPSUpgradeable, ACL {
         Executor _executor,
         address _aclRoot
     ) public initializer {
-        metadata = _metadata;
         processes = _processes;
         permissions = _permissions;
         executor = _executor;
 
         ACL.initACL(_aclRoot);
+
+        emit SetMetadata(_metadata);
     }
 
     function _authorizeUpgrade(address /*_newImplementation*/) internal virtual override {
@@ -90,7 +92,7 @@ contract DAO is IDAO, Initializable, UUPSUpgradeable, ACL {
     /// @dev Sets a new IPFS hash
     /// @param _metadata The IPFS hash of the new metadata object
     function setMetadata(bytes calldata _metadata) external authP(DAO_CONFIG_ROLE) {
-        metadata = _metadata;   
+        emit SetMetadata(_metadata);   
     }
 
     /// @notice Adds a new role to the permission management

@@ -14,6 +14,8 @@ import "../governance-primitives/voting/SimpleVoting.sol";
 import "../tokens/GovernanceERC20.sol";
 import "../tokens/GovernanceWrappedERC20.sol";
 import "../registry/Registry.sol";
+import "./TokenFactory.sol";
+import "./CoreFactory.sol";
 import "../processes/Processes.sol";
 import "../permissions/Permissions.sol";
 import "../executor/Executor.sol";
@@ -24,68 +26,46 @@ contract DAOFactory {
 
     using Address for address;
     
-    uint256 public constant MAX_VALIDATORS_LENGTH = 10;
-
     string private constant FACTORY_VALIDATORS_MISMATCH = "FACTORY_VALIDATORS_LENGTH_MISMATCH";
     string private constant FACTORY_VALIDATORS_TOO_MANY = "FACTORY_VALIDATORS_TOO_MANY";
 
-    address private votingBase;
-    address private vaultBase;
-    address private daoBase;
-    address private governanceERC20Base;
-    address private governanceWrappedERC20Base;
-    address private processesBase;
-    address private permissionsBase;
-    address private executorBase;
+    address public immutable daoBase;
+    address public immutable votingBase;
+    address public immutable vaultBase;
 
-    Registry private registry;
+    Registry public immutable registry;
+    TokenFactory public immutable tokenFactory;
+    CoreFactory public immutable coreFactory;
 
-    
-
-    struct PermissionValidators {
-        address[] bases;
-        bytes[] data;
-    }
-
-    struct TokenConfig {
-        address addr;
-        string name;
-        string symbol;
-    }
-
-    constructor(Registry _registry) {
+    constructor(
+        Registry _registry,
+        TokenFactory _tokenFactory,
+        CoreFactory _coreFactory
+    ) {
         registry = _registry;
-        setupBases();
+        tokenFactory = _tokenFactory;
+        coreFactory = _coreFactory;
+
+        votingBase = address(new SimpleVoting());
+        vaultBase = address(new Vault());
+        daoBase = address(new DAO());
     }
 
     function newDAO(
+        string calldata _name,
         bytes calldata _metadata,
-        TokenConfig calldata _tokenConfig,
-        uint256[3] calldata _votingSettings,
-        uint256[3] calldata _vaultSettings
+        TokenFactory.TokenConfig calldata _tokenConfig,
+        uint256[3] calldata _votingSettings
     ) external {
-        // setup Token
-        // TODO: Do we wanna leave the option not to use any proxy pattern in such case ? 
-        // delegateCall is costly if so many calls are needed for a contract after the deployment.
-        address token = _tokenConfig.addr;
-        // https://forum.openzeppelin.com/t/what-is-the-best-practice-for-initializing-a-clone-created-with-openzeppelin-contracts-proxy-clones-sol/16681
-        if(token == address(0)) {
-            token = Clones.clone(governanceERC20Base);
-            GovernanceERC20(token).initialize(_tokenConfig.name, _tokenConfig.symbol);
-        } else {
-            token = Clones.clone(governanceWrappedERC20Base);
-            // user already has a token. we need to wrap it in our new token to make it governance token.
-            GovernanceWrappedERC20(token).initialize(IERC20Upgradeable(_tokenConfig.addr), _tokenConfig.name, _tokenConfig.symbol);
-        }
+        address token = tokenFactory.newToken(_tokenConfig);
 
-        // Don't call initialize yet as DAO's initialize need contracts
-        // that haven't been deployed yet.
         DAO dao = DAO(ProxyHelpers.createProxy(daoBase, bytes("")));
+
+        // TODO: The voting/vault should be installed through installer(marketplace)
         address voting = ProxyHelpers.createProxy(votingBase, abi.encodeWithSelector(SimpleVoting.initialize.selector, dao, token, _votingSettings));
-        address vault = ProxyHelpers.createProxy(vaultBase, abi.encodeWithSelector(Vault.initialize.selector, dao, _vaultSettings));
-        address processes = ProxyHelpers.createProxy(processesBase, abi.encodeWithSelector(Processes.initialize.selector, dao));
-        address permissions = ProxyHelpers.createProxy(permissionsBase, abi.encodeWithSelector(Permissions.initialize.selector, dao));
-        address executor = ProxyHelpers.createProxy(executorBase, abi.encodeWithSelector(Executor.initialize.selector, dao));
+        address vault = ProxyHelpers.createProxy(vaultBase, abi.encodeWithSelector(Vault.initialize.selector, dao));
+
+        (address processes, address permissions, address executor) = coreFactory.newCore(dao);
         
         dao.initialize(
             _metadata,
@@ -96,9 +76,9 @@ contract DAOFactory {
         );  
 
         // CREATING FINAL PERMISSIONS
-        // The below line means that on any contract's function that has UPGRADE_ROLE, executor will be able to call it.
+        // The below line means that on any contract's function that has UPGRADE_ROLE, 
+        // executor will be able to call it, unless changedd specifically.
         dao.grant(address(type(uint160).max), executor, Executor(executor).UPGRADE_ROLE()); // TODO: we can bring address(type(uint160).max) from ACL for consistency.
-       
         // vault permissions
         dao.grant(vault, executor, Vault(payable(vault)).TRANSFER_ROLE()); // TODO: do we really need to cast it to payable ? 
         // permissions permissions
@@ -115,17 +95,18 @@ contract DAOFactory {
         dao.grant(voting, address(dao), SimpleVoting(voting).PRIMITIVE_EXECUTE_ROLE());
         dao.grant(voting, executor, SimpleVoting(voting).MODIFY_SUPPORT_ROLE());
         dao.grant(voting, executor, SimpleVoting(voting).MODIFY_QUORUM_ROLE());
-    }
 
-    function setupBases() private {
-        votingBase = address(new SimpleVoting());
-        vaultBase = address(new Vault());
-        daoBase = address(new DAO());
-        governanceERC20Base = address(new GovernanceERC20());
-        governanceWrappedERC20Base = address(new GovernanceWrappedERC20());
-        processesBase = address(new Processes());
-        permissionsBase = address(new Permissions());
-        executorBase = address(new Executor());
+        registry.register(
+            _name,
+            msg.sender, 
+            dao,
+            token,
+            SimpleVoting(voting),
+            Vault(payable(vault)),
+            Executor(executor),
+            Processes(processes),
+            Permissions(permissions)
+        );
     }
 }
 
