@@ -8,9 +8,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "../../lib/permissions/PermissionValidator.sol";
-import "../../lib/proxy/ProxyHelpers.sol";
-import "../DAO.sol";
-import "../proxy/Component.sol";
+import "../../lib/component/IDAO.sol";
+import "../../lib/component/UpgradableComponent.sol";
 
 
 // TODO: Add update, remove etc. role
@@ -22,9 +21,8 @@ contract Permissions is UpgradableComponent {
     bytes32 public constant PERMISSIONS_SET_ROLE = keccak256("PERMISSIONS_SET_ROLE");
     bytes32 public constant PERMISSIONS_ADD_VALIDATOR_ROLE = keccak256("PERMISSIONS_ADD_VALIDATOR_ROLE");
 
-    event NewRoleAdded(string indexed role, Permission indexed permission);
-    event NewValidatorAdded(PermissionValidator indexed validator);
-    
+    event RoleSet(string indexed role, Permission indexed permission);
+
     // The operator used to combine the validators accordingly to the the users wish
     enum Operator { 
         OR, 
@@ -56,7 +54,7 @@ contract Permissions is UpgradableComponent {
 
     /// @dev Used for UUPS upgradability pattern
     /// @param _dao The DAO contract of the current DAO
-    function initialize(DAO _dao) public override initializer {
+    function initialize(IDAO _dao) public override initializer {
         Component.initialize(_dao);
     }
 
@@ -67,24 +65,8 @@ contract Permissions is UpgradableComponent {
     function setRole(string calldata role, Permission calldata permission) external authP(PERMISSIONS_SET_ROLE) {
         permissions[role] = permission; // Group1 => [AND, ERC20Validator]
 
-        emit NewRoleAdded(role, permission);
+        emit RoleSet(role, permission);
     }
-
-    /// @notice Installs a new validator by emitting the address.
-    /// @dev Emitting the event notifies UI which validators the dao uses.
-    /// @param validator The validator address itself
-    function addValidator(PermissionValidator validator) external authP(PERMISSIONS_ADD_VALIDATOR_ROLE) {
-        _addValidator(validator);
-    }
-
-    /// @notice Installs a new validator by emitting the address.
-    /// @dev Emitting the event notifies UI which validators the dao uses.
-    /// @param validatorBase The validator base contract address
-    /// @param data the initialize data if the validator needs to be initialized. Empty in other cases.
-    function addValidatorWithProxy(PermissionValidator validatorBase, bytes memory data) external authP(PERMISSIONS_ADD_VALIDATOR_ROLE) {
-        address addr = ProxyHelpers.createProxy(address(validatorBase), data);
-        _addValidator(PermissionValidator(addr));
-    }  
 
     // TODO: This method is not gas efficient
     /// @notice Checks the permissions of the caller.
@@ -125,7 +107,4 @@ contract Permissions is UpgradableComponent {
         return false;
     }
 
-    function _addValidator(PermissionValidator _validator) internal {
-        emit NewValidatorAdded(_validator);
-    }
 }

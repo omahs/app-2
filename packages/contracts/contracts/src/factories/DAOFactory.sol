@@ -61,14 +61,9 @@ contract DAOFactory {
     function newDAO(
         bytes calldata _metadata,
         TokenConfig calldata _tokenConfig,
-        PermissionValidators calldata _validators,
         uint256[3] calldata _votingSettings,
         uint256[3] calldata _vaultSettings
     ) external {
-        // validate validators length
-        require(_validators.bases.length == _validators.data.length, FACTORY_VALIDATORS_MISMATCH);
-        require(_validators.bases.length <= MAX_VALIDATORS_LENGTH, FACTORY_VALIDATORS_TOO_MANY);
-
         // setup Token
         // TODO: Do we wanna leave the option not to use any proxy pattern in such case ? 
         // delegateCall is costly if so many calls are needed for a contract after the deployment.
@@ -99,17 +94,6 @@ contract DAOFactory {
             Executor(executor),
             address(this) // initial ACL root on DAO itself.
         );  
-
-        // INSTALLING PERMISSION VALIDATORS
-        dao.grant(permissions, address(this), Permissions(permissions).PERMISSIONS_ADD_VALIDATOR_ROLE());
-        for(uint i = 0; i < _validators.bases.length; i++) {
-            address addr = ProxyHelpers.createProxy(
-                _validators.bases[i], 
-                abi.encodeWithSelector(PermissionValidator.initialize.selector, _validators.data[i])
-            );
-            Permissions(permissions).addValidator(PermissionValidator(addr));
-        }
-        dao.revoke(permissions, address(this), Permissions(permissions).PERMISSIONS_ADD_VALIDATOR_ROLE());
 
         // CREATING FINAL PERMISSIONS
         // The below line means that on any contract's function that has UPGRADE_ROLE, executor will be able to call it.
