@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -30,5 +30,13 @@
     "unknownUSDValue": "Value unknown",
     "tokens": "Tokens",
     "newTransfer": "New Transfer"
+  },
+  "TransferModal": {
+    "allTransfers": "All Transfers",
+    "newTransfer": "New Transfer",
+    "item1Title": "Deposit assets",
+    "item1Subtitle": "Add assets to the DAO treasury",
+    "item2Title": "Withdraw assets",
+    "item2Subtitle": "Add assets to the DAO treasury"
   }
 }
