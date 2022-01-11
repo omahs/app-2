@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -83,7 +83,10 @@
       "subtitle": "Enter the desired token and its number for transmission. Furthermore, a reception address is necessary.",
       "toSubtitle": "Define receiver of tokens",
       "tokenSubtitle": "Select token you'd like to withdraw",
-      "amountSubtitle": "Define amount to withdraw"
+      "amountSubtitle": "Define amount to withdraw",
+      "utcMenu": {
+        "title": "Select a UTC Timezone"
+      }
     }
   }
 }
