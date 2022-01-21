@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -71,6 +71,9 @@
       "recipient": "Recipient address is required",
       "token": "Token is required"
     }
+  },
+  "warnings": {
+    "amountGtDaoToken": "Withdraw amount is greater than the current token balance"
   },
   "allTransfer": {
     "thisWeek": "This Week",
