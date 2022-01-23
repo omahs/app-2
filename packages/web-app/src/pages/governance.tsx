@@ -9,43 +9,23 @@ import {
 import styled from 'styled-components';
 
 import {PageWrapper} from 'components/wrappers';
-import type {Proposal} from 'utils/types';
 import ProposalList from 'components/proposalList';
-
-const TEMP_PROPOSALS: Proposal[] = [
-  {
-    type: 'draft',
-    title: 'Title',
-    description: 'Description',
-    publisherAddress: '0x374d444487A4602750CA00EFdaC5d22B21F130E1',
-    winningPercentage: 30,
-  },
-  {
-    type: 'draft',
-    title: 'Title',
-    description: 'Description',
-    publisherAddress: '0x374d444487A4602750CA00EFdaC5d22B21F130E1',
-    winningPercentage: 30,
-  },
-  {
-    type: 'draft',
-    title: 'Title',
-    description: 'Description',
-    publisherAddress: '0x374d444487A4602750CA00EFdaC5d22B21F130E1',
-    winningPercentage: 30,
-  },
-];
+import {useDaoProposals} from '../hooks/useDaoProposals';
+import {Proposal} from 'utils/types';
 
 const Governance: React.FC = () => {
   const [filterValue, setFilterValue] = useState<string>('all');
+  const {data: daoProposals} = useDaoProposals('0x0000000000');
   let displayedProposals: Proposal[] = [];
 
+  // TODO: this filter function should implement using graph queries
   if (filterValue) {
-    displayedProposals = TEMP_PROPOSALS.filter(
+    displayedProposals = daoProposals.filter(
       t => t.type === filterValue || filterValue === 'all'
     );
   }
 
+  // TODO: search functionality will implement later using graph queries
   return (
     <Container>
       <PageWrapper
@@ -74,9 +54,11 @@ const Governance: React.FC = () => {
           <ProposalList proposals={displayedProposals} />
         </ListWrapper>
         <PaginationWrapper>
-          <Pagination
-            totalPages={Math.round(displayedProposals.length / 6) as number}
-          />
+          {displayedProposals.length !== 0 && (
+            <Pagination
+              totalPages={Math.ceil(displayedProposals.length / 6) as number}
+            />
+          )}
         </PaginationWrapper>
       </PageWrapper>
     </Container>

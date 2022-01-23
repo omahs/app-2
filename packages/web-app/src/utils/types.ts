@@ -71,7 +71,10 @@ export type Proposal = {
   title: string;
   description: string;
   publisherAddress: string;
-  winningPercentage?: string | number;
+  voteProgress?: string | number;
+  voteLabel?: string;
+  tokenAmount?: string;
+  tokenSymbol?: string;
   startAt?: string;
   endAt?: string;
 };

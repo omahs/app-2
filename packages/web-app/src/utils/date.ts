@@ -27,22 +27,23 @@ export function getDateSections(): {
   };
 }
 
+/**
+ * Note: this function will convert the proposal's timestamp to proper string to show
+ * as a alert message on proposals card
+ * @param type return the message if the type was pending or active
+ * @param timestamp proposal creat/end timestamp
+ * @returns a message with i18 translation as proposal ends alert
+ */
 export function getDateProposals(
   type: Proposal['type'],
   timestamp: number | string // in seconds
 ): string | null {
   const currentTimestamp = Math.floor(new Date().getTime() / 1000);
   let days: number, hours: number;
-  if (type === 'pending') {
+  if (['pending', 'active'].includes(type)) {
     const leftTimestamp = parseInt(`${timestamp}`) - currentTimestamp;
-    days = leftTimestamp / 86400;
-    hours = (leftTimestamp % 86400) / 60;
-    return i18n.t(`governance.proposals.${type}`, {days, hours}) as string;
-  }
-  if (type === 'active') {
-    const leftTimestamp = currentTimestamp - parseInt(`${timestamp}`);
-    days = leftTimestamp / 86400;
-    hours = (leftTimestamp % 86400) / 60;
+    days = Math.floor(leftTimestamp / 86400);
+    hours = Math.floor((leftTimestamp % 86400) / 3600);
     return i18n.t(`governance.proposals.${type}`, {days, hours}) as string;
   }
   return null;

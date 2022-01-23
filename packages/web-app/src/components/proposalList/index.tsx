@@ -30,10 +30,10 @@ const ProposalList: React.FC<ProposalListProps> = ({proposals}) => {
             state={proposal.type}
             voteTitle={t('governance.proposals.voteTitle') as string}
             {...(proposal.type === 'active' && {
-              voteProgress: 70,
-              voteLabel: 'Yes',
-              tokenAmount: '3.5M',
-              tokenSymbol: 'DNT',
+              voteProgress: proposal.voteProgress,
+              voteLabel: proposal.voteLabel,
+              tokenAmount: proposal.tokenAmount,
+              tokenSymbol: proposal.tokenSymbol,
             })}
             publishLabel={t('governance.proposals.publishedBy') as string}
             publisherAddress={proposal.publisherAddress}
