@@ -1,6 +1,11 @@
 import React, {useState} from 'react';
 import {withTransaction} from '@elastic/apm-rum-react';
-import {Option, ButtonGroup, SearchInput} from '@aragon/ui-components';
+import {
+  Option,
+  ButtonGroup,
+  SearchInput,
+  Pagination,
+} from '@aragon/ui-components';
 import styled from 'styled-components';
 
 import {PageWrapper} from 'components/wrappers';
@@ -68,6 +73,11 @@ const Governance: React.FC = () => {
         <ListWrapper>
           <ProposalList proposals={displayedProposals} />
         </ListWrapper>
+        <PaginationWrapper>
+          <Pagination
+            totalPages={Math.round(displayedProposals.length / 6) as number}
+          />
+        </PaginationWrapper>
       </PageWrapper>
     </Container>
   );
@@ -81,4 +91,8 @@ const Container = styled.div.attrs({
 
 const ListWrapper = styled.div.attrs({
   className: 'mt-3',
+})``;
+
+const PaginationWrapper = styled.div.attrs({
+  className: 'flex mt-8 mb-10',
 })``;
