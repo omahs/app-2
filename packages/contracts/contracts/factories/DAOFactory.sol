@@ -21,11 +21,11 @@ import "../utils/Proxy.sol";
 /// @notice This contract is used to create a DAO.
 contract DAOFactory {
     using Address for address;
-    
-    address private votingBase;
-    address private daoBase;
-    address private governanceERC20Base;
-    address private governanceWrappedERC20Base;
+
+    address public votingBase;
+    address public daoBase;
+    address public governanceERC20Base;
+    address public governanceWrappedERC20Base;
 
     Registry private registry;
 
@@ -54,21 +54,26 @@ contract DAOFactory {
         bytes calldata _metadata,
         TokenConfig calldata _tokenConfig,
         uint256[3] calldata _votingSettings
-    ) external returns (DAO dao, SimpleVoting voting, address token) {
+    )
+        external
+        returns (
+            DAO dao,
+            SimpleVoting voting,
+            address token
+        )
+    {
         // setup Token
-        // TODO: Do we wanna leave the option not to use any proxy pattern in such case ? 
+        // TODO: Do we wanna leave the option not to use any proxy pattern in such case ?
         // delegateCall is costly if so many calls are needed for a contract after the deployment.
         token = _tokenConfig.addr;
         // https://forum.openzeppelin.com/t/what-is-the-best-practice-for-initializing-a-clone-created-with-openzeppelin-contracts-proxy-clones-sol/16681
-        if(token == address(0)) {
+        if (token == address(0)) {
             token = Clones.clone(governanceERC20Base);
             GovernanceERC20(token).initialize(_tokenConfig.name, _tokenConfig.symbol);
         } else {
             token = Clones.clone(governanceWrappedERC20Base);
             // user already has a token. we need to wrap it in our new token to make it governance token.
-            GovernanceWrappedERC20(
-                token
-            ).initialize(
+            GovernanceWrappedERC20(token).initialize(
                 IERC20Upgradeable(_tokenConfig.addr),
                 _tokenConfig.name,
                 _tokenConfig.symbol
@@ -76,14 +81,12 @@ contract DAOFactory {
         }
 
         dao = DAO(createProxy(daoBase, bytes("")));
-        
-        registry.register(name, dao, msg.sender, token);
-        
-        dao.initialize(
-            _metadata,
-            address(this)
-        );
 
+        registry.register(name, dao, msg.sender, token);
+
+        dao.initialize(_metadata, address(this));
+
+        bytes[] memory allowedActions;
         voting = SimpleVoting(
             createProxy(
                 votingBase,
@@ -91,7 +94,8 @@ contract DAOFactory {
                     SimpleVoting.initialize.selector,
                     dao,
                     token,
-                    _votingSettings
+                    _votingSettings,
+                    allowedActions // TODO: maybe we can directly pass allowed actions here
                 )
             )
         );
@@ -103,7 +107,7 @@ contract DAOFactory {
         dao.addProcess(voting);
 
         ACLData.BulkItem[] memory items = new ACLData.BulkItem[](7);
-        
+
         // Grant DAO all the permissions required
         items[0] = ACLData.BulkItem(ACLData.BulkOp.Grant, dao.DAO_CONFIG_ROLE(), address(dao));
         items[1] = ACLData.BulkItem(ACLData.BulkOp.Grant, dao.WITHDRAW_ROLE(), address(dao));
@@ -116,8 +120,20 @@ contract DAOFactory {
         items[6] = ACLData.BulkItem(ACLData.BulkOp.Revoke, dao.ROOT_ROLE(), address(this));
 
         dao.bulk(address(dao), items);
+
+        // give voting AND executing capabilities to anyone on the voting process
+        items = new ACLData.BulkItem[](4);
+
+        address ANY_ADDR = address(type(uint160).max);
+
+        items[0] = ACLData.BulkItem(ACLData.BulkOp.Grant, voting.PROCESS_VOTE_ROLE(), ANY_ADDR);
+        items[1] = ACLData.BulkItem(ACLData.BulkOp.Grant, voting.PROCESS_EXECUTE_ROLE(), ANY_ADDR);
+        items[2] = ACLData.BulkItem(ACLData.BulkOp.Grant, voting.PROCESS_START_ROLE(), ANY_ADDR);
+        items[3] = ACLData.BulkItem(ACLData.BulkOp.Grant, voting.MODIFY_CONFIG(), address(dao));
+
+        dao.bulk(address(voting), items);
     }
-    
+
     // @dev Internal helper method to set up the required base contracts on DAOFactory deployment.
     function setupBases() private {
         votingBase = address(new SimpleVoting());
