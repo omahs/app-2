@@ -15,14 +15,26 @@ import {Proposal} from 'utils/types';
 
 const Governance: React.FC = () => {
   const [filterValue, setFilterValue] = useState<string>('all');
+  const [page, setPage] = useState(1);
   const {data: daoProposals} = useDaoProposals('0x0000000000');
   let displayedProposals: Proposal[] = [];
 
-  // TODO: this filter function should implement using graph queries
+  // This sort function should implement on graph side!
+  function sortProposals(a: Proposal, b: Proposal): number {
+    if (filterValue === 'active') {
+      return parseInt(a.startAt as string) - parseInt(b.startAt as string);
+    } else if (filterValue !== 'draft') {
+      return parseInt(a.endAt as string) - parseInt(b.endAt as string);
+    }
+    return 1;
+  }
+
+  // TODO: this filter / sort function should implement using graph queries
   if (filterValue) {
     displayedProposals = daoProposals.filter(
       t => t.type === filterValue || filterValue === 'all'
     );
+    displayedProposals.sort(sortProposals);
   }
 
   // TODO: search functionality will implement later using graph queries
@@ -51,12 +63,16 @@ const Governance: React.FC = () => {
           </ButtonGroup>
         </div>
         <ListWrapper>
-          <ProposalList proposals={displayedProposals} />
+          <ProposalList
+            proposals={displayedProposals.slice((page - 1) * 6, page * 6)}
+          />
         </ListWrapper>
         <PaginationWrapper>
           {displayedProposals.length !== 0 && (
             <Pagination
               totalPages={Math.ceil(displayedProposals.length / 6) as number}
+              activePage={page}
+              onChange={(activePage: number) => setPage(activePage)}
             />
           )}
         </PaginationWrapper>
