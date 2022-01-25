@@ -1,11 +1,6 @@
 import React, {useState} from 'react';
 import {withTransaction} from '@elastic/apm-rum-react';
-import {
-  Option,
-  ButtonGroup,
-  SearchInput,
-  Pagination,
-} from '@aragon/ui-components';
+import {Option, ButtonGroup, Pagination} from '@aragon/ui-components';
 import styled from 'styled-components';
 
 import {PageWrapper} from 'components/wrappers';
