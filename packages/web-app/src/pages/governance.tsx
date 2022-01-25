@@ -47,7 +47,10 @@ const Governance: React.FC = () => {
           <ButtonGroup
             bgWhite
             defaultValue="all"
-            onChange={(selected: string) => setFilterValue(selected)}
+            onChange={(selected: string) => {
+              setFilterValue(selected);
+              setPage(1);
+            }}
           >
             <Option value="all" label="All" />
             <Option value="draft" label="Draft" />
@@ -67,7 +70,7 @@ const Governance: React.FC = () => {
           />
         </ListWrapper>
         <PaginationWrapper>
-          {displayedProposals.length !== 0 && (
+          {displayedProposals.length > ProposalsPerPage && (
             <Pagination
               totalPages={
                 Math.ceil(
