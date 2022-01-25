@@ -52,6 +52,7 @@ const ProposalList: React.FC<ProposalListProps> = ({proposals}) => {
               t('governance.proposals.buttons.execute'),
               t('governance.proposals.buttons.edit'),
             ]}
+            // FIXME: need add better keys when we start backend integration
             key={index}
           />
         );
