@@ -2,7 +2,7 @@ import React from 'react';
 import {CardProposal} from '@aragon/ui-components';
 import {useTranslation} from 'react-i18next';
 import {Proposal} from 'utils/types';
-import {getDateProposals} from '../../utils/date';
+import {translateProposalDate} from '../../utils/date';
 
 // types might come from subgraph - not adding any now
 type ProposalListProps = {
@@ -18,7 +18,7 @@ const ProposalList: React.FC<ProposalListProps> = ({proposals}) => {
   return (
     <div className="space-y-3" data-testid="proposalList">
       {proposals.map((proposal, index) => {
-        const AlertMessage = getDateProposals(
+        const AlertMessage = translateProposalDate(
           proposal.type,
           proposal.startAt || proposal.endAt || ''
         );

@@ -18,6 +18,8 @@ const Governance: React.FC = () => {
   const [page, setPage] = useState(1);
   const {data: daoProposals} = useDaoProposals('0x0000000000');
   let displayedProposals: Proposal[] = [];
+  // The number of proposals displayed on each page
+  const ProposalsPerPage = 6;
 
   // This sort function should implement on graph side!
   function sortProposals(a: Proposal, b: Proposal): number {
@@ -47,7 +49,6 @@ const Governance: React.FC = () => {
         onClick={() => null}
       >
         <div className="mt-8 space-y-1.5">
-          <SearchInput placeholder="Type to filter" />
           <ButtonGroup
             bgWhite
             defaultValue="all"
@@ -64,13 +65,20 @@ const Governance: React.FC = () => {
         </div>
         <ListWrapper>
           <ProposalList
-            proposals={displayedProposals.slice((page - 1) * 6, page * 6)}
+            proposals={displayedProposals.slice(
+              (page - 1) * ProposalsPerPage,
+              page * ProposalsPerPage
+            )}
           />
         </ListWrapper>
         <PaginationWrapper>
           {displayedProposals.length !== 0 && (
             <Pagination
-              totalPages={Math.ceil(displayedProposals.length / 6) as number}
+              totalPages={
+                Math.ceil(
+                  displayedProposals.length / ProposalsPerPage
+                ) as number
+              }
               activePage={page}
               onChange={(activePage: number) => setPage(activePage)}
             />
