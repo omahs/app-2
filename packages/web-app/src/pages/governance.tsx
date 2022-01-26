@@ -78,7 +78,10 @@ const Governance: React.FC = () => {
                 ) as number
               }
               activePage={page}
-              onChange={(activePage: number) => setPage(activePage)}
+              onChange={(activePage: number) => {
+                setPage(activePage);
+                window.scrollTo({top: 0, behavior: 'smooth'});
+              }}
             />
           )}
         </PaginationWrapper>
