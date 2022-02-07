@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -40,7 +40,11 @@
     "submitWithdraw": "Publish Proposal",
     "daoName": "Name",
     "description": "Summary",
+    "addLink": "Add Link",
+    "removeLink": "Remove Link",
+    "link": "Link",
     "links": "Links",
+    "label": "Label",
     "logo": "Logo",
     "optional": "Optional",
     "membership": "Who is eligible to participate in your DAO?",
