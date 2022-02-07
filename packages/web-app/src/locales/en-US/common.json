@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -94,7 +94,9 @@
         "read": "Read Proposal",
         "vote": "Vote now",
         "execute": "Execute Now",
-        "edit": "Edit Proposal"
+        "edit": "Edit Proposal",
+        "readFullProposal": "Read Full Proposal",
+        "closeFullProposal": "Close Full Proposal"
       }
     },
     "noProposals": "No proposals found!"
