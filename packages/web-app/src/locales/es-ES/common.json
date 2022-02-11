@@ -52,6 +52,7 @@
     "description": "Summary",
     "addLink": "Add Link",
     "removeLink": "Remove Link",
+    "addResource": "Add Resource",
     "link": "Link",
     "links": "Links",
     "label": "Label",
@@ -66,7 +67,11 @@
     "existingTokenName": "Name",
     "existingTokenSymbol": "Symbol",
     "existingTokenSupply": "Supply",
-    "author": "Author"
+    "author": "Author",
+    "sec": "sec",
+    "ago": "ago",
+    "step": "Step",
+    "of": "of"
   },
   "placeHolders": {
     "selectToken": "Select a Token ...",
@@ -123,7 +128,9 @@
       "label": "Label is mandatory",
       "link": "Link is mandatory",
       "recipient": "Recipient address is required",
-      "token": "Token is required"
+      "token": "Token is required",
+      "title": "Title is required",
+      "summary": "Summary is required"
     }
   },
   "alert": {
@@ -159,6 +166,18 @@
     "tokenNotFoundSubtitleDao": "Add custom token to withdraw",
     "tokenNotAvailableSubtitle": "Check your wallet, update the tokens or add a custom token to transfer",
     "tokenNotAvailableSubtitleDao": "Update the tokens or add a custom token to transfer."
+  },
+  "TransactionModal": {
+    "estimatedFees": "Estimated Gas Fees",
+    "synced": "Synced {{time}} sec ag",
+    "totalCost": "Total Cost",
+    "approveToken": "Approve token",
+    "signDeposit": "Sign Deposit",
+    "approveSubtitle": "To sign your first transaction, you must approve Aragon Zaragoza to make a transaction with your token.",
+    "dismiss": "Dismiss",
+    "tryAgain": "Try Again",
+    "errorLabel": "Error while confirmation",
+    "successLabel": "Transaction successful"
   },
   "newDeposit": {
     "depositAssets": "Deposit Assets",
