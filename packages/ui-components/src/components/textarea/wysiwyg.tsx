@@ -1,4 +1,5 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
+import ReactDOM from 'react-dom';
 import {useEditor, EditorContent, Editor} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -18,9 +19,18 @@ import {
 type MenuBarProps = {
   disabled: boolean;
   editor: Editor | null;
+  isExpanded: boolean;
+  setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  fullScreen?: boolean;
 };
 
-const MenuBar: React.FC<MenuBarProps> = ({editor, disabled}) => {
+const MenuBar: React.FC<MenuBarProps> = ({
+  editor,
+  disabled,
+  isExpanded,
+  setIsExpanded,
+  fullScreen = false,
+}) => {
   const setLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href;
     const url = window.prompt('URL', previousUrl);
@@ -42,7 +52,7 @@ const MenuBar: React.FC<MenuBarProps> = ({editor, disabled}) => {
   }
 
   return (
-    <StyledMenuBar disabled={disabled}>
+    <StyledMenuBar disabled={disabled} fullScreen={fullScreen}>
       <Toolgroup>
         <ButtonIcon
           icon={<IconBold />}
@@ -86,23 +96,37 @@ const MenuBar: React.FC<MenuBarProps> = ({editor, disabled}) => {
           disabled={disabled}
         />
       </Toolgroup>
-      {/* TODO: This button is dummy for now */}
-      <ButtonIcon icon={<IconExpand />} mode="ghost" disabled={disabled} />
+      <ButtonIcon
+        icon={<IconExpand />}
+        mode="ghost"
+        disabled={disabled}
+        onClick={() => setIsExpanded(!isExpanded)}
+      />
     </StyledMenuBar>
   );
 };
 
 export type TextareaWYSIWYGProps = {
-  placeholder: string;
+  placeholder?: string;
   disabled?: boolean;
+  onBlur?: (html: string) => void;
+  onChange?: (html: string) => void;
+  name?: string;
+  value?: string;
 };
 
 export const TextareaWYSIWYG: React.FC<TextareaWYSIWYGProps> = ({
-  placeholder,
+  placeholder = '',
   disabled = false,
+  onBlur,
+  onChange,
+  name = '',
+  value = '',
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const editor = useEditor(
     {
+      content: value,
       editable: !disabled,
       extensions: [
         StarterKit,
@@ -111,26 +135,85 @@ export const TextareaWYSIWYG: React.FC<TextareaWYSIWYGProps> = ({
           placeholder,
         }),
       ],
+      onBlur: ({editor}) => {
+        if (onBlur) {
+          onBlur(editor.getHTML());
+        }
+      },
+      onUpdate: ({editor}) => {
+        if (onChange) {
+          onChange(editor.getHTML());
+        }
+      },
     },
     [disabled]
   );
 
+  const body = document.querySelector('body');
+
+  if (isExpanded) {
+    document.onkeydown = e => {
+      if (e.key === 'Escape' && isExpanded) {
+        setIsExpanded(!isExpanded);
+      }
+    };
+
+    if (body) {
+      body.style.overflow = 'hidden';
+    }
+
+    let portalNode = document.querySelector('#fullscreen-editor');
+    if (!portalNode) {
+      const div = document.createElement('div');
+      div.id = 'fullscreen-editor';
+      document.body.appendChild(div);
+      portalNode = div;
+    }
+
+    const fullScreenEditor = (
+      <Container disabled={disabled} fullScreen>
+        <MenuBar
+          disabled={disabled}
+          editor={editor}
+          fullScreen
+          isExpanded={isExpanded}
+          setIsExpanded={setIsExpanded}
+        />
+        <StyledEditorContent name={name} editor={editor} />
+      </Container>
+    );
+
+    return ReactDOM.createPortal(fullScreenEditor, portalNode);
+  }
+
+  if (body) {
+    body.style.overflow = 'auto';
+  }
+
   return (
     <Container disabled={disabled}>
-      <MenuBar disabled={disabled} editor={editor} />
-      <StyledEditorContent editor={editor} />
+      <MenuBar
+        disabled={disabled}
+        editor={editor}
+        isExpanded={isExpanded}
+        setIsExpanded={setIsExpanded}
+      />
+      <StyledEditorContent name={name} editor={editor} />
     </Container>
   );
 };
 
 type Props = {
   disabled: boolean;
+  fullScreen?: boolean;
 };
 
-const Container = styled.div.attrs(({disabled}: Props) => ({
-  className: `rounded-xl w-full border-2 border-ui-100 hover:border-ui-300 text-ui-600 ${
-    disabled ? 'bg-ui-100 border-ui-200' : 'bg-white'
-  }`,
+const Container = styled.div.attrs(({disabled, fullScreen = false}: Props) => ({
+  className: `w-full text-ui-600 overflow-auto ${
+    fullScreen
+      ? 'h-screen flex flex-col fixed top-0'
+      : 'rounded-xl border-2 border-ui-100 hover:border-ui-300'
+  } ${disabled ? 'bg-ui-100 border-ui-200' : 'bg-white'}`,
 }))<Props>`
   :focus-within {
     border-color: #003bf5;
@@ -154,19 +237,22 @@ const Container = styled.div.attrs(({disabled}: Props) => ({
   }
 `;
 
-const StyledMenuBar = styled.div.attrs(({disabled}: Props) => ({
-  className: `rounded-t-xl bg-ui-50 px-2 py-1.5 flex justify-between ${
-    disabled && 'bg-ui-100'
-  }`,
+const StyledMenuBar = styled.div.attrs(({disabled, fullScreen}: Props) => ({
+  className: `bg-ui-50 px-2 py-1.5 flex flex-wrap justify-between ${
+    fullScreen ? 'sticky top-0 z-10' : 'rounded-t-xl'
+  } ${disabled ? 'bg-ui-100' : ''}`,
 }))<Props>``;
 
 const Toolgroup = styled.div.attrs({
-  className: 'flex space-x-1.5',
+  className: 'flex flex-wrap space-x-1.5',
 })``;
 
 const StyledEditorContent = styled(EditorContent)`
+  flex: 1;
+
   .ProseMirror {
     padding: 12px 16px;
+    height: 100%;
     min-height: 112px;
 
     :focus {

@@ -22,3 +22,6 @@ export * from './components/wizard';
 export * from './components/tokenListItem';
 export * from './components/textarea';
 export * from './components/table';
+export * from './components/pagination';
+export * from './components/widgets';
+export * from './components/checkbox';
