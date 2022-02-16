@@ -11,7 +11,7 @@ type WalletsFooterProps = {
 const AddWalletsFooter: React.FC<WalletsFooterProps> = ({totalAddresses}) => {
   const {t} = useTranslation();
   const {getValues} = useFormContext();
-  const TotalSupply = getValues('totalTokenSupply');
+  const TotalSupply = getValues('tokenTotalSupply');
 
   return (
     <Container>

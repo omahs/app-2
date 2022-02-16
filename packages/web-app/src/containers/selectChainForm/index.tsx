@@ -116,17 +116,24 @@ const SelectChainForm: React.FC = () => {
         </SortFilter>
       </Header>
       <FormItem>
-        {networks[networkType][sortFilter].map(({id, ...rest}, index) => (
+        {networks[networkType][sortFilter].map(({id, name, ...rest}, index) => (
           <Controller
             key={id}
             name="blockchain"
             rules={{required: true}}
             control={control}
-            defaultValue={(account && chainId) || 1}
+            defaultValue={{
+              id: (account && chainId) || 1,
+              label: '',
+              network: networkType,
+            }}
             render={({field}) => (
               <ListItemBlockchain
-                onClick={() => field.onChange(id)}
-                selected={id === field.value}
+                onClick={() =>
+                  field.onChange({id: id, label: name, network: networkType})
+                }
+                selected={id === field.value.id}
+                {...{name}}
                 {...(index === 0 ? {tag: labels[sortFilter].tag} : {})}
                 {...rest}
               />

@@ -4,7 +4,15 @@ import {ButtonText, CheckboxSimple} from '@aragon/ui-components';
 import {useTranslation} from 'react-i18next';
 import {Controller, useFormContext} from 'react-hook-form';
 
+type blockchainDataType = {
+  id: number;
+  label: string;
+  network: string;
+};
+
 const Blockchain: React.FC = () => {
+  const {control, getValues} = useFormContext();
+  const {blockchain} = getValues();
   return (
     <Card>
       <Header>
@@ -15,19 +23,19 @@ const Blockchain: React.FC = () => {
           <LabelWrapper>
             <Label>Network</Label>
           </LabelWrapper>
-          <TextContent>Main Net</TextContent>
+          <TextContent>{blockchain.network} net</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Blockchain</Label>
           </LabelWrapper>
-          <TextContent>Arbitrum</TextContent>
+          <TextContent>{blockchain.label}</TextContent>
         </Row>
       </Body>
       <Footer>
-        <LabelWrapper>
+        <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" />
-        </LabelWrapper>
+        </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>
     </Card>
@@ -53,15 +61,15 @@ export const Body = styled.div.attrs({
 })``;
 
 export const Row = styled.div.attrs({
-  className: 'flex mb-2 w-full',
+  className: 'block tablet:flex mb-2 w-full',
 })``;
 
 export const Label = styled.h3.attrs({
-  className: 'text-ui-800 font-bold',
+  className: 'text-ui-800 font-bold pb-0.5 tablet:pb-0',
 })``;
 
 export const LabelWrapper = styled.div.attrs({
-  className: 'w-3/12',
+  className: 'w-full tablet:w-3/12',
 })``;
 
 export const TextContent = styled.span.attrs({
@@ -69,5 +77,9 @@ export const TextContent = styled.span.attrs({
 })``;
 
 export const Footer = styled.div.attrs({
-  className: 'flex',
+  className: 'flex justify-between tablet:justify-start',
+})``;
+
+export const ActionWrapper = styled.div.attrs({
+  className: 'order-first tablet:md:order-last w-fit tablet:w-3/12',
 })``;

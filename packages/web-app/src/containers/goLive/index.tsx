@@ -15,8 +15,8 @@ export const GoLiveHeader: React.FC = () => {
   const {t} = useTranslation();
 
   return (
-    <div className="flex justify-between px-6 rounded-xl bg-ui-0">
-      <div className="py-6">
+    <div className="flex justify-between tablet:px-6 px-2 rounded-xl bg-ui-0">
+      <div className="py-6 w-full">
         <h1 className="text-3xl font-bold text-ui-800">Go Live</h1>
         <p className="mt-2 text-lg text-ui-600">
           Take your DAO public by completing the final review and cross-checking
@@ -30,7 +30,9 @@ export const GoLiveHeader: React.FC = () => {
 
 const GoLive: React.FC = () => {
   const {t} = useTranslation();
-  const {control} = useFormContext();
+  const {control, getValues} = useFormContext();
+
+  console.log(getValues());
 
   return (
     <Container>
@@ -64,5 +66,5 @@ const Container = styled.div.attrs({
 })``;
 
 const ImageContainer = styled.img.attrs({
-  className: 'w-25',
+  className: 'w-25 hidden tablet:block',
 })``;

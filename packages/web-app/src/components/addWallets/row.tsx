@@ -44,7 +44,7 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
           (totalSupply = parseInt(wallet.amount) + totalSupply)
       );
     }
-    setValue('totalTokenSupply', totalSupply);
+    setValue('tokenTotalSupply', totalSupply);
     return totalSupply && Math.floor((value / totalSupply) * 100) + '%';
   };
 

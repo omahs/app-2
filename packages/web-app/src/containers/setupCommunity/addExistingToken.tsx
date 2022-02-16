@@ -45,9 +45,9 @@ const AddExistingToken: React.FC = () => {
   );
 
   const explorer = useMemo(() => {
-    if (chainId) {
+    if (chainId.id) {
       const {explorerUrl} = chains.getChainInformation(
-        chainId
+        chainId.id
       ) as ChainInformation;
       return explorerUrl || DEFAULT_BLOCK_EXPLORER;
     }

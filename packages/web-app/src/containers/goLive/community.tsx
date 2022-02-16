@@ -1,5 +1,7 @@
 import React from 'react';
 import {ButtonText, CheckboxSimple, Link} from '@aragon/ui-components';
+import {useFormContext} from 'react-hook-form';
+
 import {
   Card,
   Header,
@@ -10,32 +12,39 @@ import {
   LabelWrapper,
   TextContent,
   Footer,
+  ActionWrapper,
 } from './blockchain';
 
 const Community: React.FC = () => {
+  const {getValues} = useFormContext();
+  const {membership, tokenName, tokenSymbol, tokenTotalSupply} = getValues();
   return (
     <Card>
       <Header>
-        <Title>DAO Metadata</Title>
+        <Title>Community</Title>
       </Header>
       <Body>
         <Row>
           <LabelWrapper>
             <Label>Eligible Members</Label>
           </LabelWrapper>
-          <TextContent>Token Holders</TextContent>
+          <TextContent>{membership}</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Name</Label>
           </LabelWrapper>
-          <TextContent>Token Name TKN</TextContent>
+          <TextContent>
+            {tokenName}&nbsp;&nbsp;{tokenSymbol}
+          </TextContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Supply</Label>
           </LabelWrapper>
-          <TextContent>1,000 TKN</TextContent>
+          <TextContent>
+            {tokenTotalSupply} {tokenSymbol}
+          </TextContent>
         </Row>
         <Row>
           <LabelWrapper>
@@ -45,9 +54,9 @@ const Community: React.FC = () => {
         </Row>
       </Body>
       <Footer>
-        <LabelWrapper>
+        <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" />
-        </LabelWrapper>
+        </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>
     </Card>

@@ -1,5 +1,7 @@
 import React from 'react';
 import {ButtonText, CheckboxSimple} from '@aragon/ui-components';
+import {useFormContext} from 'react-hook-form';
+
 import {
   Card,
   Header,
@@ -10,9 +12,21 @@ import {
   LabelWrapper,
   TextContent,
   Footer,
+  ActionWrapper,
 } from './blockchain';
 
 const Governance: React.FC = () => {
+  const {getValues} = useFormContext();
+  const {
+    minimumApproval,
+    tokenTotalSupply,
+    tokenSymbol,
+    support,
+    minutes,
+    hours,
+    days,
+  } = getValues();
+
   return (
     <Card>
       <Header>
@@ -23,25 +37,31 @@ const Governance: React.FC = () => {
           <LabelWrapper>
             <Label>Minimum Approval</Label>
           </LabelWrapper>
-          <TextContent>15% (150 TKN)</TextContent>
+          <TextContent>
+            {minimumApproval}% (
+            {Math.floor(tokenTotalSupply * (minimumApproval / 100))}{' '}
+            {tokenSymbol})
+          </TextContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Minimum Support</Label>
           </LabelWrapper>
-          <TextContent>50%</TextContent>
+          <TextContent>{support}%</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Minimum Duration</Label>
           </LabelWrapper>
-          <TextContent>5 Days 12 Hours 30 Minutes</TextContent>
+          <TextContent>
+            {days} Days {hours} Hours {minutes} Minutes
+          </TextContent>
         </Row>
       </Body>
       <Footer>
-        <LabelWrapper>
+        <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" />
-        </LabelWrapper>
+        </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>
     </Card>

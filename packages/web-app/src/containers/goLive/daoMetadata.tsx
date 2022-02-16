@@ -6,6 +6,8 @@ import {
   AvatarDao,
   ListItemLink,
 } from '@aragon/ui-components';
+import {useFormContext} from 'react-hook-form';
+
 import {
   Card,
   Header,
@@ -16,9 +18,13 @@ import {
   LabelWrapper,
   TextContent,
   Footer,
+  ActionWrapper,
 } from './blockchain';
 
 const DaoMetadata: React.FC = () => {
+  const {getValues} = useFormContext();
+  const {daoLogo, daoName, daoSummary, links} = getValues();
+
   return (
     <Card>
       <Header>
@@ -30,41 +36,40 @@ const DaoMetadata: React.FC = () => {
             <Label>Logo</Label>
           </LabelWrapper>
           <AvatarDao
-            label="daoName"
+            label={daoName}
             contentMode="none"
-            src="https://banner2.cleanpng.com/20180325/sxw/kisspng-computer-icons-avatar-avatar-5ab7529a8e4e14.9936310115219636745829.jpg"
+            src={URL.createObjectURL(daoLogo)}
           />
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Name</Label>
           </LabelWrapper>
-          <TextContent>Aragon DAO</TextContent>
+          <TextContent>{daoName}</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Summery</Label>
           </LabelWrapper>
-          <DescriptionContent>
-            This is a short description of your DAO, so please look that it’s
-            not that long as wished. 👀
-          </DescriptionContent>
+          <DescriptionContent>{daoSummary}</DescriptionContent>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Links</Label>
           </LabelWrapper>
           <ContentWrapper>
-            <ListItemLink label="Forum" href="https://aragon.org/" />
-            <ListItemLink label="Discord Server" href="https://aragon.org/" />
-            <ListItemLink label="Discord Server" href="https://aragon.org/" />
+            {links.map(
+              ({label, link}: {label: string; link: string}, index: number) => (
+                <ListItemLink key={index} label={label} href={link} />
+              )
+            )}
           </ContentWrapper>
         </Row>
       </Body>
       <Footer>
-        <LabelWrapper>
+        <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" />
-        </LabelWrapper>
+        </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>
     </Card>
