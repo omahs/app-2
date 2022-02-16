@@ -6,9 +6,8 @@ pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@opengsn/contracts/src/BaseRelayRecipient.sol";
 
-import "./Permissions.sol";
+import "./PermissionedRelayRecipient.sol";
 import "../erc165/AdaptiveERC165.sol";
 import "./../IDAO.sol";
 
@@ -17,7 +16,7 @@ import "./../IDAO.sol";
 /// @title The base component in the Aragon DAO framework
 /// @author Samuel Furter - Aragon Association - 2021
 /// @notice The component any component within the Aragon DAO framework has to inherit from the leverage the architecture existing.
-abstract contract Component is UUPSUpgradeable, AdaptiveERC165, Permissions {
+abstract contract Component is UUPSUpgradeable, AdaptiveERC165, PermissionedRelayRecipient {
     /// @notice Role identifier to upgrade a component 
     bytes32 public constant UPGRADE_ROLE = keccak256("UPGRADE_ROLE");
     /// @notice Role identifer to change the GSN forwarder

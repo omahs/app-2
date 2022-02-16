@@ -5,7 +5,6 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@opengsn/contracts/src/BaseRelayRecipient.sol";
 
 import "./../IDAO.sol";
 import "./../acl/ACL.sol";

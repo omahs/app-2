@@ -7,14 +7,15 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@opengsn/contracts/src/BasePaymaster.sol";
-import "./../core/acl/ACL.sol";
+
+import "../core/component/Permissions.sol";
 
 /// @title The GSN paymaster paying for meta transaction
 /// @author Michael Heuer - Aragon Association - 2022
-/// @notice This contract pays for meta transactions from and to sponsored addresses
-contract Paymaster is BasePaymaster, Initializable, UUPSUpgradeable, ACL {
+/// @notice This contract pays for meta transactions from and to permissioned addresses as specified in the IDAO ACL
+contract Paymaster is Initializable, BasePaymaster, UUPSUpgradeable, Permissions {
 
-    bytes32 public constant PAYMASTER_UPGRADE_ROLE = keccak256("PAYMASTER_UPGRADE_ROLE");
+    bytes32 public constant UPGRADE_ROLE = keccak256("UPGRADE_ROLE");
     bytes32 public constant PAYMASTER_SPONSORED_ROLE = keccak256("PAYMASTER_SPONSORED_ROLE");
 
     string private constant ERROR_NOT_SPONSORED = "ERROR_NOT_SPONSORED";
@@ -26,13 +27,15 @@ contract Paymaster is BasePaymaster, Initializable, UUPSUpgradeable, ACL {
     }
 
     /// @dev Used for UUPS upgradability pattern
-    function initialize(address initialOwner) external initializer {
-        ACL.initACL(initialOwner);
+    function initialize(
+        IDAO _dao
+    ) public virtual override {
+        Permissions.initialize(_dao);
     }
 
     /// @dev Used to check the permissions within the upgradability pattern implementation of OZ
-    function _authorizeUpgrade(address) internal virtual override auth(address(this), PAYMASTER_UPGRADE_ROLE) {}
-
+    function _authorizeUpgrade(address) internal virtual override auth(UPGRADE_ROLE) {}
+    
     function postRelayedCall(
         bytes calldata context,
         bool success,
@@ -57,7 +60,7 @@ contract Paymaster is BasePaymaster, Initializable, UUPSUpgradeable, ACL {
         require(relayRequest.relayData.paymasterData.length == 0, ERROR_APPROVAL_DATA_LENGTH_INVALID);
 
         require(
-            willPerform(
+            dao.hasPermission(
                 relayRequest.request.to,
                 relayRequest.request.from,
                 PAYMASTER_SPONSORED_ROLE,

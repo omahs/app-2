@@ -10,11 +10,11 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-IERC20P
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
 import "../core/erc165/AdaptiveERC165.sol";
-import "../core/component/Permissions.sol";
+import "../core/component/PermissionedRelayRecipient.sol";
 import "../core/IDAO.sol";
 
 
-contract GovernanceERC20 is AdaptiveERC165, ERC20VotesUpgradeable, Permissions {
+contract GovernanceERC20 is AdaptiveERC165, ERC20VotesUpgradeable, PermissionedRelayRecipient {
 
      /// @notice The role identifier to mint new tokens
     bytes32 public constant TOKEN_MINTER_ROLE = keccak256("TOKEN_MINTER_ROLE");

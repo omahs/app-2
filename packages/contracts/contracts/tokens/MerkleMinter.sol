@@ -8,10 +8,10 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "../core/IDAO.sol";
-import "../core/component/Permissions.sol";
+import "../core/component/PermissionedRelayRecipient.sol";
 import "./MerkleDistributor.sol";
 
-contract MerkleMinter is Permissions {
+contract MerkleMinter is PermissionedRelayRecipient {
     using Clones for address;
 
     bytes32 constant public MERKLE_MINTER_ROLE = keccak256("MERKLE_MINTER_ROLE");
