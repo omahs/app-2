@@ -12,6 +12,7 @@ import SelectChain from 'containers/selectChainForm';
 import DefineMetadata from 'containers/defineMetadata';
 import ConfigureCommunity from 'containers/configureCommunity';
 import SetupCommunity from 'containers/setupCommunity';
+import GoLive, {GoLiveHeader, GoLiveFooter} from 'containers/goLive';
 
 type FormData = {
   tokenName: string;
@@ -70,6 +71,14 @@ const CreateDAO: React.FC = () => {
           wizardDescription={t('createDAO.step4.description')}
         >
           <ConfigureCommunity />
+        </Step>
+        <Step
+          hideWizard
+          fullWidth
+          customHeader={<GoLiveHeader />}
+          customFooter={<GoLiveFooter />}
+        >
+          <GoLive />
         </Step>
       </FullScreenStepper>
     </FormProvider>
