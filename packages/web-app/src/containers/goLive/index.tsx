@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
-import {useFormContext, useFieldArray} from 'react-hook-form';
+import {useFormContext} from 'react-hook-form';
 import {ButtonText, IconChevronRight} from '@aragon/ui-components';
 
 import {useFormStep} from 'components/fullScreenStepper';
@@ -47,7 +47,8 @@ export const GoLiveFooter: React.FC = () => {
   const {watch} = useFormContext();
   const {reviewCheck} = watch();
 
-  console.log('review', reviewCheck);
+  const IsButtonDisabled = () =>
+    !(Object.values(reviewCheck).every(v => v === true) as boolean);
 
   return (
     <div className="flex justify-center pt-3">
@@ -56,6 +57,7 @@ export const GoLiveFooter: React.FC = () => {
         iconRight={<IconChevronRight />}
         label="Publish your DAO"
         onClick={next}
+        disabled={IsButtonDisabled()}
       />
     </div>
   );

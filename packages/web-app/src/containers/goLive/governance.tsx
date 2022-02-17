@@ -1,9 +1,10 @@
 import React from 'react';
 import {ButtonText, CheckboxSimple} from '@aragon/ui-components';
-import {useFormContext} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
+import styled from 'styled-components';
+import {useTranslation} from 'react-i18next';
 
 import {useFormStep} from 'components/fullScreenStepper';
-
 import {
   Card,
   Header,
@@ -16,11 +17,11 @@ import {
   Footer,
   ActionWrapper,
 } from './blockchain';
-import styled from 'styled-components';
 
 const Governance: React.FC = () => {
-  const {getValues} = useFormContext();
+  const {control, getValues} = useFormContext();
   const {setStep} = useFormStep();
+  const {t} = useTranslation();
   const {
     minimumApproval,
     tokenTotalSupply,
@@ -68,7 +69,22 @@ const Governance: React.FC = () => {
         <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" onClick={() => setStep(5)} />
         </ActionWrapper>
-        <CheckboxSimple label="These values are correct" multiSelect />
+        <Controller
+          name="reviewCheck.governance"
+          control={control}
+          defaultValue={false}
+          rules={{
+            required: t('errors.required.recipient'),
+          }}
+          render={({field: {onChange, value}}) => (
+            <CheckboxSimple
+              state={value ? 'active' : 'default'}
+              label="These values are correct"
+              onClick={() => onChange(!value)}
+              multiSelect
+            />
+          )}
+        />
       </Footer>
     </Card>
   );

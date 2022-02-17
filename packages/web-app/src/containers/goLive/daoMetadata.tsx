@@ -6,7 +6,8 @@ import {
   AvatarDao,
   ListItemLink,
 } from '@aragon/ui-components';
-import {useFormContext} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
+import {useTranslation} from 'react-i18next';
 
 import {useFormStep} from 'components/fullScreenStepper';
 
@@ -24,8 +25,9 @@ import {
 } from './blockchain';
 
 const DaoMetadata: React.FC = () => {
-  const {getValues} = useFormContext();
+  const {control, getValues} = useFormContext();
   const {setStep} = useFormStep();
+  const {t} = useTranslation();
   const {daoLogo, daoName, daoSummary, links} = getValues();
 
   return (
@@ -73,7 +75,22 @@ const DaoMetadata: React.FC = () => {
         <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" onClick={() => setStep(3)} />
         </ActionWrapper>
-        <CheckboxSimple label="These values are correct" multiSelect />
+        <Controller
+          name="reviewCheck.daoMetadata"
+          control={control}
+          defaultValue={false}
+          rules={{
+            required: t('errors.required.recipient'),
+          }}
+          render={({field: {onChange, value}}) => (
+            <CheckboxSimple
+              state={value ? 'active' : 'default'}
+              label="These values are correct"
+              onClick={() => onChange(!value)}
+              multiSelect
+            />
+          )}
+        />
       </Footer>
     </Card>
   );
