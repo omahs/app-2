@@ -1,5 +1,6 @@
 import React from 'react';
-import {ButtonText, CheckboxSimple, Link} from '@aragon/ui-components';
+import styled from 'styled-components';
+import {ButtonText, CheckboxSimple, Link, Badge} from '@aragon/ui-components';
 import {Controller, useFormContext} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 
@@ -22,8 +23,14 @@ const Community: React.FC = () => {
   const {control, getValues} = useFormContext();
   const {setStep} = useFormStep();
   const {t} = useTranslation();
-  const {membership, tokenName, wallets, tokenSymbol, tokenTotalSupply} =
-    getValues();
+  const {
+    membership,
+    tokenName,
+    wallets,
+    isCustomToken,
+    tokenSymbol,
+    tokenTotalSupply,
+  } = getValues();
 
   return (
     <Card>
@@ -39,19 +46,25 @@ const Community: React.FC = () => {
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Name</Label>
+            <Label>Token</Label>
           </LabelWrapper>
-          <TextContent>
-            {tokenName}&nbsp;&nbsp;{tokenSymbol}
-          </TextContent>
+          <BadgeWrapper>
+            <TextContent>
+              {tokenName}&nbsp;&nbsp;{tokenSymbol}
+            </TextContent>
+            {isCustomToken && <Badge label="New" colorScheme="info" />}
+          </BadgeWrapper>
         </Row>
         <Row>
           <LabelWrapper>
             <Label>Supply</Label>
           </LabelWrapper>
-          <TextContent>
-            {tokenTotalSupply} {tokenSymbol}
-          </TextContent>
+          <BadgeWrapper>
+            <TextContent>
+              {tokenTotalSupply} {tokenSymbol}
+            </TextContent>
+            <Badge label="Fixed" colorScheme="neutral" />
+          </BadgeWrapper>
         </Row>
         <Row>
           <LabelWrapper>
@@ -86,3 +99,7 @@ const Community: React.FC = () => {
 };
 
 export default Community;
+
+const BadgeWrapper = styled.div.attrs({
+  className: 'flex space-x-1.5',
+})``;

@@ -44,8 +44,9 @@ const GoLive: React.FC = () => {
 
 export const GoLiveFooter: React.FC = () => {
   const {next} = useFormStep();
-  const {watch} = useFormContext();
+  const {watch, getValues} = useFormContext();
   const {reviewCheck} = watch();
+  console.log('isCustomToken', getValues());
 
   const IsButtonDisabled = () =>
     !(Object.values(reviewCheck).every(v => v === true) as boolean);
