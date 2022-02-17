@@ -8,6 +8,8 @@ import {
 } from '@aragon/ui-components';
 import {useFormContext} from 'react-hook-form';
 
+import {useFormStep} from 'components/fullScreenStepper';
+
 import {
   Card,
   Header,
@@ -23,6 +25,7 @@ import {
 
 const DaoMetadata: React.FC = () => {
   const {getValues} = useFormContext();
+  const {setStep} = useFormStep();
   const {daoLogo, daoName, daoSummary, links} = getValues();
 
   return (
@@ -68,7 +71,7 @@ const DaoMetadata: React.FC = () => {
       </Body>
       <Footer>
         <ActionWrapper>
-          <ButtonText label="Edit" mode="ghost" />
+          <ButtonText label="Edit" mode="ghost" onClick={() => setStep(3)} />
         </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>

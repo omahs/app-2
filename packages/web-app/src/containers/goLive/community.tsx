@@ -2,6 +2,8 @@ import React from 'react';
 import {ButtonText, CheckboxSimple, Link} from '@aragon/ui-components';
 import {useFormContext} from 'react-hook-form';
 
+import {useFormStep} from 'components/fullScreenStepper';
+
 import {
   Card,
   Header,
@@ -17,7 +19,9 @@ import {
 
 const Community: React.FC = () => {
   const {getValues} = useFormContext();
+  const {setStep} = useFormStep();
   const {membership, tokenName, tokenSymbol, tokenTotalSupply} = getValues();
+
   return (
     <Card>
       <Header>
@@ -55,7 +59,7 @@ const Community: React.FC = () => {
       </Body>
       <Footer>
         <ActionWrapper>
-          <ButtonText label="Edit" mode="ghost" />
+          <ButtonText label="Edit" mode="ghost" onClick={() => setStep(4)} />
         </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>

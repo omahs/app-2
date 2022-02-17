@@ -2,6 +2,8 @@ import React from 'react';
 import {ButtonText, CheckboxSimple} from '@aragon/ui-components';
 import {useFormContext} from 'react-hook-form';
 
+import {useFormStep} from 'components/fullScreenStepper';
+
 import {
   Card,
   Header,
@@ -17,6 +19,7 @@ import {
 
 const Governance: React.FC = () => {
   const {getValues} = useFormContext();
+  const {setStep} = useFormStep();
   const {
     minimumApproval,
     tokenTotalSupply,
@@ -60,7 +63,7 @@ const Governance: React.FC = () => {
       </Body>
       <Footer>
         <ActionWrapper>
-          <ButtonText label="Edit" mode="ghost" />
+          <ButtonText label="Edit" mode="ghost" onClick={() => setStep(5)} />
         </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>

@@ -4,6 +4,8 @@ import {ButtonText, CheckboxSimple} from '@aragon/ui-components';
 import {useTranslation} from 'react-i18next';
 import {Controller, useFormContext} from 'react-hook-form';
 
+import {useFormStep} from 'components/fullScreenStepper';
+
 type blockchainDataType = {
   id: number;
   label: string;
@@ -12,7 +14,9 @@ type blockchainDataType = {
 
 const Blockchain: React.FC = () => {
   const {control, getValues} = useFormContext();
+  const {setStep} = useFormStep();
   const {blockchain} = getValues();
+
   return (
     <Card>
       <Header>
@@ -34,7 +38,7 @@ const Blockchain: React.FC = () => {
       </Body>
       <Footer>
         <ActionWrapper>
-          <ButtonText label="Edit" mode="ghost" />
+          <ButtonText label="Edit" mode="ghost" onClick={() => setStep(2)} />
         </ActionWrapper>
         <CheckboxSimple label="These values are correct" multiSelect />
       </Footer>
@@ -77,7 +81,8 @@ export const TextContent = styled.span.attrs({
 })``;
 
 export const Footer = styled.div.attrs({
-  className: 'flex justify-between tablet:justify-start',
+  className:
+    'flex flex-row-reverse tablet:flex-row justify-between tablet:justify-start',
 })``;
 
 export const ActionWrapper = styled.div.attrs({
