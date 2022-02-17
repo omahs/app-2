@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 import {useFormContext} from 'react-hook-form';
@@ -17,10 +17,11 @@ export const GoLiveHeader: React.FC = () => {
   return (
     <div className="flex justify-between tablet:px-6 px-2 rounded-xl bg-ui-0">
       <div className="py-6 w-full">
-        <h1 className="text-3xl font-bold text-ui-800">Go Live</h1>
+        <h1 className="text-3xl font-bold text-ui-800">
+          {t('createDAO.review.title')}
+        </h1>
         <p className="mt-2 text-lg text-ui-600">
-          Take your DAO public by completing the final review and cross-checking
-          the values.
+          {t('createDAO.review.description')}
         </p>
       </div>
       <ImageContainer src={goLive} />
@@ -29,9 +30,6 @@ export const GoLiveHeader: React.FC = () => {
 };
 
 const GoLive: React.FC = () => {
-  const {control, getValues} = useFormContext();
-  console.log(getValues());
-
   return (
     <Container>
       <Blockchain />
@@ -44,9 +42,9 @@ const GoLive: React.FC = () => {
 
 export const GoLiveFooter: React.FC = () => {
   const {next} = useFormStep();
-  const {watch, getValues} = useFormContext();
+  const {watch} = useFormContext();
   const {reviewCheck} = watch();
-  console.log('isCustomToken', getValues());
+  const {t} = useTranslation();
 
   const IsButtonDisabled = () =>
     !(Object.values(reviewCheck).every(v => v === true) as boolean);
@@ -56,7 +54,7 @@ export const GoLiveFooter: React.FC = () => {
       <ButtonText
         size="large"
         iconRight={<IconChevronRight />}
-        label="Publish your DAO"
+        label={t('createDAO.review.button')}
         onClick={next}
         disabled={IsButtonDisabled()}
       />

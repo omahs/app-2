@@ -35,18 +35,18 @@ const Community: React.FC = () => {
   return (
     <Card>
       <Header>
-        <Title>Community</Title>
+        <Title>{t('labels.review.community')}</Title>
       </Header>
       <Body>
         <Row>
           <LabelWrapper>
-            <Label>Eligible Members</Label>
+            <Label>{t('labels.review.eligibleMembers')}</Label>
           </LabelWrapper>
           <TextContent>{membership}</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Token</Label>
+            <Label>{t('votingTerminal.token')}</Label>
           </LabelWrapper>
           <BadgeWrapper>
             <TextContent>
@@ -57,7 +57,7 @@ const Community: React.FC = () => {
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Supply</Label>
+            <Label>{t('labels.review.Supply')}</Label>
           </LabelWrapper>
           <BadgeWrapper>
             <TextContent>
@@ -68,9 +68,13 @@ const Community: React.FC = () => {
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Distribution</Label>
+            <Label>{t('labels.review.Distribution')}</Label>
           </LabelWrapper>
-          <Link label={`See ${wallets?.length} Addresses`} />
+          <Link
+            label={t('createDAO.review.distributionLink', {
+              count: wallets?.length,
+            })}
+          />
         </Row>
       </Body>
       <Footer>

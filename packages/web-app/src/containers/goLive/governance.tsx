@@ -35,12 +35,12 @@ const Governance: React.FC = () => {
   return (
     <Card>
       <Header>
-        <Title>Governance</Title>
+        <Title>{t('labels.review.governance')}</Title>
       </Header>
       <Body>
         <Row>
           <LabelWrapper>
-            <Label>Minimum Approval</Label>
+            <Label>{t('labels.minimumApproval')}</Label>
           </LabelWrapper>
           <TextContent>
             {minimumApproval}% (
@@ -50,18 +50,18 @@ const Governance: React.FC = () => {
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Minimum Support</Label>
+            <Label>{t('labels.minimumSupport')}</Label>
           </LabelWrapper>
           <TextContent>{support}%</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Minimum Duration</Label>
+            <Label>{t('labels.minimumDuration')}</Label>
           </LabelWrapper>
           <TimeWrapper>
-            <div>{days} Days</div>
-            <div>{hours} Hours</div>
-            <div>{minutes} Minutes</div>
+            <div>{t('createDAO.review.days', {days})}</div>
+            <div>{t('createDAO.review.hours', {hours})}</div>
+            <div>{t('createDAO.review.minutes', {minutes})}</div>
           </TimeWrapper>
         </Row>
       </Body>

@@ -33,34 +33,36 @@ const DaoMetadata: React.FC = () => {
   return (
     <Card>
       <Header>
-        <Title>DAO Metadata</Title>
+        <Title>{t('labels.review.daoMetadata')}</Title>
       </Header>
       <Body>
         <Row>
           <LabelWrapper>
-            <Label>Logo</Label>
+            <Label>{t('labels.logo')}</Label>
           </LabelWrapper>
-          <AvatarDao
-            label={daoName}
-            contentMode="none"
-            src={daoLogo && URL.createObjectURL(daoLogo)}
-          />
+          {daoLogo && (
+            <AvatarDao
+              label={daoName}
+              contentMode="none"
+              src={daoLogo ? URL.createObjectURL(daoLogo) : ''}
+            />
+          )}
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Name</Label>
+            <Label>{t('labels.daoName')}</Label>
           </LabelWrapper>
           <TextContent>{daoName}</TextContent>
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Summery</Label>
+            <Label>{t('labels.description')}</Label>
           </LabelWrapper>
           <DescriptionContent>{daoSummary}</DescriptionContent>
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Links</Label>
+            <Label>{t('labels.links')}</Label>
           </LabelWrapper>
           <ContentWrapper>
             {links.map(

@@ -15,18 +15,20 @@ const Blockchain: React.FC = () => {
   return (
     <Card>
       <Header>
-        <Title>Blockchain</Title>
+        <Title>{t('labels.review.blockchain')}</Title>
       </Header>
       <Body>
         <Row>
           <LabelWrapper>
-            <Label>Network</Label>
+            <Label>{t('labels.review.network')}</Label>
           </LabelWrapper>
-          <TextContent>{blockchain.network} net</TextContent>
+          <TextContent>
+            {t('createDAO.review.network', {network: blockchain.network})}
+          </TextContent>
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>Blockchain</Label>
+            <Label>{t('labels.review.blockchain')}</Label>
           </LabelWrapper>
           <TextContent>{blockchain.label}</TextContent>
         </Row>
