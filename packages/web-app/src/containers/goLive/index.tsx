@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
-import {Controller, useFormContext} from 'react-hook-form';
+import {useFormContext, useFieldArray} from 'react-hook-form';
 import {ButtonText, IconChevronRight} from '@aragon/ui-components';
 
 import {useFormStep} from 'components/fullScreenStepper';
@@ -29,9 +29,7 @@ export const GoLiveHeader: React.FC = () => {
 };
 
 const GoLive: React.FC = () => {
-  const {t} = useTranslation();
   const {control, getValues} = useFormContext();
-
   console.log(getValues());
 
   return (
@@ -46,6 +44,10 @@ const GoLive: React.FC = () => {
 
 export const GoLiveFooter: React.FC = () => {
   const {next} = useFormStep();
+  const {watch} = useFormContext();
+  const {reviewCheck} = watch();
+
+  console.log('review', reviewCheck);
 
   return (
     <div className="flex justify-center pt-3">

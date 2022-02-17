@@ -6,16 +6,11 @@ import {Controller, useFormContext} from 'react-hook-form';
 
 import {useFormStep} from 'components/fullScreenStepper';
 
-type blockchainDataType = {
-  id: number;
-  label: string;
-  network: string;
-};
-
 const Blockchain: React.FC = () => {
   const {control, getValues} = useFormContext();
   const {setStep} = useFormStep();
   const {blockchain} = getValues();
+  const {t} = useTranslation();
 
   return (
     <Card>
@@ -40,7 +35,22 @@ const Blockchain: React.FC = () => {
         <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" onClick={() => setStep(2)} />
         </ActionWrapper>
-        <CheckboxSimple label="These values are correct" multiSelect />
+        <Controller
+          name="reviewCheck.blockchain"
+          control={control}
+          defaultValue={false}
+          rules={{
+            required: t('errors.required.recipient'),
+          }}
+          render={({field: {onChange, value}}) => (
+            <CheckboxSimple
+              state={value ? 'active' : 'default'}
+              label="These values are correct"
+              onClick={() => onChange(!value)}
+              multiSelect
+            />
+          )}
+        />
       </Footer>
     </Card>
   );

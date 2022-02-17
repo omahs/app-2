@@ -16,6 +16,7 @@ import {
   Footer,
   ActionWrapper,
 } from './blockchain';
+import styled from 'styled-components';
 
 const Governance: React.FC = () => {
   const {getValues} = useFormContext();
@@ -56,9 +57,11 @@ const Governance: React.FC = () => {
           <LabelWrapper>
             <Label>Minimum Duration</Label>
           </LabelWrapper>
-          <TextContent>
-            {days} Days {hours} Hours {minutes} Minutes
-          </TextContent>
+          <TimeWrapper>
+            <div>{days} Days</div>
+            <div>{hours} Hours</div>
+            <div>{minutes} Minutes</div>
+          </TimeWrapper>
         </Row>
       </Body>
       <Footer>
@@ -72,3 +75,7 @@ const Governance: React.FC = () => {
 };
 
 export default Governance;
+
+const TimeWrapper = styled.div.attrs({
+  className: 'flex space-x-1.5',
+})``;

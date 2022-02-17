@@ -1,6 +1,7 @@
 import React from 'react';
 import {ButtonText, CheckboxSimple, Link} from '@aragon/ui-components';
-import {useFormContext} from 'react-hook-form';
+import {Controller, useFormContext} from 'react-hook-form';
+import {useTranslation} from 'react-i18next';
 
 import {useFormStep} from 'components/fullScreenStepper';
 
@@ -18,9 +19,11 @@ import {
 } from './blockchain';
 
 const Community: React.FC = () => {
-  const {getValues} = useFormContext();
+  const {control, getValues} = useFormContext();
   const {setStep} = useFormStep();
-  const {membership, tokenName, tokenSymbol, tokenTotalSupply} = getValues();
+  const {t} = useTranslation();
+  const {membership, tokenName, wallets, tokenSymbol, tokenTotalSupply} =
+    getValues();
 
   return (
     <Card>
@@ -54,14 +57,29 @@ const Community: React.FC = () => {
           <LabelWrapper>
             <Label>Distribution</Label>
           </LabelWrapper>
-          <Link label="See 50 Addresses" />
+          <Link label={`See ${wallets?.length} Addresses`} />
         </Row>
       </Body>
       <Footer>
         <ActionWrapper>
           <ButtonText label="Edit" mode="ghost" onClick={() => setStep(4)} />
         </ActionWrapper>
-        <CheckboxSimple label="These values are correct" multiSelect />
+        <Controller
+          name="reviewCheck.community"
+          control={control}
+          defaultValue={false}
+          rules={{
+            required: t('errors.required.recipient'),
+          }}
+          render={({field: {onChange, value}}) => (
+            <CheckboxSimple
+              state={value ? 'active' : 'default'}
+              label="These values are correct"
+              onClick={() => onChange(!value)}
+              multiSelect
+            />
+          )}
+        />
       </Footer>
     </Card>
   );
