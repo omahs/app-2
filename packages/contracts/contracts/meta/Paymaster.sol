@@ -18,8 +18,8 @@ contract Paymaster is Initializable, BasePaymaster, UUPSUpgradeable, Permissions
     bytes32 public constant UPGRADE_ROLE = keccak256("UPGRADE_ROLE");
     bytes32 public constant PAYMASTER_SPONSORED_ROLE = keccak256("PAYMASTER_SPONSORED_ROLE");
 
-    string private constant ERROR_NOT_SPONSORED = "ERROR_NOT_SPONSORED";
-    string private constant ERROR_APPROVAL_DATA_LENGTH_INVALID = "ERROR_APPROVAL_DATA_LENGTH_INVALID";
+    string internal constant ERROR_NOT_SPONSORED = "ERROR_NOT_SPONSORED";
+    string internal constant ERROR_APPROVAL_DATA_LENGTH_INVALID = "ERROR_APPROVAL_DATA_LENGTH_INVALID";
 
     /// @dev Used for GSN IPaymaster compatability
     function versionPaymaster() external view override virtual returns (string memory){
