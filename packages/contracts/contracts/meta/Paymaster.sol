@@ -29,7 +29,7 @@ contract Paymaster is Initializable, BasePaymaster, UUPSUpgradeable, Permissions
     /// @dev Used for UUPS upgradability pattern
     function initialize(
         IDAO _dao
-    ) public virtual override {
+    ) public virtual override initializer() {
         Permissions.initialize(_dao);
     }
 
