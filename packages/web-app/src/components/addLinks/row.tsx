@@ -83,19 +83,13 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
           rules={{
             validate: value => labelValidator(value, index),
           }}
-          render={({
-            field: {name, onBlur, onChange, value},
-            fieldState: {error},
-          }) => (
+          render={({field, fieldState: {error}}) => (
             <>
               <LabelWrapper>
                 <Label label={t('labels.label')} />
               </LabelWrapper>
               <TextInput
-                name={name}
-                onBlur={onBlur}
-                onChange={onChange}
-                value={value}
+                {...field}
                 mode={error?.message ? 'critical' : 'default'}
               />
               {error?.message && (
@@ -109,6 +103,35 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
       </LabelContainer>
 
       <LinkContainer>
+        <Controller
+          name={`links.${index}.link`}
+          control={control}
+          rules={{
+            validate: value => linkValidator(value, index),
+          }}
+          render={({field, fieldState: {error}}) => (
+            <>
+              <LabelWrapper>
+                <Label label={t('labels.link')} />
+              </LabelWrapper>
+
+              <TextInput
+                {...field}
+                placeholder="https://"
+                mode={error?.message ? 'critical' : 'default'}
+              />
+              {error?.message && (
+                <ErrorContainer>
+                  <AlertInline label={error.message} mode="critical" />
+                </ErrorContainer>
+              )}
+            </>
+          )}
+        />
+      </LinkContainer>
+
+      <Break />
+      <ButtonContainer>
         <Popover
           side="bottom"
           align="end"
@@ -132,43 +155,7 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
             data-testid="trigger"
           />
         </Popover>
-      </LinkContainer>
-
-      <Break />
-
-      <ButtonWrapper>
-        <Controller
-          name={`links.${index}.link`}
-          control={control}
-          rules={{
-            validate: value => linkValidator(value, index),
-          }}
-          render={({
-            field: {name, onBlur, onChange, value},
-            fieldState: {error},
-          }) => (
-            <>
-              <LabelWrapper>
-                <Label label={t('labels.link')} />
-              </LabelWrapper>
-
-              <TextInput
-                name={name}
-                onBlur={onBlur}
-                onChange={onChange}
-                value={value}
-                placeholder="https://"
-                mode={error?.message ? 'critical' : 'default'}
-              />
-              {error?.message && (
-                <ErrorContainer>
-                  <AlertInline label={error.message} mode="critical" />
-                </ErrorContainer>
-              )}
-            </>
-          )}
-        />
-      </ButtonWrapper>
+      </ButtonContainer>
     </Container>
   );
 };
@@ -180,23 +167,25 @@ const Container = styled.div.attrs({
 })``;
 
 const LabelContainer = styled.div.attrs({
-  className: 'flex-1 tablet:order-1 h-full',
+  className: 'flex-1 order-1 h-full',
 })``;
 
 const LabelWrapper = styled.div.attrs({
   className: 'tablet:hidden mb-0.5',
 })``;
 
-const LinkContainer = styled.div.attrs({
-  className: 'tablet:order-3 pt-3.5 tablet:pt-0',
+const ButtonContainer = styled.div.attrs({
+  className: 'pt-3.5 order-2 tablet:order-3 tablet:pt-0',
 })``;
 
 const ErrorContainer = styled.div.attrs({
   className: 'mt-0.5',
 })``;
 
-const Break = styled.hr.attrs({className: 'tablet:hidden w-full border-0'})``;
+const Break = styled.hr.attrs({
+  className: 'tablet:hidden w-full border-0 order-3',
+})``;
 
-const ButtonWrapper = styled.div.attrs({
-  className: 'flex-1 tablet:order-2 h-full',
+const LinkContainer = styled.div.attrs({
+  className: 'flex-1 order-4 tablet:order-2 h-full',
 })``;
