@@ -15,7 +15,7 @@ export const GoLiveHeader: React.FC = () => {
   const {t} = useTranslation();
 
   return (
-    <div className="flex justify-between tablet:px-6 px-2 rounded-xl bg-ui-0">
+    <div className="flex justify-between px-2 tablet:px-6 bg-ui-0 rounded-xl">
       <div className="py-6 w-full">
         <h1 className="text-3xl font-bold text-ui-800">
           {t('createDAO.review.title')}

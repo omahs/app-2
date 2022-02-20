@@ -83,15 +83,19 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
           rules={{
             validate: value => labelValidator(value, index),
           }}
-          render={({field, fieldState: {error}}) => (
+          render={({
+            field: {name, onBlur, onChange, value},
+            fieldState: {error},
+          }) => (
             <>
               <LabelWrapper>
                 <Label label={t('labels.label')} />
               </LabelWrapper>
               <TextInput
-                name={field.name}
-                onBlur={field.onBlur}
-                onChange={field.onChange}
+                name={name}
+                onBlur={onBlur}
+                onChange={onChange}
+                value={value}
                 mode={error?.message ? 'critical' : 'default'}
               />
               {error?.message && (
@@ -139,16 +143,20 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
           rules={{
             validate: value => linkValidator(value, index),
           }}
-          render={({field, fieldState: {error}}) => (
+          render={({
+            field: {name, onBlur, onChange, value},
+            fieldState: {error},
+          }) => (
             <>
               <LabelWrapper>
                 <Label label={t('labels.link')} />
               </LabelWrapper>
 
               <TextInput
-                name={field.name}
-                onBlur={field.onBlur}
-                onChange={field.onChange}
+                name={name}
+                onBlur={onBlur}
+                onChange={onChange}
+                value={value}
                 placeholder="https://"
                 mode={error?.message ? 'critical' : 'default'}
               />
