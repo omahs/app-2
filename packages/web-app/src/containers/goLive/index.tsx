@@ -47,7 +47,7 @@ export const GoLiveFooter: React.FC = () => {
   const {t} = useTranslation();
 
   const IsButtonDisabled = () =>
-    !(Object.values(reviewCheck).every(v => v === true) as boolean);
+    !Object.values(reviewCheck).every(v => v === true);
 
   return (
     <div className="flex justify-center pt-3">
