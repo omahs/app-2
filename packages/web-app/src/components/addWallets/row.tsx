@@ -44,7 +44,6 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
           (totalSupply = parseInt(wallet.amount) + totalSupply)
       );
     }
-    setValue('tokenTotalSupply', totalSupply);
     return totalSupply && Math.floor((value / totalSupply) * 100) + '%';
   };
 
@@ -63,9 +62,14 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
   };
 
   const amountValidation = (index: number) => {
+    let totalSupply = 0;
     const address = getValues(`wallets.${index}.address`);
     if (address === '') trigger(`wallets.${index}.address`);
-    return true;
+    walletFieldArray.forEach((wallet: WalletField) => {
+      totalSupply = parseInt(wallet.amount) + totalSupply;
+    });
+    setValue('tokenTotalSupply', totalSupply);
+    return totalSupply === 0 ? t('errors.totalSupplyZero') : true;
   };
 
   return (

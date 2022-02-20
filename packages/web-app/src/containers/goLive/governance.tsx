@@ -27,9 +27,9 @@ const Governance: React.FC = () => {
     tokenTotalSupply,
     tokenSymbol,
     support,
-    minutes,
-    hours,
-    days,
+    durationMinutes,
+    durationHours,
+    durationDays,
   } = getValues();
 
   return (
@@ -59,9 +59,9 @@ const Governance: React.FC = () => {
             <Label>{t('labels.minimumDuration')}</Label>
           </LabelWrapper>
           <TimeWrapper>
-            <div>{t('createDAO.review.days', {days})}</div>
-            <div>{t('createDAO.review.hours', {hours})}</div>
-            <div>{t('createDAO.review.minutes', {minutes})}</div>
+            <div>{t('createDAO.review.days', {durationDays})}</div>
+            <div>{t('createDAO.review.hours', {durationHours})}</div>
+            <div>{t('createDAO.review.minutes', {durationMinutes})}</div>
           </TimeWrapper>
         </Row>
       </Body>

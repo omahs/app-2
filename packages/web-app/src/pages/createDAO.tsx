@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {withTransaction} from '@elastic/apm-rum-react';
 import {useTranslation} from 'react-i18next';
 import {FormProvider, useForm, useFormState} from 'react-hook-form';
+
 import {FullScreenStepper, Step} from 'components/fullScreenStepper';
 import {
   OverviewDAOFooter,
@@ -13,6 +14,7 @@ import DefineMetadata from 'containers/defineMetadata';
 import ConfigureCommunity from 'containers/configureCommunity';
 import SetupCommunity from 'containers/setupCommunity';
 import GoLive, {GoLiveHeader, GoLiveFooter} from 'containers/goLive';
+import {WalletField} from '../components/addWallets/row';
 
 type FormData = {
   daoLogo: string;
@@ -21,7 +23,13 @@ type FormData = {
   tokenName: string;
   tokenSymbol: string;
   tokenTotalSupply: string;
+  isCustomToken: boolean;
   links: {label: string; link: string}[];
+  wallets: WalletField[];
+  tokenAddress: string;
+  durationMinutes: string;
+  durationHours: string;
+  durationDays: string;
 };
 
 const defaultValues = {
@@ -56,6 +64,29 @@ const CreateDAO: React.FC = () => {
     errors.links,
   ]);
 
+  const daoSetupCommunityIsValid = useMemo(() => {
+    // required fields not dirty
+    if (dirtyFields.isCustomToken === true) {
+      if (!dirtyFields.tokenName || !dirtyFields.tokenSymbol || errors.wallets)
+        return false;
+      return errors.tokenName || errors.tokenSymbol || errors.wallets
+        ? false
+        : true;
+    } else {
+      if (!dirtyFields.tokenAddress || errors.tokenAddress) return false;
+      return true;
+    }
+  }, [
+    dirtyFields.isCustomToken,
+    dirtyFields.tokenAddress,
+    dirtyFields.tokenName,
+    dirtyFields.tokenSymbol,
+    errors.tokenAddress,
+    errors.tokenName,
+    errors.tokenSymbol,
+    errors.wallets,
+  ]);
+
   /*************************************************
    *                    Render                     *
    *************************************************/
@@ -84,13 +115,14 @@ const CreateDAO: React.FC = () => {
         <Step
           wizardTitle={t('createDAO.step2.title')}
           wizardDescription={t('createDAO.step2.description')}
-          // isNextButtonDisabled={!daoMetadataIsValid} Enable me for page validation
+          isNextButtonDisabled={!daoMetadataIsValid}
         >
           <DefineMetadata />
         </Step>
         <Step
           wizardTitle={t('createDAO.step3.title')}
           wizardDescription={t('createDAO.step3.description')}
+          isNextButtonDisabled={!daoSetupCommunityIsValid}
         >
           <SetupCommunity />
         </Step>
