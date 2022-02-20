@@ -31,6 +31,10 @@ export type InputImageSingleProps = {
    * Alow Square image only
    */
   onlySquare?: boolean;
+  /**
+   * Passing image src for preview
+   */
+  preview?: string | null;
 };
 
 export const InputImageSingle: React.FC<InputImageSingleProps> = ({
@@ -39,11 +43,11 @@ export const InputImageSingle: React.FC<InputImageSingleProps> = ({
   minDimension,
   maxFileSize,
   onlySquare = false,
+  preview: previewSrc = null,
   onError,
 }) => {
-  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [preview, setPreview] = useState<string | null>(previewSrc);
   const onDrop = useCallback(
     (acceptedFiles: Array<File>, onDropRejected) => {
       if (onDropRejected.length !== 0) {
