@@ -36,7 +36,7 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
   const {control, getValues, setValue, trigger} = useFormContext();
   const walletFieldArray = getValues('wallets');
 
-  const totalTokenSupply = (value: number) => {
+  const calculateTotalTokenSupply = (value: number) => {
     let totalSupply = 0;
     if (walletFieldArray) {
       walletFieldArray.forEach(
@@ -170,15 +170,10 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
             <InputWrapper>
               <TextInput
                 name={field.name}
-                value={totalTokenSupply(field.value)}
+                value={calculateTotalTokenSupply(field.value)}
                 mode="default"
                 disabled
               />
-              {error?.message && (
-                <ErrorContainer>
-                  <AlertInline label={error.message} mode="critical" />
-                </ErrorContainer>
-              )}
             </InputWrapper>
           </>
         )}
