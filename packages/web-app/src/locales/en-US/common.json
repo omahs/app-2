@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -103,6 +103,12 @@
     "tokens": "Tokens"
   },
   "governance": {
+    "emptyState": {
+      "title": "Create your very first proposal now",
+      "subtitleLine1": "By creating a proposal, your community can vote and participate in this DAO.",
+      "subtitleLine2": "Learn more in",
+      "proposalGuide": "our Proposal Guide."
+    },
     "proposals": {
       "publishedBy": "Published by",
       "pending": "Starts in {{days}} days {{hours}} hours",
