@@ -36,7 +36,7 @@ const defaultValues = {
   tokenName: '',
   tokenSymbol: '',
   tokenTotalSupply: '',
-  links: [{label: '', link: ''}],
+  links: [{label: '', href: ''}],
 };
 
 const CreateDAO: React.FC = () => {
