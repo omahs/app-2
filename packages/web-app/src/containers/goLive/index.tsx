@@ -65,7 +65,7 @@ export const GoLiveFooter: React.FC = () => {
 export default GoLive;
 
 const Container = styled.div.attrs({
-  className: 'flex flex-col',
+  className: 'tablet:mx-auto tablet:w-3/4',
 })``;
 
 const ImageContainer = styled.img.attrs({
