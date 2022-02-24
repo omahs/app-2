@@ -42,8 +42,7 @@ const DaoMetadata: React.FC = () => {
           </LabelWrapper>
           {daoLogo && (
             <AvatarDao
-              label={daoName}
-              contentMode="none"
+              {...{daoName}}
               src={daoLogo ? URL.createObjectURL(daoLogo) : ''}
             />
           )}
