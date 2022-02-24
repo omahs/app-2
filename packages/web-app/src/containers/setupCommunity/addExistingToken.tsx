@@ -155,7 +155,7 @@ const AddExistingToken: React.FC = () => {
         {tokenName && (
           <TokenInfoContainer>
             <InfoContainer>
-              <Label label={t('labels.existingTokenName')} />
+              <Label label={t('labels.tokenName')} />
               <TextInput disabled value={tokenName} />
             </InfoContainer>
             <InfoContainer>

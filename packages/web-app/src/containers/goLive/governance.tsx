@@ -32,6 +32,8 @@ const Governance: React.FC = () => {
     durationDays,
   } = getValues();
 
+  console.log('duration', durationMinutes, durationHours, durationDays);
+
   return (
     <Card>
       <Header>
@@ -59,9 +61,11 @@ const Governance: React.FC = () => {
             <Label>{t('labels.minimumDuration')}</Label>
           </LabelWrapper>
           <TimeWrapper>
-            <div>{t('createDAO.review.days', {durationDays})}</div>
-            <div>{t('createDAO.review.hours', {durationHours})}</div>
-            <div>{t('createDAO.review.minutes', {durationMinutes})}</div>
+            <div>{t('createDAO.review.days', {days: durationDays})}</div>
+            <div>{t('createDAO.review.hours', {hours: durationHours})}</div>
+            <div>
+              {t('createDAO.review.minutes', {minutes: durationMinutes})}
+            </div>
           </TimeWrapper>
         </Row>
       </Body>
