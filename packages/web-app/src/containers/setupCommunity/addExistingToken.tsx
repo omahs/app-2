@@ -159,11 +159,11 @@ const AddExistingToken: React.FC = () => {
               <TextInput disabled value={tokenName} />
             </InfoContainer>
             <InfoContainer>
-              <Label label={t('labels.existingTokenSymbol')} />
+              <Label label={t('labels.tokenSymbol')} />
               <TextInput disabled value={tokenSymbol} />
             </InfoContainer>
             <InfoContainer>
-              <Label label={t('labels.existingTokenSupply')} />
+              <Label label={t('labels.supply')} />
               <TextInput
                 disabled
                 value={new Intl.NumberFormat('en-US', {

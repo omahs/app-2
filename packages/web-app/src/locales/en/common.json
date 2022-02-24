@@ -76,9 +76,7 @@
     "addExistingToken": "Add existing Token",
     "tokenName": "Name",
     "tokenSymbol": "Symbol",
-    "existingTokenName": "Name",
-    "existingTokenSymbol": "Symbol",
-    "existingTokenSupply": "Supply",
+    "supply": "Supply",
     "distributeTokens": "Distribute Tokens",
     "createToken": "Create Token",
     "walletList": {
@@ -92,8 +90,7 @@
       "governance": "Governance",
       "network": "Network",
       "eligibleMembers": "Eligible Members",
-      "Supply": "Supply",
-      "Distribution": "Distribution"
+      "distribution": "Distribution"
     },
     "author": "Author",
     "sec": "sec",

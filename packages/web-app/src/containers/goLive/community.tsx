@@ -57,7 +57,7 @@ const Community: React.FC = () => {
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>{t('labels.review.Supply')}</Label>
+            <Label>{t('labels.supply')}</Label>
           </LabelWrapper>
           <BadgeWrapper>
             <TextContent>
@@ -68,7 +68,7 @@ const Community: React.FC = () => {
         </Row>
         <Row>
           <LabelWrapper>
-            <Label>{t('labels.review.Distribution')}</Label>
+            <Label>{t('labels.review.distribution')}</Label>
           </LabelWrapper>
           <Link
             label={t('createDAO.review.distributionLink', {

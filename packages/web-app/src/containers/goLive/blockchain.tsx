@@ -89,7 +89,7 @@ export const LabelWrapper = styled.div.attrs({
 })``;
 
 export const TextContent = styled.span.attrs({
-  className: 'text-base text-ui-500 font-normal',
+  className: 'text-base text-ui-500 font-normal capitalize',
 })``;
 
 export const Footer = styled.div.attrs({
