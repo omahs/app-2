@@ -93,8 +93,6 @@ const CreateDAO: React.FC = () => {
   return (
     <FormProvider {...formMethods}>
       <FullScreenStepper
-        navbarBackUrl="/"
-        navbarLabel={t('createDAO.title')}
         totalFormSteps={4}
         wizardProcessName={t('createDAO.title')}
       >
