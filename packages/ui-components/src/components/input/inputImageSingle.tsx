@@ -34,7 +34,7 @@ export type InputImageSingleProps = {
   /**
    * Passing image src for preview
    */
-  preview?: string | null;
+  preview?: string;
 };
 
 export const InputImageSingle: React.FC<InputImageSingleProps> = ({
@@ -43,11 +43,11 @@ export const InputImageSingle: React.FC<InputImageSingleProps> = ({
   minDimension,
   maxFileSize,
   onlySquare = false,
-  preview: previewSrc = null,
+  preview: previewSrc = '',
   onError,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [preview, setPreview] = useState<string | null>(previewSrc);
+  const [preview, setPreview] = useState<string>(previewSrc);
   const onDrop = useCallback(
     (acceptedFiles: Array<File>, onDropRejected) => {
       if (onDropRejected.length !== 0) {
@@ -110,7 +110,7 @@ export const InputImageSingle: React.FC<InputImageSingleProps> = ({
     );
   }
 
-  return preview ? (
+  return preview !== '' ? (
     <ImageContainer>
       <Preview src={preview} />
       <StyledButton
@@ -118,7 +118,7 @@ export const InputImageSingle: React.FC<InputImageSingleProps> = ({
         size="small"
         mode="secondary"
         onClick={() => {
-          setPreview(null);
+          setPreview('');
           onChange(null);
         }}
       />

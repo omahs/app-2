@@ -18,7 +18,7 @@ import {handleClipboardActions} from 'utils/library';
 import {useWallet} from 'context/augmentedWallet';
 import {validateAddress} from 'utils/validators';
 
-type LinkRowProps = {
+type WalletRowProps = {
   index: number;
   onDelete?: (index: number) => void;
 };
@@ -29,7 +29,7 @@ export type WalletField = {
   amount: string;
 };
 
-const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
+const WalletRow: React.FC<WalletRowProps> = ({index, onDelete}) => {
   const {t} = useTranslation();
   const [isDuplicate, setIsDuplicate] = useState<boolean>(false);
   const {account} = useWallet();
@@ -114,7 +114,7 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
         />
       </LabelContainer>
 
-      <LinkContainer>
+      <WalletMenuContainer>
         <Popover
           side="bottom"
           align="end"
@@ -139,7 +139,7 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
             data-testid="trigger"
           />
         </Popover>
-      </LinkContainer>
+      </WalletMenuContainer>
 
       <Break />
 
@@ -187,7 +187,7 @@ const LinkRow: React.FC<LinkRowProps> = ({index, onDelete}) => {
   );
 };
 
-export default LinkRow;
+export default WalletRow;
 
 const Container = styled.div.attrs({
   className: 'flex flex-wrap gap-x-2 gap-y-1.5 p-2 bg-ui-0',
@@ -206,7 +206,7 @@ const InputWrapper = styled.div.attrs({
     'flex items-end tablet:items-start tablet:order-3 tablet:pt-0 w-10',
 })``;
 
-const LinkContainer = styled.div.attrs({
+const WalletMenuContainer = styled.div.attrs({
   className:
     'flex items-start tablet:items-start tablet:order-4 mt-3 tablet:mt-0',
 })``;

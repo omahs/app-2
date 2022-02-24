@@ -11,7 +11,7 @@ const Template: Story<InputImageSingleProps> = args => {
   const [preview, setPreview] = useState<File | null>(null);
 
   const PreviewSrc: string | null = useMemo(() => {
-    return preview ? URL.createObjectURL(preview) : null;
+    return preview ? URL.createObjectURL(preview) : '';
   }, [preview]);
 
   return (

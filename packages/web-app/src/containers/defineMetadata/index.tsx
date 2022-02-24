@@ -94,7 +94,7 @@ const DefineMetadata: React.FC = () => {
           name="daoLogo"
           control={control}
           render={({field: {value, onChange}, fieldState: {error}}) => {
-            const preview = value ? URL.createObjectURL(value) : null;
+            const preview = value ? URL.createObjectURL(value) : '';
             return (
               <>
                 <LogoContainer>

@@ -42,7 +42,9 @@ const Community: React.FC = () => {
           <LabelWrapper>
             <Label>{t('labels.review.eligibleMembers')}</Label>
           </LabelWrapper>
-          <TextContent>{membership}</TextContent>
+          <TextContent>
+            {membership === 'token' ? t('createDAO.step3.tokenMembership') : ''}
+          </TextContent>
         </Row>
         <Row>
           <LabelWrapper>
