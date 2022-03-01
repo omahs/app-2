@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -13,8 +13,8 @@
     "community": "Community"
   },
   "daoSwitcher": {
-    "title": "Explore",
-    "subtitle": "Find other DAOs to join"
+    "title": "Select your DAO",
+    "subtitle": "Explore other DAOs"
   },
   "navButtons": {
     "connectWallet": "Login"
