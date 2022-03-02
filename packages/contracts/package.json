@@ -25,6 +25,9 @@
   },
   "homepage": "https://github.com/aragon/core#readme",
   "devDependencies": {
+    "@opengsn/provider": "2.2.6",
+    "@opengsn/cli": "2.2.6",
+    "@opengsn/dev": "2.2.6",
     "@defi-wonderland/smock": "^2.0.7",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
@@ -61,7 +64,7 @@
   },
   "dependencies": {
     "@superfluid-finance/ethereum-contracts": "^1.0.0-rc.11",
-    "@opengsn/contracts": "^2.2.5",
+    "@opengsn/contracts": "^2.2.6",
     "@openzeppelin/contracts": "^4.3.3",
     "@openzeppelin/contracts-upgradeable": "^4.3.3"
   }
