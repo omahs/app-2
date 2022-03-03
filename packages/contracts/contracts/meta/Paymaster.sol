@@ -23,7 +23,7 @@ contract Paymaster is Initializable, BasePaymaster, UUPSUpgradeable, Permissions
 
     /// @dev Used for GSN IPaymaster compatability
     function versionPaymaster() external view override virtual returns (string memory){
-        return "0.0.1";
+        return "2.2.0";
     }
 
     /// @dev Used for UUPS upgradability pattern
@@ -56,18 +56,18 @@ contract Paymaster is Initializable, BasePaymaster, UUPSUpgradeable, Permissions
     virtual
     returns (bytes memory context, bool revertOnRecipientRevert) {
         (signature, maxPossibleGas);
-        require(approvalData.length == 0, ERROR_APPROVAL_DATA_LENGTH_INVALID);
-        require(relayRequest.relayData.paymasterData.length == 0, ERROR_APPROVAL_DATA_LENGTH_INVALID);
+        // require(approvalData.length == 0, ERROR_APPROVAL_DATA_LENGTH_INVALID);
+        // require(relayRequest.relayData.paymasterData.length == 0, ERROR_APPROVAL_DATA_LENGTH_INVALID);
 
-        require(
-            dao.hasPermission(
-                relayRequest.request.to,
-                relayRequest.request.from,
-                PAYMASTER_SPONSORED_ROLE,
-                relayRequest.relayData.paymasterData
-            ),
-            ERROR_NOT_SPONSORED
-        );
+        // require(
+        //     dao.hasPermission(
+        //         relayRequest.request.to,
+        //         relayRequest.request.from,
+        //         PAYMASTER_SPONSORED_ROLE,
+        //         relayRequest.relayData.paymasterData
+        //     ),
+        //     ERROR_NOT_SPONSORED
+        // );
 
         return ("", false);
     }
