@@ -1,5 +1,5 @@
 // Library utils / Ethers for now
-import { BigNumberish, ethers } from 'ethers';
+import {BigNumberish, ethers} from 'ethers';
 
 export function formatUnits(amount: BigNumberish, decimals: number) {
   if (amount.toString().includes('.') || !decimals) {
@@ -28,7 +28,9 @@ export async function handleClipboardActions(
       const textFromClipboard = await navigator.clipboard.readText();
       onChange(textFromClipboard);
     } catch (e) {
-      console.warn("This browser does not support 'navigation.clipboard.readText'")
+      console.warn(
+        "This browser does not support 'navigation.clipboard.readText'"
+      );
     }
   }
 }

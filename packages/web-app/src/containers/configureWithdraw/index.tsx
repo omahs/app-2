@@ -11,28 +11,27 @@ import {
   useWatch,
 } from 'react-hook-form';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
-import React, { useCallback, useEffect } from 'react';
+import {useTranslation} from 'react-i18next';
+import React, {useCallback, useEffect} from 'react';
 
 import {
   validateAddress,
   validateTokenAddress,
   validateTokenAmount,
 } from 'utils/validators';
-import { useWallet } from 'context/augmentedWallet';
-import { fetchTokenData } from 'services/prices';
-import { getTokenInfo, isETH } from 'utils/tokens';
-import { useGlobalModalContext } from 'context/globalModals';
-import { formatUnits, handleClipboardActions } from 'utils/library';
-import { json } from 'stream/consumers';
+import {useWallet} from 'context/augmentedWallet';
+import {fetchTokenData} from 'services/prices';
+import {getTokenInfo, isETH} from 'utils/tokens';
+import {useGlobalModalContext} from 'context/globalModals';
+import {formatUnits, handleClipboardActions} from 'utils/library';
 
 const ConfigureWithdrawForm: React.FC = () => {
-  const { t } = useTranslation();
-  const { open } = useGlobalModalContext();
-  const { account, provider } = useWallet();
-  const { control, getValues, trigger, resetField, setFocus, setValue } =
+  const {t} = useTranslation();
+  const {open} = useGlobalModalContext();
+  const {account, provider} = useWallet();
+  const {control, getValues, trigger, resetField, setFocus, setValue} =
     useFormContext();
-  const { errors, dirtyFields } = useFormState({ control });
+  const {errors, dirtyFields} = useFormState({control});
   const [tokenAddress, isCustomToken, tokenBalance, symbol] = useWatch({
     name: ['tokenAddress', 'isCustomToken', 'tokenBalance', 'tokenSymbol'],
   });
@@ -69,7 +68,7 @@ const ConfigureWithdrawForm: React.FC = () => {
           setValue('tokenSymbol', data.symbol);
           setValue('tokenImgUrl', data.imgUrl);
         } else {
-          const { name, symbol } = await getTokenInfo(tokenAddress, provider);
+          const {name, symbol} = await getTokenInfo(tokenAddress, provider);
           setValue('tokenName', name);
           setValue('tokenSymbol', symbol);
         }
@@ -95,15 +94,15 @@ const ConfigureWithdrawForm: React.FC = () => {
     provider,
     setValue,
     tokenAddress,
-    trigger
+    trigger,
   ]);
 
   // Manually trigger the amount validation when the coin is changed
   useEffect(() => {
     if (symbol !== '') {
-      trigger('amount')
+      trigger('amount');
     }
-  }, [symbol])
+  }, [symbol, trigger]);
 
   /*************************************************
    *             Callbacks and Handlers            *
@@ -163,7 +162,7 @@ const ConfigureWithdrawForm: React.FC = () => {
       if (errors.tokenAddress) return t('errors.amountWithInvalidToken');
 
       try {
-        const { decimals } = await getTokenInfo(tokenAddress, provider);
+        const {decimals} = await getTokenInfo(tokenAddress, provider);
 
         // run amount rules
         return validateTokenAmount(amount, decimals);
@@ -196,8 +195,8 @@ const ConfigureWithdrawForm: React.FC = () => {
             validate: validateAddress,
           }}
           render={({
-            field: { name, onBlur, onChange, value },
-            fieldState: { error },
+            field: {name, onBlur, onChange, value},
+            fieldState: {error},
           }) => (
             <>
               <ValueInput
@@ -229,7 +228,7 @@ const ConfigureWithdrawForm: React.FC = () => {
           control={control}
           defaultValue=""
           // rules={{ required: t('errors.required.token') }}
-          render={({ field: { name, value }, fieldState: { error } }) => (
+          render={({field: {name, value}, fieldState: {error}}) => (
             <>
               <DropdownInput
                 name={name}
@@ -262,8 +261,8 @@ const ConfigureWithdrawForm: React.FC = () => {
               validate: addressValidator,
             }}
             render={({
-              field: { name, onBlur, onChange, value, ref },
-              fieldState: { error },
+              field: {name, onBlur, onChange, value, ref},
+              fieldState: {error},
             }) => (
               <>
                 <ValueInput
@@ -302,8 +301,8 @@ const ConfigureWithdrawForm: React.FC = () => {
             validate: amountValidator,
           }}
           render={({
-            field: { name, onBlur, onChange, value },
-            fieldState: { error },
+            field: {name, onBlur, onChange, value},
+            fieldState: {error},
           }) => (
             <>
               <StyledInput

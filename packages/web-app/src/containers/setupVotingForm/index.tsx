@@ -6,16 +6,16 @@ import {
   Label,
   NumberInput,
 } from '@aragon/ui-components';
-import { toDate } from 'date-fns-tz';
-import { Controller, FieldError, useFormContext } from 'react-hook-form';
+import {toDate} from 'date-fns-tz';
+import {Controller, FieldError, useFormContext} from 'react-hook-form';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
-import React, { useEffect, useState } from 'react';
+import {useTranslation} from 'react-i18next';
+import React, {useEffect, useState} from 'react';
 
-import { DateModeSwitch, EndDateType } from './dateModeSwitch';
-import { SimplifiedTimeInput } from 'components/inputTime/inputTime';
+import {DateModeSwitch, EndDateType} from './dateModeSwitch';
+import {SimplifiedTimeInput} from 'components/inputTime/inputTime';
 import UtcMenu from 'containers/utcMenu';
-import { timezones } from 'containers/utcMenu/utcData';
+import {timezones} from 'containers/utcMenu/utcData';
 import {
   daysToMills,
   getCanonicalDate,
@@ -23,15 +23,15 @@ import {
   getCanonicalUtcOffset,
   getFormattedUtcOffset,
 } from 'utils/date';
-import { DateTimeErrors } from './dateTimeErrors';
-import { useGlobalModalContext } from 'context/globalModals';
+import {DateTimeErrors} from './dateTimeErrors';
+import {useGlobalModalContext} from 'context/globalModals';
 
 type UtcInstance = 'first' | 'second';
 
 const SetupVotingForm: React.FC = () => {
-  const { t } = useTranslation();
-  const { open } = useGlobalModalContext();
-  const { control, setValue, getValues, formState, trigger } = useFormContext();
+  const {t} = useTranslation();
+  const {open} = useGlobalModalContext();
+  const {control, setValue, getValues, formState, trigger} = useFormContext();
 
   /*************************************************
    *                    STATE & EFFECT             *
@@ -47,13 +47,13 @@ const SetupVotingForm: React.FC = () => {
   // ellapse between the creation of the form context and this stage of the form.
   useEffect(() => {
     if (!getValues('startTime'))
-      setValue('startTime', getCanonicalTime({ minutes: 10 }));
+      setValue('startTime', getCanonicalTime({minutes: 10}));
     if (!getValues('startDate'))
-      setValue('startDate', getCanonicalDate({ minutes: 10 }));
+      setValue('startDate', getCanonicalDate({minutes: 10}));
     if (!getValues('endTime'))
-      setValue('endTime', getCanonicalTime({ days: 5, minutes: 10 }));
+      setValue('endTime', getCanonicalTime({days: 5, minutes: 10}));
     if (!getValues('endDate'))
-      setValue('endDate', getCanonicalDate({ days: 5, minutes: 10 }));
+      setValue('endDate', getCanonicalDate({days: 5, minutes: 10}));
 
     const currTimezone = timezones.find(tz => tz === getFormattedUtcOffset());
     if (!currTimezone) {
@@ -193,7 +193,7 @@ const SetupVotingForm: React.FC = () => {
               required: t('errors.required.date'),
               validate: dateTimeValidator,
             }}
-            render={({ field: { name, value, onChange, onBlur } }) => (
+            render={({field: {name, value, onChange, onBlur}}) => (
               <div>
                 <DateInput
                   name={name}
@@ -213,7 +213,7 @@ const SetupVotingForm: React.FC = () => {
               // not assign the error to the correct field
               validate: dateTimeValidator,
             }}
-            render={({ field: { name, value, onChange, onBlur } }) => (
+            render={({field: {name, value, onChange, onBlur}}) => (
               <div>
                 <SimplifiedTimeInput
                   name={name}
@@ -257,7 +257,7 @@ const SetupVotingForm: React.FC = () => {
                   },
                   required: t('errors.required.duration'),
                 }}
-                render={({ field: { name, onChange, value } }) => {
+                render={({field: {name, onChange, value}}) => {
                   return (
                     <NumberInput
                       name={name}
@@ -291,7 +291,7 @@ const SetupVotingForm: React.FC = () => {
                     required: t('errors.required.date'),
                     validate: dateTimeValidator,
                   }}
-                  render={({ field: { name, value, onChange, onBlur } }) => (
+                  render={({field: {name, value, onChange, onBlur}}) => (
                     <div>
                       <DateInput
                         name={name}
@@ -309,7 +309,7 @@ const SetupVotingForm: React.FC = () => {
                     required: t('errors.required.time'),
                     validate: dateTimeValidator,
                   }}
-                  render={({ field: { name, value, onChange, onBlur } }) => (
+                  render={({field: {name, value, onChange, onBlur}}) => (
                     <div>
                       <SimplifiedTimeInput
                         name={name}
