@@ -132,21 +132,21 @@ const NewWithdraw: React.FC = () => {
         <Step
           wizardTitle={t('newWithdraw.configureWithdraw.title')}
           wizardDescription={t('newWithdraw.configureWithdraw.subtitle')}
-          // isNextButtonDisabled={!formMethods.formState.isValid}
+          isNextButtonDisabled={!formMethods.formState.isValid}
         >
           <ConfigureWithdrawForm />
         </Step>
         <Step
           wizardTitle={t('newWithdraw.setupVoting.title')}
           wizardDescription={t('newWithdraw.setupVoting.description')}
-          // isNextButtonDisabled={!formMethods.formState.isValid}
+          isNextButtonDisabled={!formMethods.formState.isValid}
         >
           <SetupVotingForm />
         </Step>
         <Step
           wizardTitle={t('newWithdraw.defineProposal.heading')}
           wizardDescription={t('newWithdraw.defineProposal.description')}
-          // isNextButtonDisabled={!formMethods.formState.isValid}
+          isNextButtonDisabled={!formMethods.formState.isValid}
         >
           <DefineProposal />
         </Step>
