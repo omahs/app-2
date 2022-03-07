@@ -1,4 +1,5 @@
-import {utils} from 'ethers';
+import {toHex} from './tokens';
+import {CHAIN_METADATA} from 'utils/constants';
 
 export function classNames(...classes: unknown[]): string {
   return classes.filter(Boolean).join(' ');
@@ -7,14 +8,15 @@ export function classNames(...classes: unknown[]): string {
 /**
  * Switch Wallet chain
  */
-export const switchWalletChain = async (newChainid: number) => {
+export const switchWalletChain = async (id: number, network: string) => {
   // Check if MetaMask is installed
+  console.log('seeId', CHAIN_METADATA[network][id].nativeCurrency);
   if (window.ethereum) {
     try {
       // check if the chain to connect to is installed
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{chainId: utils.hexlify(newChainid)}], // chainId must be in hexadecimal numbers
+        params: [{chainId: toHex(id)}], // chainId must be in hexadecimal numbers
       });
     } catch (error: any) {
       // This error code indicates that the chain has not been added to MetaMask
@@ -25,9 +27,10 @@ export const switchWalletChain = async (newChainid: number) => {
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainName: 'Arbitrum One',
-                chainId: utils.hexlify(newChainid),
-                rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+                chainName: CHAIN_METADATA[network][id].name,
+                chainId: toHex(id),
+                rpcUrls: CHAIN_METADATA[network][id].rpc,
+                nativeCurrency: CHAIN_METADATA[network][id].nativeCurrency,
               },
             ],
           });

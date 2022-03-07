@@ -23,6 +23,7 @@ import {formatUnits} from 'utils/library';
 import {getTokenInfo} from 'utils/tokens';
 import {ChainInformation} from 'use-wallet/dist/cjs/types';
 import {validateTokenAddress} from 'utils/validators';
+import {switchWalletChain} from 'utils/index';
 
 const DEFAULT_BLOCK_EXPLORER = 'https://etherscan.io/';
 
@@ -34,12 +35,12 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
   resetTokenFields,
 }) => {
   const {t} = useTranslation();
-  const {account, provider} = useWallet();
+  const {account, chainId, provider} = useWallet();
   const {control, resetField, setValue} = useFormContext();
   const {errors} = useFormState({control});
 
-  const [address, chainId, tokenName, tokenSymbol, tokenTotalSupply] = useWatch(
-    {
+  const [address, blockchain, tokenName, tokenSymbol, tokenTotalSupply] =
+    useWatch({
       name: [
         'tokenAddress',
         'blockchain',
@@ -47,19 +48,18 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
         'tokenSymbol',
         'tokenTotalSupply',
       ],
-    }
-  );
+    });
 
   const explorer = useMemo(() => {
-    if (chainId.id) {
+    if (blockchain.id) {
       const {explorerUrl} = chains.getChainInformation(
-        chainId.id
+        blockchain.id
       ) as ChainInformation;
       return explorerUrl || DEFAULT_BLOCK_EXPLORER;
     }
 
     return DEFAULT_BLOCK_EXPLORER;
-  }, [chainId.id]);
+  }, [blockchain.id]);
 
   /*************************************************
    *                    Hooks                      *
@@ -70,6 +70,9 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
       alert('Please connect your wallet');
       return;
     }
+
+    if (blockchain.id !== chainId)
+      switchWalletChain(blockchain.id, blockchain.network);
 
     const fetchContractInfo = async () => {
       // have to include this to "debounce" network calls
@@ -100,6 +103,8 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
   }, [
     account,
     address,
+    blockchain,
+    chainId,
     errors.tokenAddress,
     provider,
     resetField,

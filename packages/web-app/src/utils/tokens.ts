@@ -187,3 +187,7 @@ export const fetchBalance = async (
 export const isETH = (tokenAddress: string) => {
   return tokenAddress === constants.AddressZero;
 };
+
+export const toHex = (num: number | string) => {
+  return '0x' + num.toString(16);
+};
