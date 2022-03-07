@@ -10,6 +10,9 @@ import DaoMetadata from './daoMetadata';
 import Community from './community';
 import Governance from './governance';
 import goLive from 'public/goLive.svg';
+import {switchWalletChain} from 'utils/index';
+import {useWallet} from 'context/augmentedWallet';
+import {useWalletProps} from 'containers/walletMenu';
 
 export const GoLiveHeader: React.FC = () => {
   const {t} = useTranslation();
@@ -41,10 +44,14 @@ const GoLive: React.FC = () => {
 };
 
 export const GoLiveFooter: React.FC = () => {
-  const {next} = useFormStep();
   const {watch} = useFormContext();
-  const {reviewCheck} = watch();
+  const {reviewCheck, blockchain} = watch();
+  const {chainId}: useWalletProps = useWallet();
   const {t} = useTranslation();
+
+  const validateWalletChain = () => {
+    if (blockchain.id !== chainId) switchWalletChain(blockchain.id);
+  };
 
   const IsButtonDisabled = () =>
     !Object.values(reviewCheck).every(v => v === true);
@@ -55,7 +62,7 @@ export const GoLiveFooter: React.FC = () => {
         size="large"
         iconRight={<IconChevronRight />}
         label={t('createDAO.review.button')}
-        onClick={next}
+        onClick={validateWalletChain}
         disabled={IsButtonDisabled()}
       />
     </div>
