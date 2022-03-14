@@ -29,8 +29,15 @@ const ConfigureWithdrawForm: React.FC = () => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
   const {account, provider} = useWallet();
-  const {control, getValues, trigger, resetField, setFocus, setValue} =
-    useFormContext();
+  const {
+    control,
+    getValues,
+    trigger,
+    resetField,
+    setFocus,
+    setValue,
+    setError,
+  } = useFormContext();
   const {errors, dirtyFields} = useFormState({control});
   const [tokenAddress, isCustomToken, tokenBalance, symbol] = useWatch({
     name: ['tokenAddress', 'isCustomToken', 'tokenBalance', 'tokenSymbol'],
@@ -99,7 +106,7 @@ const ConfigureWithdrawForm: React.FC = () => {
 
   // Manually trigger the amount validation when the coin is changed
   useEffect(() => {
-    if (symbol !== '') {
+    if (symbol !== '' && dirtyFields['amount']) {
       trigger('amount');
     }
   }, [symbol, trigger]);

@@ -31,7 +31,15 @@ type UtcInstance = 'first' | 'second';
 const SetupVotingForm: React.FC = () => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
-  const {control, setValue, getValues, formState, trigger} = useFormContext();
+  const {
+    control,
+    setValue,
+    getValues,
+    formState,
+    trigger,
+    setError,
+    clearErrors,
+  } = useFormContext();
 
   /*************************************************
    *                    STATE & EFFECT             *
@@ -138,17 +146,42 @@ const SetupVotingForm: React.FC = () => {
 
     const minEndDateTimeMills = startMills + daysToMills(5);
 
+    let hasError = false;
     // check start constraints
     if (startMills < currMills) {
-      return t('errors.startPast');
+      setError('startTime', {
+        type: 'validate',
+        message: t('errors.startPast'),
+      });
+      setError('startDate', {
+        type: 'validate',
+        message: t('errors.startPast'),
+      });
+      hasError = true;
+    }
+    if (startMills >= currMills) {
+      clearErrors('startDate');
+      clearErrors('startTime');
     }
 
     //check end constraints
     if (endMills < minEndDateTimeMills) {
-      return t('errors.endPast');
+      setError('endTime', {
+        type: 'validate',
+        message: t('errors.endPast'),
+      });
+      setError('endDate', {
+        type: 'validate',
+        message: t('errors.endPast'),
+      });
+      hasError = true;
+    }
+    if (endMills >= minEndDateTimeMills) {
+      clearErrors('endDate');
+      clearErrors('endTime');
     }
 
-    return true;
+    return hasError || hasError ? '' : true;
   };
 
   // sets the UTC values for the start and end date/time
