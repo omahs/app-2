@@ -181,7 +181,7 @@ const SetupVotingForm: React.FC = () => {
       clearErrors('endTime');
     }
 
-    return hasError || hasError ? '' : true;
+    return hasError ? '' : true;
   };
 
   // sets the UTC values for the start and end date/time
