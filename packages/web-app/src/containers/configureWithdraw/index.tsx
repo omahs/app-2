@@ -29,15 +29,8 @@ const ConfigureWithdrawForm: React.FC = () => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
   const {account, provider} = useWallet();
-  const {
-    control,
-    getValues,
-    trigger,
-    resetField,
-    setFocus,
-    setValue,
-    setError,
-  } = useFormContext();
+  const {control, getValues, trigger, resetField, setFocus, setValue} =
+    useFormContext();
   const {errors, dirtyFields} = useFormState({control});
   const [tokenAddress, isCustomToken, tokenBalance, symbol] = useWatch({
     name: ['tokenAddress', 'isCustomToken', 'tokenBalance', 'tokenSymbol'],
@@ -109,7 +102,7 @@ const ConfigureWithdrawForm: React.FC = () => {
     if (symbol !== '' && dirtyFields['amount']) {
       trigger('amount');
     }
-  }, [symbol, trigger]);
+  }, [symbol, trigger, dirtyFields]);
 
   /*************************************************
    *             Callbacks and Handlers            *
