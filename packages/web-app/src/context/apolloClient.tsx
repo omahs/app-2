@@ -12,7 +12,8 @@ import {
 import {RestLink} from 'apollo-link-rest';
 import {CachePersistor, LocalStorageWrapper} from 'apollo3-cache-persist';
 import {BASE_URL, SUBGRAPH_API_URL} from 'utils/constants';
-import {useWallet} from 'context/augmentedWallet';
+import {useSigner} from 'use-signer';
+import {useProviderWrapper} from 'hooks/useProviderWrapper';
 
 /**
  * IApolloClientContext
@@ -26,7 +27,8 @@ const UseApolloClientContext = React.createContext<IApolloClientContext | any>(
 );
 
 const ApolloClientProvider: React.FC<unknown> = ({children}) => {
-  const {networkName} = useWallet();
+  const {provider} = useSigner();
+  const {networkName} = useProviderWrapper(null, provider);
 
   const graphLink = useMemo(() => {
     if (networkName) {

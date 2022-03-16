@@ -5,6 +5,8 @@ import {constants, ethers, providers as EthersProviders} from 'ethers';
 
 import {formatUnits} from 'utils/library';
 
+import {Web3Provider} from '@ethersproject/providers';
+
 /**
  * This method sorts a list of array information. It is applicable to any field
  * of the information object that can be compared using '<', '>'.
@@ -92,7 +94,7 @@ export function filterTokens(tokens: BaseTokenInfo[], searchTerm: string) {
 
 export async function isERC20Token(
   address: string,
-  provider: EthersProviders.Provider
+  provider: Web3Provider
 ) {
   const contract = new ethers.Contract(address, erc20TokenABI, provider);
   try {
@@ -110,10 +112,7 @@ export async function isERC20Token(
  * @param provider Eth provider
  * @returns number for decimals for each token
  */
-export async function getTokenInfo(
-  address: string,
-  provider: EthersProviders.Provider
-) {
+export async function getTokenInfo(address: string, provider: Web3Provider) {
   let decimals = null,
     symbol = null,
     name = null,
@@ -127,7 +126,6 @@ export async function getTokenInfo(
       totalSupply,
     };
   }
-
   const contract = new ethers.Contract(address, erc20TokenABI, provider);
   try {
     const values = await Promise.all([
@@ -163,7 +161,7 @@ export async function getTokenInfo(
 export const fetchBalance = async (
   tokenAddress: string,
   ownerAddress: string,
-  provider: EthersProviders.Provider,
+  provider: Web3Provider,
   shouldFormat = true
 ) => {
   const contract = new ethers.Contract(tokenAddress, erc20TokenABI, provider);

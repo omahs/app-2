@@ -1,10 +1,11 @@
 import typescript from '@rollup/plugin-typescript';
 import reactRefresh from '@vitejs/plugin-react-refresh';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import {defineConfig, loadEnv} from 'vite';
+import { defineConfig, loadEnv } from 'vite';
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 // https://vitejs.dev/config/
-export default defineConfig(({mode}) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, 'env');
 
   // Plugin so we can use default %env_variable%
@@ -25,7 +26,22 @@ export default defineConfig(({mode}) => {
       htmlEnvPlugin(),
       reactRefresh(),
       tsconfigPaths(),
-      typescript({tsconfig: './tsconfig.json'}),
+      typescript({ tsconfig: './tsconfig.json' }),
     ],
+    optimizeDeps: {
+      esbuildOptions: {
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis'
+        },
+        // Enable esbuild polyfill plugins
+        plugins: [
+          NodeGlobalsPolyfillPlugin({
+            process: true,
+            buffer: true
+          }),
+        ]
+      }
+    },
   };
 });

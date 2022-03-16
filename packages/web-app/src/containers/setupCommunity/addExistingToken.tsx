@@ -5,17 +5,17 @@ import {
   SearchInput,
   TextInput,
 } from '@aragon/ui-components';
-import React, {useCallback, useEffect, useMemo} from 'react';
-import {Controller, useFormContext, useWatch} from 'react-hook-form';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import styled from 'styled-components';
-import {chains} from 'use-wallet';
-import {useTranslation} from 'react-i18next';
-import {useWallet} from 'context/augmentedWallet';
-import {useProviders} from 'context/providers';
-import {ChainInformation} from 'use-wallet/dist/cjs/types';
-import {formatUnits} from 'utils/library';
-import {getTokenInfo} from 'utils/tokens';
-import {validateTokenAddress} from 'utils/validators';
+import { chains } from 'use-wallet';
+import { useTranslation } from 'react-i18next';
+import { ChainInformation } from 'use-wallet/dist/cjs/types';
+import { formatUnits } from 'utils/library';
+import { getTokenInfo } from 'utils/tokens';
+import { validateTokenAddress } from 'utils/validators';
+import { useProviderWrapper } from 'hooks/useProviderWrapper';
+import { useSigner } from 'use-signer';
 
 const DEFAULT_BLOCK_EXPLORER = 'https://etherscan.io/';
 
@@ -26,11 +26,15 @@ type AddExistingTokenType = {
 const AddExistingToken: React.FC<AddExistingTokenType> = ({
   resetTokenFields,
 }) => {
-  const {t} = useTranslation();
-  const {isConnected, chainId, networkName} = useWallet();
-  const {infura: provider} = useProviders();
-  const {control, setValue, trigger} = useFormContext();
+  const { t } = useTranslation();
+  const { status, chainId, provider } = useSigner();
+  const { networkName } = useProviderWrapper(null, provider);
+  const isConnected = status === 'connected';
+  // const {isConnected, chainId, networkName} = useWallet();
+  // const {infura: provider} = useProviders();
+  const { control, setValue, trigger } = useFormContext();
 
+  // TODO fix?
   const [tokenAddress, blockchain, tokenName, tokenSymbol, tokenTotalSupply] =
     useWatch({
       name: [
@@ -44,7 +48,7 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
 
   const explorer = useMemo(() => {
     if (blockchain.id) {
-      const {explorerUrl} = chains.getChainInformation(
+      const { explorerUrl } = chains.getChainInformation(
         blockchain.id
       ) as ChainInformation;
       return explorerUrl || DEFAULT_BLOCK_EXPLORER;
@@ -66,7 +70,7 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
   const addressValidator = useCallback(
     async contractAddress => {
       // No wallet
-      if (!isConnected()) {
+      if (!isConnected) {
         alert('Connect Wallet');
         return 'Connect Wallet'; // Temporary
       }
@@ -78,10 +82,8 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
         );
         return 'Switch Chain'; // Temporary
       }
-
-      const isValid = await validateTokenAddress(contractAddress, provider);
-
-      if (isValid) {
+      const isValid = provider ? await validateTokenAddress(contractAddress, provider) : false
+      if (isValid && provider) {
         try {
           const res = await getTokenInfo(contractAddress, provider);
 
@@ -111,6 +113,10 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
     ]
   );
 
+  if (!provider) {
+    // TODO redirect to finance?
+    return null;
+  }
   return (
     <>
       <DescriptionContainer>
@@ -139,12 +145,12 @@ const AddExistingToken: React.FC<AddExistingTokenType> = ({
             validate: addressValidator,
           }}
           render={({
-            field: {name, value, onBlur, onChange},
-            fieldState: {error, isDirty, invalid},
+            field: { name, value, onBlur, onChange },
+            fieldState: { error, isDirty, invalid },
           }) => (
             <>
               <SearchInput
-                {...{name, value, onBlur, onChange}}
+                {...{ name, value, onBlur, onChange }}
                 placeholder="0x..."
               />
               {error?.message && (
@@ -192,9 +198,9 @@ const DescriptionContainer = styled.div.attrs({
   className: 'space-y-0.5',
 })``;
 
-const Title = styled.p.attrs({className: 'text-lg font-bold text-ui-800'})``;
+const Title = styled.p.attrs({ className: 'text-lg font-bold text-ui-800' })``;
 
-const Subtitle = styled.p.attrs({className: 'text-ui-600 text-bold'})``;
+const Subtitle = styled.p.attrs({ className: 'text-ui-600 text-bold' })``;
 
 const TokenInfoContainer = styled.div.attrs({
   className:

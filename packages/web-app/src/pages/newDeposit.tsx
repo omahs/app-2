@@ -4,7 +4,6 @@ import {useForm, FormProvider} from 'react-hook-form';
 import React, {useEffect} from 'react';
 
 import TokenMenu from 'containers/tokenMenu';
-import {useWallet} from 'context/augmentedWallet';
 import DepositForm from 'containers/depositForm';
 import {formatUnits} from 'utils/library';
 import ReviewDeposit from 'containers/reviewDeposit';
@@ -14,6 +13,7 @@ import {useWalletTokens} from 'hooks/useWalletTokens';
 import {FullScreenStepper, Step} from 'components/fullScreenStepper';
 import {TransferFormData} from './newWithdraw';
 import {Finance} from 'utils/paths';
+import {useSigner} from 'use-signer';
 
 export type DepositFormData = TransferFormData;
 
@@ -29,7 +29,7 @@ const defaultValues = {
 
 const NewDeposit: React.FC = () => {
   const {t} = useTranslation();
-  const {account} = useWallet();
+  const {address} = useSigner();
   const formMethods = useForm<DepositFormData>({
     defaultValues,
     mode: 'onChange',
@@ -42,11 +42,11 @@ const NewDeposit: React.FC = () => {
 
   useEffect(() => {
     // add form metadata
-    if (account) {
-      formMethods.setValue('from', account);
+    if (address) {
+      formMethods.setValue('from', address);
       formMethods.setValue('type', TransferTypes.Deposit);
     }
-  }, [account, formMethods]);
+  }, [address, formMethods]);
 
   /*************************************************
    *             Callbacks and Handlers            *

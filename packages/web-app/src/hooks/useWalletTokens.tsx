@@ -1,14 +1,13 @@
 import {constants} from 'ethers';
-import {formatUnits, Interface, getAddress, hexZeroPad} from 'ethers/lib/utils';
+import {Interface, getAddress, hexZeroPad} from 'ethers/lib/utils';
 import {Log} from '@ethersproject/providers';
 import {useState, useEffect} from 'react';
 
 import {erc20TokenABI} from 'abis/erc20TokenABI';
-import {useWallet} from 'context/augmentedWallet';
-import {useProviders} from 'context/providers';
-import {useWalletProps} from 'containers/walletMenu';
 import {isETH, fetchBalance} from 'utils/tokens';
 import {HookData, TokenBalance} from 'utils/types';
+import {useSigner} from 'use-signer';
+import {useProviderWrapper} from './useProviderWrapper';
 
 // TODO The two hooks in this file are very similar and should probably be
 // merged into one. The reason I'm not doing it now is that I'm not sure if
@@ -20,8 +19,7 @@ import {HookData, TokenBalance} from 'utils/types';
  * has balance.
  */
 export function useUserTokenAddresses(): HookData<string[]> {
-  const {account} = useWallet();
-  const {web3} = useProviders();
+  const {address, provider} = useSigner();
 
   const [tokenList, setTokenList] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,19 +29,19 @@ export function useUserTokenAddresses(): HookData<string[]> {
     async function fetchTokenList() {
       setIsLoading(true);
 
-      if (web3 && account) {
+      if (address && provider) {
         try {
           const erc20Interface = new Interface(erc20TokenABI);
-          const latestBlockNumber = await web3.getBlockNumber();
+          const latestBlockNumber = await provider.getBlockNumber();
 
           // Get all transfers sent to the input address
-          const transfers: Log[] = await web3.getLogs({
+          const transfers: Log[] = await provider.getLogs({
             fromBlock: 0,
             toBlock: latestBlockNumber,
             topics: [
               erc20Interface.getEventTopic('Transfer'),
               null,
-              hexZeroPad(account as string, 32),
+              hexZeroPad(address as string, 32),
             ],
           });
           // Filter unique token contract addresses and convert all events to Contract instances
@@ -68,7 +66,7 @@ export function useUserTokenAddresses(): HookData<string[]> {
     }
 
     fetchTokenList();
-  }, [account, web3]);
+  }, [address, provider]);
 
   return {data: tokenList, isLoading, error};
 }
@@ -80,8 +78,8 @@ export function useUserTokenAddresses(): HookData<string[]> {
  * contract address it also returns the user's balance for each of the tokens.
  */
 export function useWalletTokens(): HookData<TokenBalance[]> {
-  const {account, balance}: useWalletProps = useWallet();
-  const {infura: provider} = useProviders();
+  const {address, provider} = useSigner();
+  const {balance} = useProviderWrapper(address, provider);
   const {
     data: tokenList,
     isLoading: tokenListLoading,
@@ -96,7 +94,7 @@ export function useWalletTokens(): HookData<TokenBalance[]> {
   useEffect(() => {
     async function fetchWalletTokens() {
       setIsLoading(true);
-      if (account === null || provider === null) {
+      if (address === null || provider === null) {
         setWalletTokens([]);
         return;
       }
@@ -107,8 +105,8 @@ export function useWalletTokens(): HookData<TokenBalance[]> {
       // get tokens balance from wallet
       const balances = await Promise.all(
         tokenList.map(address => {
-          if (isETH(address)) return formatUnits(balance, 18);
-          else return fetchBalance(address, account, provider, false);
+          if (isETH(address)) return balance?.toString();
+          else return fetchBalance(address, address, provider, false);
         })
       );
 
@@ -128,7 +126,7 @@ export function useWalletTokens(): HookData<TokenBalance[]> {
       return;
     }
     fetchWalletTokens();
-  }, [account, balance, tokenList, provider, tokenListLoading, tokenListError]);
+  }, [address, balance, tokenList, provider, tokenListLoading, tokenListError]);
 
   return {data: walletTokens, isLoading: tokenListLoading || isLoading, error};
 }

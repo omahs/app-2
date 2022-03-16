@@ -10,7 +10,6 @@ const Home: React.FC = () => {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const {open} = useGlobalModalContext();
-
   return (
     <>
       <div className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 mx-auto">
@@ -33,6 +32,14 @@ const Home: React.FC = () => {
         size="large"
         onClick={() => open('transaction')}
       />
+      {/* {status}
+      {address}
+      <ButtonText
+        label="Open login modal"
+        className="mx-auto mt-3"
+        size="large"
+        onClick={handleOpenLogin}
+      /> */}
     </>
   );
 };

@@ -15,9 +15,8 @@ import {i18n} from '../../../i18n.config';
 import MobileNav from './mobile';
 import useScreen from 'hooks/useScreen';
 import DesktopNav from './desktop';
-import {useWallet} from 'context/augmentedWallet';
-import {useWalletMenuContext} from 'context/walletMenu';
 import {CHAIN_METADATA as chains} from 'utils/constants';
+import {useSigner} from 'use-signer';
 
 type NumberIndexed = {[key: number]: {}};
 type StringIndexed = {[key: string]: {processLabel: string; returnURL: string}};
@@ -52,10 +51,11 @@ const getNetworkStatus = (id: number) => {
 };
 
 const Navbar: React.FC = () => {
-  const {open} = useWalletMenuContext();
   const {pathname} = useLocation();
   const {isDesktop} = useScreen();
-  const {chainId, connect, isConnected} = useWallet();
+
+  const {chainId, status: walletStatus, methods} = useSigner();
+  const isConnected = walletStatus === 'connected';
 
   const processName = useMemo(() => {
     const results = matchRoutes(processPaths, pathname);
@@ -63,11 +63,19 @@ const Navbar: React.FC = () => {
   }, [pathname]);
 
   const status = useMemo(() => {
-    return isConnected() ? getNetworkStatus(chainId!) : 'default';
+    return isConnected ? getNetworkStatus(chainId!) : 'default';
   }, [chainId, isConnected]);
 
   const handleWalletButtonClick = () => {
-    isConnected() ? open() : connect('injected');
+    if (isConnected) {
+      methods.disconnect();
+      return;
+    }
+    methods.selectWallet().catch(err => {
+      // TODO: maybe add an error message when
+      // the error is different from closing the window
+      console.error(err);
+    });
   };
 
   return isDesktop ? (
@@ -88,6 +96,6 @@ const Navbar: React.FC = () => {
 export default Navbar;
 
 export const NavigationBar = styled.nav.attrs({
-  className: `flex tablet:order-1 h-12 justify-between items-center px-2 pb-2 pt-1.5 
+  className: `flex tablet:order-1 h-12 justify-between items-center px-2 pb-2 pt-1.5
     tablet:py-2 tablet:px-3 desktop:py-3 desktop:px-5 wide:px-25 text-ui-600`,
 })``;

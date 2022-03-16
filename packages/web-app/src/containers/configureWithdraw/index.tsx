@@ -11,34 +11,35 @@ import {
   useWatch,
 } from 'react-hook-form';
 import styled from 'styled-components';
-import {useTranslation} from 'react-i18next';
-import React, {useCallback, useEffect} from 'react';
+import { useTranslation } from 'react-i18next';
+import React, { useCallback, useEffect } from 'react';
 
-import {useWallet} from 'context/augmentedWallet';
-import {useProviders} from 'context/providers';
-import {useGlobalModalContext} from 'context/globalModals';
-import {fetchTokenData} from 'services/prices';
-import {formatUnits, handleClipboardActions} from 'utils/library';
-import {getTokenInfo, isETH} from 'utils/tokens';
+import { useGlobalModalContext } from 'context/globalModals';
+import { fetchTokenData } from 'services/prices';
+import { handleClipboardActions } from 'utils/library';
+import { getTokenInfo, isETH } from 'utils/tokens';
 import {
   validateAddress,
   validateTokenAddress,
   validateTokenAmount,
 } from 'utils/validators';
-import {useApolloClient} from 'context/apolloClient';
+import { useApolloClient } from 'context/apolloClient';
+import { useSigner } from 'use-signer';
+import { useProviderWrapper } from 'hooks/useProviderWrapper';
 
 const ConfigureWithdrawForm: React.FC = () => {
   const client = useApolloClient();
-  const {t} = useTranslation();
-  const {open} = useGlobalModalContext();
-  const {account} = useWallet();
-  const {infura: provider} = useProviders();
-  const {control, getValues, trigger, resetField, setFocus, setValue} =
+  const { t } = useTranslation();
+  const { open } = useGlobalModalContext();
+  const { address, provider } = useSigner();
+  const { balance } = useProviderWrapper(address, provider);
+  const { control, getValues, trigger, resetField, setFocus, setValue } =
     useFormContext();
-  const {errors, dirtyFields} = useFormState({control});
+  const { errors, dirtyFields } = useFormState({ control });
   const [tokenAddress, isCustomToken, tokenBalance, symbol] = useWatch({
     name: ['tokenAddress', 'isCustomToken', 'tokenBalance', 'tokenSymbol'],
   });
+
   /*************************************************
    *                    Hooks                      *
    *************************************************/
@@ -47,7 +48,8 @@ const ConfigureWithdrawForm: React.FC = () => {
   }, [isCustomToken, setFocus]);
 
   useEffect(() => {
-    if (!account || !isCustomToken || !tokenAddress) return;
+    // if ther is no addres, token addres on the token is not custom skip this
+    if (!address || !isCustomToken || !tokenAddress) return;
 
     const fetchTokenInfo = async () => {
       if (errors.tokenAddress !== undefined) {
@@ -58,23 +60,25 @@ const ConfigureWithdrawForm: React.FC = () => {
       try {
         // fetch token balance and token metadata
         // TODO: replace with commented out code when integrating backend
-        const allTokenInfoPromise = Promise.all([
-          isETH(tokenAddress)
-            ? formatUnits('4242424242400000000000', 18) //provider.getBalance(DAOVaultAddress)
-            : formatUnits('4242424242400000000000', 18), //fetchBalance(tokenAddress, DAOVaultAddress, provider),
-          fetchTokenData(tokenAddress, client),
-        ]);
+        // const allTokenInfoPromise = Promise.all([
+        //   isETH(tokenAddress)
+        //     ? () => Promise.resolve(balance) //provider.getBalance(DAOVaultAddress)
+        //     : formatUnits('4242424242400000000000', 18), //fetchBalance(tokenAddress, DAOVaultAddress, provider),
+        //   fetchTokenData(tokenAddress, client),
+        // ]);
 
         // use blockchain if api data unavailable
-        const [balance, data] = await allTokenInfoPromise;
+        const data = await fetchTokenData(tokenAddress, client);
         if (data) {
           setValue('tokenName', data.name);
           setValue('tokenSymbol', data.symbol);
           setValue('tokenImgUrl', data.imgUrl);
         } else {
-          const {name, symbol} = await getTokenInfo(tokenAddress, provider);
-          setValue('tokenName', name);
-          setValue('tokenSymbol', symbol);
+          if (provider) {
+            const { name, symbol } = await getTokenInfo(tokenAddress, provider);
+            setValue('tokenName', name);
+            setValue('tokenSymbol', symbol);
+          }
         }
         setValue('tokenBalance', balance);
       } catch (error) {
@@ -91,13 +95,14 @@ const ConfigureWithdrawForm: React.FC = () => {
 
     fetchTokenInfo();
   }, [
-    account,
+    address,
     dirtyFields.amount,
     errors.tokenAddress,
     isCustomToken,
     provider,
     setValue,
     tokenAddress,
+    balance,
     trigger,
     client,
   ]);
@@ -133,7 +138,7 @@ const ConfigureWithdrawForm: React.FC = () => {
   const addressValidator = useCallback(
     async (address: string) => {
       if (isETH(address)) return true;
-
+      if (!provider) return ""
       const validationResult = await validateTokenAddress(address, provider);
 
       // address invalid, reset token fields
@@ -158,9 +163,10 @@ const ConfigureWithdrawForm: React.FC = () => {
 
       // check if token selected is valid
       if (errors.tokenAddress) return t('errors.amountWithInvalidToken');
+      if (!provider) return "";
 
       try {
-        const {decimals} = await getTokenInfo(tokenAddress, provider);
+        const { decimals } = await getTokenInfo(tokenAddress, provider);
 
         // run amount rules
         return validateTokenAmount(amount, decimals);
@@ -173,6 +179,10 @@ const ConfigureWithdrawForm: React.FC = () => {
     [errors.tokenAddress, getValues, provider, t]
   );
 
+  // todo change me for a nevigation to the finance page
+  if (!provider || !address) {
+    return null;
+  }
   /*************************************************
    *                    Render                     *
    *************************************************/
@@ -193,8 +203,8 @@ const ConfigureWithdrawForm: React.FC = () => {
             validate: validateAddress,
           }}
           render={({
-            field: {name, onBlur, onChange, value},
-            fieldState: {error},
+            field: { name, onBlur, onChange, value },
+            fieldState: { error },
           }) => (
             <>
               <ValueInput
@@ -225,8 +235,8 @@ const ConfigureWithdrawForm: React.FC = () => {
           name="tokenSymbol"
           control={control}
           defaultValue=""
-          rules={{required: t('errors.required.token')}}
-          render={({field: {name, value}, fieldState: {error}}) => (
+          rules={{ required: t('errors.required.token') }}
+          render={({ field: { name, value }, fieldState: { error } }) => (
             <>
               <DropdownInput
                 name={name}
@@ -259,8 +269,8 @@ const ConfigureWithdrawForm: React.FC = () => {
               validate: addressValidator,
             }}
             render={({
-              field: {name, onBlur, onChange, value, ref},
-              fieldState: {error},
+              field: { name, onBlur, onChange, value, ref },
+              fieldState: { error },
             }) => (
               <>
                 <ValueInput
@@ -299,8 +309,8 @@ const ConfigureWithdrawForm: React.FC = () => {
             validate: amountValidator,
           }}
           render={({
-            field: {name, onBlur, onChange, value},
-            fieldState: {error},
+            field: { name, onBlur, onChange, value },
+            fieldState: { error },
           }) => (
             <>
               <StyledInput

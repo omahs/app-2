@@ -4,34 +4,41 @@ import {useNavigate} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import {ActionListItem, IconChevronRight} from '@aragon/ui-components';
 
-import {useWallet} from 'context/augmentedWallet';
 import {NewDeposit, NewWithDraw} from 'utils/paths';
 import {useGlobalModalContext} from 'context/globalModals';
 import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
+import {useSigner} from 'use-signer';
 
 const TransferMenu: React.FC = () => {
-  const {isTransferOpen, close} = useGlobalModalContext();
+  const {isTransferOpen, close, open} = useGlobalModalContext();
   const {t} = useTranslation();
   const navigate = useNavigate();
-  const {isConnected} = useWallet();
+  const {status, methods} = useSigner();
+  const isConnected = status === 'connected';
 
-  /* TODO: Those should be one method with an argument. */
-  const handleNewDepositClick = () => {
-    // TODO: change alert to proper error reporting mechanism,
-    // Move to proper placing
-    if (isConnected()) {
-      navigate(NewDeposit);
-      close('default');
-    } else alert('Please connect your wallet');
-  };
-
-  const handleNewWithdrawClick = () => {
-    // TODO: change alert to proper error reporting mechanism,
-    if (isConnected()) {
-      // TODO: Check if wallet address is authorized to access new withdraw page and then navigate
-      navigate(NewWithDraw);
-      close('default');
-    } else alert('Please connect your wallet');
+  const handleActionClick = (action: 'deposit' | 'withdraw') => {
+    if (isConnected) {
+      switch (action) {
+        case 'deposit':
+          navigate(NewDeposit);
+          close('default');
+          break;
+        case 'withdraw':
+          // TODO: Check if wallet address is authorized to access new withdraw page and then navigate
+          navigate(NewWithDraw);
+          close('default');
+          break;
+      }
+    } else {
+      methods
+        .selectWallet()
+        .then(() => {
+          open('default');
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
   };
 
   return (
@@ -45,13 +52,13 @@ const TransferMenu: React.FC = () => {
           title={t('TransferModal.item1Title') as string}
           subtitle={t('TransferModal.item1Subtitle') as string}
           icon={<IconChevronRight />}
-          onClick={handleNewDepositClick}
+          onClick={() => handleActionClick('deposit')}
         />
         <ActionListItem
           title={t('TransferModal.item2Title') as string}
           subtitle={t('TransferModal.item2Subtitle') as string}
           icon={<IconChevronRight />}
-          onClick={handleNewWithdrawClick}
+          onClick={() => handleActionClick('withdraw')}
         />
       </Container>
     </ModalBottomSheetSwitcher>

@@ -11,33 +11,32 @@ import {
   useWatch,
 } from 'react-hook-form';
 import styled from 'styled-components';
-import {useTranslation} from 'react-i18next';
-import React, {useCallback, useEffect} from 'react';
+import { useTranslation } from 'react-i18next';
+import React, { useCallback, useEffect } from 'react';
 
-import {useActionsContext} from 'context/actions';
-import {useWallet} from 'context/augmentedWallet';
-import {useGlobalModalContext} from 'context/globalModals';
-import {fetchTokenData} from 'services/prices';
-import {useProviders} from 'context/providers';
-import {formatUnits, handleClipboardActions} from 'utils/library';
-import {getTokenInfo, isETH} from 'utils/tokens';
+import { useActionsContext } from 'context/actions';
+import { useGlobalModalContext } from 'context/globalModals';
+import { fetchTokenData } from 'services/prices';
+import { useProviders } from 'context/providers';
+import { formatUnits, handleClipboardActions } from 'utils/library';
+import { getTokenInfo, isETH } from 'utils/tokens';
 import {
   validateAddress,
   validateTokenAddress,
   validateTokenAmount,
 } from 'utils/validators';
-import {useApolloClient} from 'context/apolloClient';
+import { useApolloClient } from 'context/apolloClient';
+import { useSigner } from 'use-signer';
 
-const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
+const WithdrawActionForm: React.FC<{ index: number }> = ({ index }) => {
   const client = useApolloClient();
-  const {t} = useTranslation();
-  const {open} = useGlobalModalContext();
-  const {setActionsCounter} = useActionsContext();
-  const {account} = useWallet();
-  const {infura: provider} = useProviders();
-  const {control, getValues, trigger, resetField, setFocus, setValue} =
+  const { t } = useTranslation();
+  const { open } = useGlobalModalContext();
+  const { setActionsCounter } = useActionsContext();
+  const { address, provider } = useSigner();
+  const { control, getValues, trigger, resetField, setFocus, setValue } =
     useFormContext();
-  const {errors, dirtyFields} = useFormState({control});
+  const { errors, dirtyFields } = useFormState({ control });
   const [tokenAddress, isCustomToken, tokenBalance, symbol] = useWatch({
     name: [
       `actions.${index}.tokenAddress`,
@@ -54,7 +53,7 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
   }, [index, isCustomToken, setFocus]);
 
   useEffect(() => {
-    if (!account || !isCustomToken || !tokenAddress) return;
+    if (!address || !isCustomToken || !tokenAddress) return;
 
     const fetchTokenInfo = async () => {
       if (errors.tokenAddress !== undefined) {
@@ -80,9 +79,11 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
           setValue(`actions.${index}.tokenSymbol`, data.symbol);
           setValue(`actions.${index}.tokenImgUrl`, data.imgUrl);
         } else {
-          const {name, symbol} = await getTokenInfo(tokenAddress, provider);
-          setValue(`actions.${index}.tokenName`, name);
-          setValue(`actions.${index}.tokenSymbol`, symbol);
+          if (provider) {
+            const { name, symbol } = await getTokenInfo(tokenAddress, provider);
+            setValue(`actions.${index}.tokenName`, name);
+            setValue(`actions.${index}.tokenSymbol`, symbol);
+          }
         }
         setValue(`actions.${index}.tokenBalance`, balance);
       } catch (error) {
@@ -100,7 +101,7 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
 
     fetchTokenInfo();
   }, [
-    account,
+    address,
     dirtyFields.amount,
     errors.tokenAddress,
     index,
@@ -144,7 +145,7 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
     async (address: string) => {
       if (isETH(address)) return true;
 
-      const validationResult = await validateTokenAddress(address, provider);
+      const validationResult = provider ? await validateTokenAddress(address, provider) : false;
 
       // address invalid, reset token fields
       if (validationResult !== true) {
@@ -169,8 +170,11 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
       // check if token selected is valid
       if (errors.tokenAddress) return t('errors.amountWithInvalidToken');
 
+      // no provider
+      if (!provider) return "";
+
       try {
-        const {decimals} = await getTokenInfo(tokenAddress, provider);
+        const { decimals } = await getTokenInfo(tokenAddress, provider);
 
         // run amount rules
         return validateTokenAmount(amount, decimals);
@@ -203,8 +207,8 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
             validate: validateAddress,
           }}
           render={({
-            field: {name, onBlur, onChange, value},
-            fieldState: {error},
+            field: { name, onBlur, onChange, value },
+            fieldState: { error },
           }) => (
             <>
               <ValueInput
@@ -235,8 +239,8 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
           name={`actions.${index}.tokenSymbol`}
           control={control}
           defaultValue=""
-          rules={{required: t('errors.required.token')}}
-          render={({field: {name, value}, fieldState: {error}}) => (
+          rules={{ required: t('errors.required.token') }}
+          render={({ field: { name, value }, fieldState: { error } }) => (
             <>
               <DropdownInput
                 name={name}
@@ -272,8 +276,8 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
               validate: addressValidator,
             }}
             render={({
-              field: {name, onBlur, onChange, value, ref},
-              fieldState: {error},
+              field: { name, onBlur, onChange, value, ref },
+              fieldState: { error },
             }) => (
               <>
                 <ValueInput
@@ -312,8 +316,8 @@ const WithdrawActionForm: React.FC<{index: number}> = ({index}) => {
             validate: amountValidator,
           }}
           render={({
-            field: {name, onBlur, onChange, value},
-            fieldState: {error},
+            field: { name, onBlur, onChange, value },
+            fieldState: { error },
           }) => (
             <>
               <StyledInput

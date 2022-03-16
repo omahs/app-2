@@ -9,14 +9,15 @@ import {
   TextareaWYSIWYG,
   TextInput,
 } from '@aragon/ui-components';
-import {useWallet} from 'context/augmentedWallet';
-import {useWalletProps} from 'containers/walletMenu';
 import AddLinks from 'components/addLinks';
 import {Controller, useFormContext} from 'react-hook-form';
+import {useSigner} from 'use-signer';
+import {useEnsAvatar} from 'hooks/useEnsData';
 
 const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
-  const {account, ensAvatarUrl}: useWalletProps = useWallet();
+  const {address} = useSigner();
+  const ensAvatarUrl = useEnsAvatar(address || '');
   const {control} = useFormContext();
 
   return (
@@ -26,7 +27,7 @@ const DefineProposal: React.FC = () => {
 
         <ButtonWallet
           label="You"
-          src={ensAvatarUrl || account}
+          src={ensAvatarUrl || address}
           isConnected
           disabled
         />

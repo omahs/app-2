@@ -10,27 +10,26 @@ import DefineProposal from 'containers/defineProposal';
 import ConfigureActions from 'containers/configureActions';
 import AddActionMenu from 'containers/addActionMenu';
 
-import {useWallet} from 'context/augmentedWallet';
-import {useWalletProps} from 'containers/walletMenu';
 import {TransferTypes} from 'utils/constants';
 import {Governance} from 'utils/paths';
 import {ActionsProvider} from 'context/actions';
+import {useSigner} from 'use-signer';
 
 const NewProposal: React.FC = () => {
   const {t} = useTranslation();
   const formMethods = useForm({
     mode: 'onChange',
   });
-  const {account}: useWalletProps = useWallet();
+  const {address} = useSigner();
 
   // TODO: Sepehr, is this still necessary?
   useEffect(() => {
-    if (account) {
+    if (address) {
       // TODO: Change from to proper address
       formMethods.setValue('from', constants.AddressZero);
       formMethods.setValue('type', TransferTypes.Withdraw);
     }
-  }, [account, formMethods]);
+  }, [address, formMethods]);
 
   /*************************************************
    *                    Render                     *

@@ -14,8 +14,9 @@ import React, {useCallback, useState} from 'react';
 
 import {i18n} from '../../../i18n.config';
 import useScreen from 'hooks/useScreen';
-import {useWallet} from 'context/augmentedWallet';
 import {CHAIN_METADATA} from 'utils/constants';
+import {useSigner} from 'use-signer';
+import {useProviderWrapper} from 'hooks/useProviderWrapper';
 
 type NetworkType = 'main' | 'test';
 type SortFilter = 'cost' | 'popularity' | 'security';
@@ -34,7 +35,9 @@ function getNetworkType(id: number | undefined) {
 const SelectChainForm: React.FC = () => {
   const {t} = useTranslation();
   const {isMobile} = useScreen();
-  const {account, chainId, networkName} = useWallet();
+  const {address, chainId, provider} = useSigner();
+  // get network name
+  const {networkName} = useProviderWrapper(null, provider);
   const [isOpen, setIsOpen] = useState(false);
   const {control, getValues} = useFormContext();
   const [sortFilter, setFilter] = useState<SortFilter>('cost');
@@ -126,8 +129,8 @@ const SelectChainForm: React.FC = () => {
             rules={{required: true}}
             control={control}
             defaultValue={{
-              id: (account && chainId) || 1,
-              label: (account && networkName) || 'Ethereum',
+              id: (address && chainId) || 1,
+              label: (address && networkName) || 'Ethereum',
               network: networkType,
             }}
             render={({field}) => (

@@ -14,13 +14,13 @@ import useBreadcrumbs from 'use-react-router-breadcrumbs';
 import {useTranslation} from 'react-i18next';
 import React, {useMemo, useState} from 'react';
 
-import {useWallet} from 'context/augmentedWallet';
-import {useWalletProps} from 'containers/walletMenu';
 import NetworkIndicator from './networkIndicator';
 import {BreadcrumbDropdown} from './breadcrumbDropdown';
 import {useGlobalModalContext} from 'context/globalModals';
 import {NetworkIndicatorStatus} from 'utils/types';
 import {Community, Dashboard, Finance, Governance, NotFound} from 'utils/paths';
+import {useSigner} from 'use-signer';
+import {useEnsAvatar, useEnsName} from 'hooks/useEnsData';
 
 const MIN_ROUTE_DEPTH_FOR_BREADCRUMBS = 2;
 
@@ -43,8 +43,11 @@ const DesktopNav: React.FC<DesktopNavProp> = props => {
   const {open} = useGlobalModalContext();
   const navigate = useNavigate();
   const [showCrumbMenu, setShowCrumbMenu] = useState(false);
-  const {isConnected, account, ensName, ensAvatarUrl}: useWalletProps =
-    useWallet();
+
+  const {status, address} = useSigner();
+  const {data: ensName} = useEnsName(address || '');
+  const {data: ensAvatarUrl} = useEnsAvatar(address || '');
+  const isConnected = status === 'connected';
 
   const isProcess = useMemo(
     () => props.returnURL && props.processLabel,
@@ -69,11 +72,11 @@ const DesktopNav: React.FC<DesktopNavProp> = props => {
           />
 
           <ButtonWallet
-            src={ensAvatarUrl || account}
+            src={ensAvatarUrl || address}
             onClick={props.onWalletClick}
-            isConnected={isConnected()}
+            isConnected={isConnected}
             label={
-              isConnected() ? ensName || account : t('navButtons.connectWallet')
+              isConnected ? ensName || address : t('navButtons.connectWallet')
             }
           />
         </Menu>
@@ -116,11 +119,11 @@ const DesktopNav: React.FC<DesktopNavProp> = props => {
         </Content>
 
         <ButtonWallet
-          src={ensAvatarUrl || account}
+          src={ensAvatarUrl || address}
           onClick={props.onWalletClick}
-          isConnected={isConnected()}
+          isConnected={isConnected}
           label={
-            isConnected() ? ensName || account : t('navButtons.connectWallet')
+            isConnected ? ensName || address : t('navButtons.connectWallet')
           }
         />
       </Menu>
