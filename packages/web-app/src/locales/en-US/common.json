@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -234,6 +234,9 @@
     "tokenNotFoundSubtitleDao": "Add custom token to withdraw",
     "tokenNotAvailableSubtitle": "Check your wallet, update the tokens or add a custom token to transfer",
     "tokenNotAvailableSubtitleDao": "Update the tokens or add a custom token to transfer."
+  },
+  "AddressModal": {
+    "noAddresses": "No address Found"
   },
   "TransactionModal": {
     "estimatedFees": "Estimated Gas Fees",
