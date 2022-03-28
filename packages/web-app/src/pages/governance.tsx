@@ -17,6 +17,8 @@ import {useDaoProposals} from '../hooks/useDaoProposals';
 import {ProposalData} from 'utils/types';
 import {useTranslation} from 'react-i18next';
 import {Link} from '@aragon/ui-components/src';
+import {useQuery} from '@apollo/client';
+import {DAO_LIST} from 'queries/dao';
 
 const Governance: React.FC = () => {
   // TODO: toggle empty state based on graph query
@@ -26,6 +28,8 @@ const Governance: React.FC = () => {
   const {data: daoProposals} = useDaoProposals('0x0000000000');
   const {t} = useTranslation();
   const navigate = useNavigate();
+  const {data} = useQuery(DAO_LIST);
+  console.log(data);
   // The number of proposals displayed on each page
   const ProposalsPerPage = 6;
 
