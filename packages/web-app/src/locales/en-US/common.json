@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -105,6 +105,7 @@
     "selectToken": "Select a Token ...",
     "walletOrEns": "Type wallet address or ENS ...",
     "searchTokens": "Type to search ...",
+    "searchTransfers": "Type to filter ...",
     "daoName": "Type your DAOs name ...",
     "daoDescription": "Type your summary ..."
   },
