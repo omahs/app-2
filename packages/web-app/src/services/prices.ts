@@ -1,7 +1,7 @@
 import {Address} from '@aragon/ui-components/dist/utils/addresses';
 import {constants} from 'ethers';
 
-import {TOKEN_DATA_QUERY} from 'queries/tokenData';
+import {TOKEN_DATA_QUERY} from 'queries/coingecko/tokenData';
 import {ApolloClient, ApolloClientOptions} from '@apollo/client';
 import {BASE_URL, DEFAULT_CURRENCY, TimeFilter} from 'utils/constants';
 

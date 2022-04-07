@@ -3,13 +3,14 @@ import {CardProposal} from '@aragon/ui-components';
 import {useTranslation} from 'react-i18next';
 import {translateProposalDate} from '../../utils/date';
 import {useNavigate} from 'react-router-dom';
-import {ProposalData, VotingData} from 'utils/types';
+import {VotingData} from 'utils/types';
 import {useWalletProps} from 'containers/walletMenu';
 import {useWallet} from 'context/augmentedWallet';
+import {categorizedProposal} from 'pages/governance';
 
 // types will come from subgraph and will need to be refactored.
 type ProposalListProps = {
-  proposals: Array<ProposalData>;
+  proposals: Array<categorizedProposal>;
 };
 
 const ProposalList: React.FC<ProposalListProps> = ({proposals}) => {
@@ -25,45 +26,51 @@ const ProposalList: React.FC<ProposalListProps> = ({proposals}) => {
       {proposals.map(proposal => {
         const AlertMessage = translateProposalDate(
           proposal.type,
-          proposal.vote
+          proposal.startDate,
+          proposal.endDate
         );
-        return (
-          <CardProposal
-            title={proposal.metadata.title}
-            description={proposal.metadata.description}
-            onClick={() => {
-              navigate('proposals/' + proposal.id);
-            }}
-            state={proposal.type}
-            chainId={chainId}
-            voteTitle={t('governance.proposals.voteTitle') as string}
-            {...(proposal.type === 'active' && {
-              voteProgress: getVoteResults(proposal.vote).toString(),
-              voteLabel: proposal.vote.results.yes.toString(),
-              tokenAmount: proposal.vote.total.toString(),
-              tokenSymbol: proposal.vote.tokenSymbol,
-            })}
-            publishLabel={t('governance.proposals.publishedBy') as string}
-            publisherAddress={proposal.metadata.publisher}
-            StateLabel={[
-              t('governance.proposals.states.draft'),
-              t('governance.proposals.states.pending'),
-              t('governance.proposals.states.active'),
-              t('governance.proposals.states.executed'),
-              t('governance.proposals.states.succeeded'),
-              t('governance.proposals.states.defeated'),
-            ]}
-            {...(AlertMessage && {AlertMessage})}
-            buttonLabel={[
-              t('governance.proposals.buttons.read'),
-              t('governance.proposals.buttons.vote'),
-              t('governance.proposals.buttons.execute'),
-              t('governance.proposals.buttons.edit'),
-            ]}
-            // FIXME: need add better keys when we start backend integration
-            key={proposal.id}
-          />
-        );
+        try {
+          const metadata = JSON.parse(proposal.metadata);
+
+          return (
+            <CardProposal
+              title={metadata.title}
+              description={metadata.summary}
+              onClick={() => {
+                navigate('proposals/' + proposal.id);
+              }}
+              state={proposal.type}
+              chainId={chainId}
+              voteTitle={t('governance.proposals.voteTitle') as string}
+              // {...(categorizedProposal.type === 'active' && {
+              // voteProgress: getVoteResults(proposal.vote).toString(),
+              // voteLabel: proposal.yea.toString(),
+              // tokenAmount: proposal.total.toString(),
+              // tokenSymbol: proposal.vote.tokenSymbol,
+              // })}
+              publishLabel={t('governance.proposals.publishedBy') as string}
+              publisherAddress={proposal.creator}
+              StateLabel={[
+                t('governance.proposals.states.draft'),
+                t('governance.proposals.states.pending'),
+                t('governance.proposals.states.active'),
+                t('governance.proposals.states.executed'),
+                t('governance.proposals.states.succeeded'),
+                t('governance.proposals.states.defeated'),
+              ]}
+              {...(AlertMessage && {AlertMessage})}
+              buttonLabel={[
+                t('governance.proposals.buttons.read'),
+                t('governance.proposals.buttons.vote'),
+                t('governance.proposals.buttons.execute'),
+                t('governance.proposals.buttons.edit'),
+              ]}
+              key={proposal.id}
+            />
+          );
+        } catch {
+          return null;
+        }
       })}
     </div>
   );

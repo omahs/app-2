@@ -186,14 +186,15 @@ export function getRemainingTime(
  * @returns a message with i18 translation as proposal ends alert
  */
 export function translateProposalDate(
-  type: ProposalData['type'],
-  voteData: VotingData
+  type: string,
+  startDate: string,
+  endDate: string
 ): string | null {
   let leftTimestamp;
   if (type === 'pending') {
-    leftTimestamp = getRemainingTime(voteData.start);
+    leftTimestamp = getRemainingTime(startDate);
   } else if (type === 'active') {
-    leftTimestamp = getRemainingTime(voteData.end);
+    leftTimestamp = getRemainingTime(endDate);
   } else {
     return null;
   }

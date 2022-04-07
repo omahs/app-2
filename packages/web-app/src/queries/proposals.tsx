@@ -1,11 +1,11 @@
 import {gql} from '@apollo/client';
 
 /**
- * Voters and Actions can be paginanted
+ * Voters and Actions can be paginated
  * or can be used to get array length
  */
 export const WHITELIST_PROPOSAL_LIST = gql`
-  query whitelistProposals($dao: ID, $offset: Int, $limit: Int) {
+  query whitelistProposals($dao: String, $offset: Int, $limit: Int) {
     whitelistProposals(
       where: {dao: $dao}
       skip: $offset
@@ -36,7 +36,6 @@ export const WHITELIST_PROPOSAL_LIST = gql`
       }
       voteId
       creator
-      description
       startDate
       endDate
       supportRequiredPct
@@ -57,11 +56,11 @@ export const WHITELIST_PROPOSAL_LIST = gql`
 `;
 
 /**
- * Voters and Actions can be paginanted
+ * Voters and Actions can be paginated
  * or can be used to get array length
  */
 export const WHITELIST_PROPOSAL_DETAILS = gql`
-  query whitelistProposals($id: ID) {
+  query whitelistProposal($id: ID) {
     whitelistProposals(where: {id: $id}) {
       id
       dao {
@@ -86,7 +85,6 @@ export const WHITELIST_PROPOSAL_DETAILS = gql`
       }
       voteId
       creator
-      description
       startDate
       endDate
       supportRequiredPct
@@ -107,11 +105,11 @@ export const WHITELIST_PROPOSAL_DETAILS = gql`
 `;
 
 /**
- * Voters and Actions can be paginanted
+ * Voters and Actions can be paginated
  * or can be used to get array length (in case of erc20Voting Voters does not mean it covers all the voters of this package)
  */
 export const ERC20VOTING_PROPOSAL_LIST = gql`
-  query erc20VotingProposals($dao: ID, $offset: Int, $limit: Int) {
+  query erc20VotingProposals($dao: String, $offset: Int, $limit: Int) {
     erc20VotingProposals(
       where: {dao: $dao}
       skip: $offset
@@ -142,7 +140,7 @@ export const ERC20VOTING_PROPOSAL_LIST = gql`
       }
       voteId
       creator
-      description
+      metadata
       startDate
       endDate
       snapshotBlock
@@ -154,6 +152,7 @@ export const ERC20VOTING_PROPOSAL_LIST = gql`
       votingPower
       voters {
         id
+        vote
       }
       executed
       createdAt
@@ -162,7 +161,7 @@ export const ERC20VOTING_PROPOSAL_LIST = gql`
 `;
 
 /**
- * Voters and Actions can be paginanted
+ * Voters and Actions can be paginated
  * or can be used to get array length (in case of erc20Voting Voters does not mean it covers all the voters of this package)
  */
 export const ERC20VOTING_PROPOSAL_DETAILS = gql`
@@ -191,7 +190,7 @@ export const ERC20VOTING_PROPOSAL_DETAILS = gql`
       }
       voteId
       creator
-      description
+      metadata
       startDate
       endDate
       snapshotBlock
@@ -204,7 +203,6 @@ export const ERC20VOTING_PROPOSAL_DETAILS = gql`
       voters {
         id
         vote
-        stake
       }
       executed
       createdAt

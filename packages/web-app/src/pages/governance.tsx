@@ -13,49 +13,63 @@ import styled from 'styled-components';
 import {PageWrapper} from 'components/wrappers';
 import ProposalList from 'components/proposalList';
 import NoProposals from 'public/noProposals.svg';
-import {useDaoProposals} from '../hooks/useDaoProposals';
-import {ProposalData} from 'utils/types';
 import {useTranslation} from 'react-i18next';
 import {Link} from '@aragon/ui-components/src';
 import {useQuery} from '@apollo/client';
-import {DAO_LIST} from 'queries/dao';
+import {getRemainingTime} from '../utils/date';
+import {ERC20VOTING_PROPOSAL_LIST} from 'queries/proposals';
+import {
+  erc20VotingProposals,
+  erc20VotingProposals_erc20VotingProposals,
+} from 'queries/__generated__/erc20VotingProposals';
 
 const Governance: React.FC = () => {
-  // TODO: toggle empty state based on graph query
-  const [showEmptyState, setShowEmptyState] = useState(true);
   const [filterValue, setFilterValue] = useState<string>('all');
   const [page, setPage] = useState(1);
-  const {data: daoProposals} = useDaoProposals('0x0000000000');
   const {t} = useTranslation();
   const navigate = useNavigate();
-  const {data} = useQuery(DAO_LIST);
-  console.log(data);
+  const {
+    data: uncategorizedDaoProposals,
+    loading,
+    error,
+  } = useQuery<erc20VotingProposals>(ERC20VOTING_PROPOSAL_LIST, {
+    variables: {dao: '0x4d68eaa86557f666decf789a8ab3d59fe390ff42'},
+  });
   // The number of proposals displayed on each page
   const ProposalsPerPage = 6;
 
-  // This sort function should implement on graph side!
-  function sortProposals(a: ProposalData, b: ProposalData): number {
-    if (filterValue === 'active') {
-      return (
-        parseInt(a.vote.start as string) - parseInt(b.vote.start as string)
-      );
-    } else if (filterValue !== 'draft') {
-      return parseInt(a.vote.end as string) - parseInt(b.vote.end as string);
-    }
-    return 1;
-  }
+  const daoProposals = uncategorizedDaoProposals?.erc20VotingProposals.map(
+    proposal => categorizeProposal(proposal)
+  );
 
-  // TODO: this filter / sort function should implement using graph queries
+  // // This sort function should implement on graph side!
+  // function sortProposals(a: ProposalData, b: ProposalData): number {
+  //   if (filterValue === 'active') {
+  //     return (
+  //       parseInt(a.vote.start as string) - parseInt(b.vote.start as string)
+  //     );
+  //   } else if (filterValue !== 'draft') {
+  //     return parseInt(a.vote.end as string) - parseInt(b.vote.end as string);
+  //   }
+  //   return 1;
+  // }
 
-  let displayedProposals: ProposalData[] = [];
-  if (daoProposals.length > 0 && filterValue) {
+  let displayedProposals: categorizedProposal[] = [];
+  if (daoProposals && daoProposals.length > 0 && filterValue) {
     displayedProposals = daoProposals.filter(
       t => t.type === filterValue || filterValue === 'all'
     );
-    displayedProposals.sort(sortProposals);
   }
 
-  if (showEmptyState) {
+  if (loading) {
+    return null;
+  }
+
+  if (error) {
+    return null;
+  }
+
+  if (!daoProposals) {
     return (
       <Container>
         <EmptyStateContainer>
@@ -77,18 +91,10 @@ const Governance: React.FC = () => {
             onClick={() => navigate('/new-proposal')}
           />
         </EmptyStateContainer>
-
-        <ButtonText
-          label="Toggle Empty State"
-          onClick={() => setShowEmptyState(false)}
-          size="small"
-          className="mx-auto mt-5"
-        />
       </Container>
     );
   }
 
-  // TODO: search functionality will implement later using graph queries
   return (
     <PageWrapper
       title={'Proposals'}
@@ -166,3 +172,46 @@ const ImageContainer = styled.img.attrs({
 const EmptyStateHeading = styled.h1.attrs({
   className: 'mt-4 text-2xl font-bold text-ui-800 text-center',
 })``;
+
+export interface categorizedProposal
+  extends erc20VotingProposals_erc20VotingProposals {
+  type: 'draft' | 'pending' | 'active' | 'succeeded' | 'executed' | 'defeated';
+}
+/**
+ * Takes and uncategorized proposal and categorizes it according to definitions.
+ * @param uncategorizedProposal
+ * @returns categorized proposal (i.e., uncategorizedProposal with additional
+ * type field)
+ */
+function categorizeProposal(
+  uncategorizedProposal: erc20VotingProposals_erc20VotingProposals
+): categorizedProposal {
+  const now = Date.now();
+
+  if (getRemainingTime(uncategorizedProposal.startDate) >= now) {
+    return {
+      ...uncategorizedProposal,
+      type: 'pending',
+    };
+  } else if (getRemainingTime(uncategorizedProposal.endDate) >= now) {
+    return {
+      ...uncategorizedProposal,
+      type: 'active',
+    };
+  } else if (uncategorizedProposal.executed) {
+    return {
+      ...uncategorizedProposal,
+      type: 'executed',
+    };
+  } else if (uncategorizedProposal.yea > uncategorizedProposal.nay) {
+    return {
+      ...uncategorizedProposal,
+      type: 'succeeded',
+    };
+  } else {
+    return {
+      ...uncategorizedProposal,
+      type: 'defeated',
+    };
+  }
+}

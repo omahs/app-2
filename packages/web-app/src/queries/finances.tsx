@@ -5,7 +5,7 @@ import {gql} from '@apollo/client';
  * or can be used to get array length
  */
 export const DAO_BALANCE_LIST = gql`
-  query balances($dao: ID, $offset: Int, $limit: Int) {
+  query balances($dao: String, $offset: Int, $limit: Int) {
     balances(
       where: {dao: $dao}
       skip: $offset
@@ -30,7 +30,7 @@ export const DAO_BALANCE_LIST = gql`
 `;
 
 export const DAO_TRANSFER_LIST = gql`
-  query transfers($dao: ID, $offset: Int, $limit: Int) {
+  query transfers($dao: String, $offset: Int, $limit: Int) {
     vaultDeposits(
       where: {dao: $dao}
       skip: $offset

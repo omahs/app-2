@@ -1,7 +1,7 @@
 import {gql} from '@apollo/client';
 
 export const VOTING_PACKAGE_LIST = gql`
-  query packages($dao: ID) {
+  query packages($dao: String) {
     daoPackages(where: {dao: $dao}) {
       id
       dao {

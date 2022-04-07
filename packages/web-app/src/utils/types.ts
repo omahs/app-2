@@ -101,6 +101,7 @@ export type UncategorizedProposalData = {
   metadata: ProposalMetadata;
   vote: VotingData;
   execution: ExecutionData;
+  creator: string;
 };
 
 type ProposalMetadata = {
