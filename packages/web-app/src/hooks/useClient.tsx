@@ -1,9 +1,9 @@
 import { Web3Provider } from "@ethersproject/providers"
-import { ethers } from "ethers"
+import { ethers, Wallet } from "ethers"
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react"
 import { useSigner } from "use-signer"
 import { useCache } from "./useCache"
-import { ClientDaoERC20Voting, Context as SdkContext } from '@aragon/sdk-client'
+import { ClientDaoERC20Voting, Context as SdkContext } from '@aragon/sdk-client/dist'
 
 
 interface Client {
@@ -26,7 +26,7 @@ export const useClient = () => {
   return ctx
 }
 export const UseClientProvider = ({ children }: { children: ReactNode }) => {
-  const { signer, chainId } = useSigner()
+  const { signer, chainId, provider } = useSigner()
   const [context, setContext] = useState(new SdkContext({
     network: 'rinkeby',
     dao: "dao",
@@ -36,7 +36,7 @@ export const UseClientProvider = ({ children }: { children: ReactNode }) => {
     if (signer) {
       const context = new SdkContext({
         network: chainId,
-        web3Providers: ["https://rinkeby.arbitrum.io"],
+        web3Providers: ["https://eth-rinkeby.alchemyapi.io/v2/bgIqe2NxazpzsjfmVmhj3aS3j_HZ9mpr"],
         daoFactoryAddress: "0xa0b2B729DE73cd22406d3D5A31816985c04A7cdD",
         signer: signer
       })

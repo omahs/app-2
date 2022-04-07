@@ -3,7 +3,7 @@ import { isAddress } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { useCache } from "./useCache"
 import { useClient } from "./useClient"
-import  {ICreateDaoERC20Voting} from '@aragon/sdk-client'
+import  {ICreateDaoERC20Voting} from '@aragon/sdk-client/dist'
 export interface Dao {
   id: string
   name: string
@@ -42,6 +42,7 @@ export const useDao = (): useDaoResponse => {
     return value
   }
   const create = (dao: ICreateDaoERC20Voting): Promise<string> => {
+    console.log('adsa')
     return new Promise((resolve, reject): void => {
       client.dao.create(dao)
         .then((id: string) => {
