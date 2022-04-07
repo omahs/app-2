@@ -13,11 +13,22 @@ import { ProvidersProvider } from 'context/providers';
 import { UseSignerProvider } from 'use-signer';
 import { UseCacheProvider } from 'hooks/useCache';
 import { UseClientProvider } from 'hooks/useClient';
+import { IProviderOptions } from 'web3modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+
+const providerOptions: IProviderOptions = {
+  walletconnect: {
+    package: WalletConnectProvider,
+    options: {
+      infuraId: 'mainnet.eth.aragon.network',
+    },
+  },
+};
 
 ReactDOM.render(
   <React.StrictMode>
     <APMProvider>
-      <UseSignerProvider>
+      <UseSignerProvider providerOptions={providerOptions}>
         <UseCacheProvider>
           <UseClientProvider>
             <WalletProvider>

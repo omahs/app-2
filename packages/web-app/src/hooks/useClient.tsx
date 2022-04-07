@@ -3,7 +3,7 @@ import { ethers } from "ethers"
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react"
 import { useSigner } from "use-signer"
 import { useCache } from "./useCache"
-import { ClientDao, Context as SdkContext } from '@aragon/sdk-client'
+import { ClientDaoERC20Voting, Context as SdkContext } from '@aragon/sdk-client'
 
 
 interface Client {
@@ -13,7 +13,7 @@ interface Client {
 }
 
 interface ClientContext {
-  client: ClientDao
+  client: ClientDaoERC20Voting
 }
 
 const UseClientContext = createContext<ClientContext>({} as ClientContext)
@@ -26,19 +26,30 @@ export const useClient = () => {
   return ctx
 }
 export const UseClientProvider = ({ children }: { children: ReactNode }) => {
-  const { provider, address, chainId } = useSigner()
+  const { signer, chainId } = useSigner()
   const [context, setContext] = useState(new SdkContext({
-    network: 'mainnet',
+    network: 'rinkeby',
     dao: "dao",
     daoFactoryAddress: "",
-    signer: provider?.getSigner()
   }))
-  const [client, setClient] = useState(new ClientDao(context))
-    // useEffect(() => {
-    //   provider?.getNetwork().then((network) => {
-    //     setClient({ ...client, chainId, chainName: network.name })
-    //   })
-    // }, [chainId])
+  useEffect(() => {
+    if (signer) {
+      const context = new SdkContext({
+        network: chainId,
+        web3Providers: ["https://rinkeby.arbitrum.io"],
+        daoFactoryAddress: "0xa0b2B729DE73cd22406d3D5A31816985c04A7cdD",
+        signer: signer
+      })
+      setContext(context)
+      setClient(new ClientDaoERC20Voting(context))
+    }
+  }, [signer, chainId])
+  const [client, setClient] = useState(new ClientDaoERC20Voting(context))
+  // useEffect(() => {
+  //   provider?.getNetwork().then((network) => {
+  //     setClient({ ...client, chainId, chainName: network.name })
+  //   })
+  // }, [chainId])
   const value = {
     client
   }

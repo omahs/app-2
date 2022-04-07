@@ -16,8 +16,9 @@ import { Dashboard } from 'utils/paths';
 import DAOFactoryABI from 'abis/DAOFactory.json';
 
 import { useProviders } from 'context/providers';
-import { CreateDaoForm, useDao } from 'hooks/useCachedDao';
+import { useDao } from 'hooks/useCachedDao';
 import { WalletField } from '../../components/addWallets/row';
+import { ICreateDaoERC20Voting } from '@aragon/sdk-client'
 
 export const GoLiveHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -81,7 +82,7 @@ export const GoLiveFooter: React.FC = () => {
     const hours = parseInt(getValues('hours'))
     const days = parseInt(getValues('days'))
     const wallets: WalletField[] = getValues('wallets')
-    const createDaoForm: CreateDaoForm = {
+    const createDaoForm: ICreateDaoERC20Voting = {
       daoConfig: {
         name: getValues('daoName'),
         metadata: ''
@@ -94,24 +95,21 @@ export const GoLiveFooter: React.FC = () => {
         // }
       },
       tokenConfig: {
-        // AddressZero should be changed by the address of the token
-        // created if the user does not use a custom token
-        addr: getValues('isCustomToken') ? getValues('tokenAddress') : ethers.constants.AddressZero,
+        address: getValues('isCustomToken') ? getValues('tokenAddress') : ethers.constants.AddressZero,
         name: getValues('tokenName'),
         symbol: getValues('symbol')
       },
-      mintConfig: {
-        receivers: wallets ? wallets.map(w => w.address) : [],
-        amounts: wallets ? wallets.map(w => BigInt(w.amount)) : []
-      },
-      votingConfig: [
-        parseInt(getValues('support')),
-        parseInt(getValues('minimumApproval')),
-        getMinDuration(days, hours, minutes)
-      ]
+      mintConfig: wallets ? wallets.map((wallet) => {
+        return { address: wallet.address, balance: BigInt(wallet.amount) }
+      }):[],
+      votingConfig: {
+        minSupport: parseInt(getValues('support')),
+        minParticipation: parseInt(getValues('minimumApproval')),
+        minDuration: getMinDuration(days, hours, minutes)
+      }
     }
-    createDao(createDaoForm).then(() => {
-      console.log('dao  created')
+    createDao(createDaoForm).then((id:string) => {
+      console.log(`dao  created: ${id}`)
     })
   }
   // const zeroAddress = ethers.constants.AddressZero;

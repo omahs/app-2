@@ -3,7 +3,7 @@ import { isAddress } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { useCache } from "./useCache"
 import { useClient } from "./useClient"
-
+import  {ICreateDaoERC20Voting} from '@aragon/sdk-client'
 export interface Dao {
   id: string
   name: string
@@ -11,28 +11,9 @@ export interface Dao {
   metadata: string
   token: string
 }
-export interface CreateDaoForm {
-  id?: string
-  daoConfig: {
-    name: string
-    metadata: string
-  },
-  tokenConfig: {
-    addr: string,
-    name: string,
-    symbol: string
-  }
-  mintConfig: {
-    receivers: string[],
-    amounts: bigint[]
-  }
-  votingConfig: [number, number, number]
-  gsnForwarder?: string
-}
-
 interface useDaoResponse {
   update: (dao: Dao) => Dao
-  create: (dao: CreateDaoForm) => Promise<void>
+  create: (dao: ICreateDaoERC20Voting) => Promise<string>
   get: (address: string) => Dao
 }
 
@@ -60,19 +41,13 @@ export const useDao = (): useDaoResponse => {
     setCache(cacheKey, value)
     return value
   }
-  const create = (dao: CreateDaoForm): Promise<void> => {
+  const create = (dao: ICreateDaoERC20Voting): Promise<string> => {
     return new Promise((resolve, reject): void => {
-      client.dao.createDao(dao.daoConfig, dao.tokenConfig, dao.mintConfig, dao.votingConfig, dao.gsnForwarder)
+      client.dao.create(dao)
         .then((id: string) => {
-          // if creation went correctly should return the dao address
-          // this will be used to identify the dao in the cache
-          const cacheKey = `dao-${id}`
-          dao.id = id
-          setCache(cacheKey, dao)
-          resolve()
+          resolve(id)
         })
         .catch((e: Error) => {
-          // thow error if it fails
           reject(e)
         })
     })
