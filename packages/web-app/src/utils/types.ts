@@ -172,3 +172,15 @@ export type ActionItem = {
   inputs?: ParamType[];
 };
 export type NetworkIndicatorStatus = 'default' | 'testnet' | 'unsupported';
+
+/*************************************************
+ *                  Storage types                *
+ *************************************************/
+
+export type Setting<T> = {
+  key: string,
+  value: T
+};
+
+export type SettingString = Setting<string>;
+export type SettingFlag = Setting<boolean>;
