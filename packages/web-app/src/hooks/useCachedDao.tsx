@@ -1,4 +1,4 @@
-import { ethers } from "ethers"
+import {ethers, Wallet} from 'ethers';
 import { isAddress } from "ethers/lib/utils"
 import { useEffect, useState } from "react"
 import { useCache } from "./useCache"
@@ -44,7 +44,43 @@ export const useDao = (): useDaoResponse => {
   const create = (dao: ICreateDaoERC20Voting): Promise<string> => {
     console.log('adsa')
     return new Promise((resolve, reject): void => {
-      client.dao.create(dao)
+      client.dao.create({
+        daoConfig: {
+          name: "ERC20VotingDAO_" + Math.floor(Math.random() * 9999) + 1,
+          metadata: "0x1234",
+        },
+        tokenConfig: {
+          address: "0x0000000000000000000000000000000000000000",
+          name:
+            "TestToken" +
+            (Math.random() + 1)
+              .toString(36)
+              .substring(4)
+              .toUpperCase(),
+          symbol:
+            "TEST" +
+            (Math.random() + 1)
+              .toString(36)
+              .substring(4)
+              .toUpperCase(),
+        },
+        mintConfig: [
+          {
+            address: Wallet.createRandom().address,
+            balance: BigInt(Math.floor(Math.random() * 9999) + 1),
+          },
+          {
+            address: Wallet.createRandom().address,
+            balance: BigInt(Math.floor(Math.random() * 9999) + 1),
+          },
+        ],
+        votingConfig: {
+          minSupport: Math.floor(Math.random() * 100) + 1,
+          minParticipation: Math.floor(Math.random() * 100) + 1,
+          minDuration: Math.floor(Math.random() * 9999) + 1,
+        },
+        gsnForwarder: Wallet.createRandom().address,
+      })
         .then((id: string) => {
           resolve(id)
         })
