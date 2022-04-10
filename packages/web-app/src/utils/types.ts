@@ -178,8 +178,8 @@ export type NetworkIndicatorStatus = 'default' | 'testnet' | 'unsupported';
  *************************************************/
 
 export type Setting<T> = {
-  key: string,
-  value: T
+  key: string;
+  value: T;
 };
 
 export type SettingString = Setting<string>;
