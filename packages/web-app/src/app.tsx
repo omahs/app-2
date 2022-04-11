@@ -19,6 +19,7 @@ import HomePage from 'pages/home';
 import * as paths from 'utils/paths';
 import DaoSelectMenu from 'containers/navbar/daoSelectMenu';
 import PrivacyPolicy from 'containers/privacyPolicy';
+import {favoriteDAOs, selectedDAO} from 'context/apolloClient';
 
 const TokensPage = lazy(() => import('pages/tokens'));
 const FinancePage = lazy(() => import('pages/finance'));
@@ -34,6 +35,8 @@ const NewProposalPage = lazy(() => import('pages/newProposal'));
 
 function App() {
   const {pathname} = useLocation();
+
+  selectedDAO(favoriteDAOs()[0]);
 
   useEffect(() => {
     trackPage(pathname);

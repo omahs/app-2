@@ -2,7 +2,7 @@ import {useWallet} from 'use-wallet';
 import {useEffect, useState} from 'react';
 
 import {fetchTokenData} from 'services/prices';
-import {useApolloClient} from 'context/apolloClient';
+import {useApolloClient} from '@apollo/client';
 import {ASSET_PLATFORMS} from 'utils/constants';
 import {DaoTransfer, Transfer} from 'utils/types';
 import {formatUnits} from 'utils/library';

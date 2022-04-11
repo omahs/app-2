@@ -20,7 +20,9 @@ ReactDOM.render(
           <WalletMenuProvider>
             <GlobalModalsProvider>
               <Router>
-                <ApolloProvider client={client}>
+                {/* By default, rinkeby client is chosen, each useQuery needs to pass the network client it needs as argument
+                For REST queries using apollo, there's no need to pass a different client to useQuery  */}
+                <ApolloProvider client={client['rinkeby']}>
                   <App />
                 </ApolloProvider>
               </Router>

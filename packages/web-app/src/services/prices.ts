@@ -81,7 +81,7 @@ type TokenData = {
  */
 async function fetchTokenData(
   tokenAddress: Address,
-  client: ApolloClient<ApolloClientOptions<string | undefined>>,
+  client: ApolloClient<object>,
   platform = 'ethereum'
 ): Promise<TokenData | undefined> {
   let url: string;

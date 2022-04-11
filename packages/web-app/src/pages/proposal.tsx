@@ -16,11 +16,21 @@ import useBreadcrumbs from 'use-react-router-breadcrumbs';
 import {useTranslation} from 'react-i18next';
 import {withTransaction} from '@elastic/apm-rum-react';
 import {useNavigate, useParams} from 'react-router-dom';
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
+import {useEditor} from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TipTapLink from '@tiptap/extension-link';
+import {useQuery} from '@apollo/client';
 
 import * as paths from 'utils/paths';
 import ResourceList from 'components/resourceList';
 import {VotingTerminal} from 'containers/votingTerminal';
+import {ERC20VOTING_PROPOSAL_DETAILS} from 'queries/proposals';
+import {
+  erc20VotingProposal,
+  erc20VotingProposalVariables,
+} from 'queries/__generated__/erc20VotingProposal';
+import {StyledEditorContent} from 'containers/reviewProposal';
 
 // TODO: This is just some mock data. Remove this while integration
 const publishedDone: ProgressStatusProps = {
@@ -48,6 +58,30 @@ const Proposal: React.FC = () => {
   const {id} = useParams();
   const navigate = useNavigate();
   const {isDesktop} = useScreen();
+  const {data, loading, error} = useQuery<
+    erc20VotingProposal,
+    erc20VotingProposalVariables
+  >(ERC20VOTING_PROPOSAL_DETAILS, {variables: {id}});
+  const [metadata, setMetadata] = useState<Record<string, any> | undefined>();
+
+  const editor = useEditor({
+    editable: false,
+    extensions: [
+      StarterKit,
+      TipTapLink.configure({
+        openOnClick: false,
+      }),
+    ],
+  });
+
+  useEffect(() => {
+    if (!loading && data) {
+      const metadata = JSON.parse(data.erc20VotingProposals[0].metadata);
+      setMetadata(metadata);
+      editor?.commands.setContent(metadata?.proposal);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, data]);
 
   const publisher = useMemo(() => {
     // if (publisherAddress === account) return 'you';
@@ -55,16 +89,28 @@ const Proposal: React.FC = () => {
     return 'you';
   }, []);
 
-  if (!id) {
-    navigate(paths.NotFound);
-  }
-
   const breadcrumbs = useBreadcrumbs(undefined, {
     excludePaths: [paths.Dashboard, paths.NotFound, 'governance/proposals'],
   }).map(item => ({
     path: item.match.pathname,
     label: item.breadcrumb as string,
   }));
+
+  if (!id) {
+    navigate(paths.NotFound);
+  }
+
+  if (loading) {
+    return null;
+  }
+
+  if (error) {
+    return null;
+  }
+
+  if (!editor) {
+    return null;
+  }
 
   return (
     <Container>
@@ -77,7 +123,7 @@ const Proposal: React.FC = () => {
             icon={<IconGovernance />}
           />
         )}
-        <ProposalTitle>Proposal {id}</ProposalTitle>
+        <ProposalTitle>{metadata?.title}</ProposalTitle>
         <ContentWrapper>
           <BadgeContainer>
             {proposalTags.map(tag => (
@@ -93,15 +139,9 @@ const Proposal: React.FC = () => {
             />
           </ProposerLink>
         </ContentWrapper>
-        <SummaryText>
-          As most community members know, Aragon has strived to deploy its
-          products to more cost-efficient blockchain networks to facilitate more
-          adoption. Since Aragon is building products on Arbitrum which will use
-          Aragon Court, it seems to be a natural chain of choice for L2
-          deployment.
-        </SummaryText>
+        <SummaryText>{metadata?.summary}</SummaryText>
 
-        {!expandedProposal && (
+        {metadata?.proposal && !expandedProposal && (
           <ButtonText
             className="w-full tablet:w-max"
             size="large"
@@ -115,29 +155,10 @@ const Proposal: React.FC = () => {
 
       <ContentContainer expandedProposal={expandedProposal}>
         <ProposalContainer>
-          {/* TODO: Render content using Tiptap https://tiptap.dev/guide/output#option-1-read-only-instance-of-tiptap */}
-          {expandedProposal && (
+          {metadata?.proposal && expandedProposal && (
             <>
-              <h2 className="text-xl">Second level title</h2>
-              <p className="mt-1.5">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec
-                laoreet urna. Mauris eu vestibulum urna, vel lacinia velit.
-                Quisque hendrerit mi libero, quis sollicitudin magna porta
-                commodo. Sed ornare lacus ut leo rutrum, eu hendrerit massa
-                gravida. Maecenas vehicula dolor sed ante sagittis egestas.{' '}
-                <br />
-                Duis et tortor id enim ullamcorper bibendum eget sed dolor.
-                <br />
-                Unordered list #1
-                <br />
-                Unordered list #2 and so on Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Sed nec laoreet urna. Mauris eu
-                vestibulum urna, vel lacinia velit. Quisque hendrerit mi libero,
-                quis sollicitudin magna porta commodo. Sed ornare lacus ut leo
-                rutrum, eu hendrerit massa gravida. Maecenas vehicula dolor sed
-                ante sagittis egestas. Duis et tortor id enim ullamcorper
-                bibendum eget sed dolor.
-              </p>
+              <StyledEditorContent editor={editor} />
+
               <ButtonText
                 className="mt-3 w-full tablet:w-max"
                 label={t('governance.proposals.buttons.closeFullProposal')}

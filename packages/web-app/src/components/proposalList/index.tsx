@@ -8,7 +8,6 @@ import {useWalletProps} from 'containers/walletMenu';
 import {useWallet} from 'context/augmentedWallet';
 import {categorizedProposal} from 'pages/governance';
 
-// types will come from subgraph and will need to be refactored.
 type ProposalListProps = {
   proposals: Array<categorizedProposal>;
 };

@@ -24,7 +24,7 @@ import {fetchTokenData} from 'services/prices';
 import {handleClipboardActions} from 'utils/library';
 import {fetchBalance, getTokenInfo, isETH} from 'utils/tokens';
 import {validateTokenAddress, validateTokenAmount} from 'utils/validators';
-import {useApolloClient} from 'context/apolloClient';
+import {useApolloClient} from '@apollo/client';
 
 const DepositForm: React.FC = () => {
   const client = useApolloClient();

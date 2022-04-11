@@ -24,7 +24,7 @@ import {TEST_DAO} from 'utils/constants';
 import {useWallet} from 'context/augmentedWallet';
 import {useProviders} from 'context/providers';
 import {fetchTokenData} from 'services/prices';
-import {useApolloClient} from 'context/apolloClient';
+import {useApolloClient} from '@apollo/client';
 import {useGlobalModalContext} from 'context/globalModals';
 import {handleClipboardActions} from 'utils/library';
 import {fetchBalance, getTokenInfo, isETH} from 'utils/tokens';
