@@ -1,5 +1,5 @@
 import {AlertInline, Label, NumberInput} from '@aragon/ui-components';
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 import {Controller, useFormContext, useWatch} from 'react-hook-form';
@@ -7,13 +7,35 @@ import {Controller, useFormContext, useWatch} from 'react-hook-form';
 const ConfigureCommunity: React.FC = () => {
   const {t} = useTranslation();
   const {control} = useFormContext();
-  const [tokenTotalSupply, tokenSymbol, membership, walletList] = useWatch({
-    name: ['tokenTotalSupply', 'tokenSymbol', 'membership', 'walletList'],
+  const [
+    tokenTotalSupply,
+    tokenSymbol,
+    membership,
+    walletList,
+    minimumParticipation,
+  ] = useWatch({
+    name: [
+      'tokenTotalSupply',
+      'tokenSymbol',
+      'membership',
+      'walletList',
+      'minimumParticipation',
+    ],
   });
 
   const percentageInputValidator = (value: string | number) => {
     return value <= 100 && value >= 0 ? true : t('errors.percentage');
   };
+
+  const minimumParticipationPercent = useMemo(
+    () =>
+      Math.round(
+        ((100 * Math.ceil((minimumParticipation * walletList.length) / 100)) /
+          walletList.length) *
+          100
+      ) / 100,
+    [minimumParticipation, walletList.length]
+  );
 
   return (
     <>
@@ -96,13 +118,7 @@ const ConfigureCommunity: React.FC = () => {
                     label={t(
                       'createDAO.step4.alerts.minimumParticipationAlert',
                       {
-                        percentage:
-                          Math.round(
-                            ((100 *
-                              Math.ceil((value * walletList.length) / 100)) /
-                              walletList.length) *
-                              100
-                          ) / 100,
+                        percentage: minimumParticipationPercent,
                         walletCount: Math.ceil(
                           (value * walletList.length) / 100
                         ),

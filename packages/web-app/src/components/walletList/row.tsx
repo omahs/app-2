@@ -1,50 +1,51 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   ButtonIcon,
   IconMenuVertical,
   ListItemAction,
-  Popover,
   AlertInline,
   ValueInput,
 } from '@aragon/ui-components';
 import {t} from 'i18next';
-import {Controller, useFormContext, useWatch} from 'react-hook-form';
+import {Controller, useFieldArray, useFormContext} from 'react-hook-form';
 import styled from 'styled-components';
 import {useWallet} from 'use-wallet';
 import {handleClipboardActions} from 'utils/library';
 import {validateAddress} from 'utils/validators';
+import {Dropdown} from '@aragon/ui-components/src';
+import {WhitelistWallet} from 'pages/createDAO';
 
 type WalletListRowProps = {
   index: number;
 };
 
 export const Row = ({index}: WalletListRowProps) => {
-  const {control, setValue} = useFormContext();
+  const {control, watch} = useFormContext();
   // TODO update with useSigner
   const {account} = useWallet();
-  const walletList = useWatch({name: 'walletList'});
-  const handleDeleteWallet = () => {
-    const newWalletList = [...walletList];
-    newWalletList.splice(index, 1);
-    setValue('walletList', newWalletList);
-  };
-  const handleDeleteAllAddresses = () => {
-    setValue('walletList', [account, '']);
-  };
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const {remove, update, append} = useFieldArray({
+    control,
+    name: 'whitelistWallets',
+  });
+  const whitelistWallets: WhitelistWallet[] = watch('whitelistWallets');
+
   const addressValidator = (address: string, index: number) => {
     let validationResult = validateAddress(address);
-    if (walletList) {
-      walletList.forEach((wallet: string, walletIndex: number) => {
-        if (address === wallet && index !== walletIndex) {
+    const wallets = whitelistWallets as WhitelistWallet[];
+    if (wallets) {
+      wallets.forEach((wallet: WhitelistWallet, walletIndex: number) => {
+        if (address === wallet.address && index !== walletIndex) {
           validationResult = t('errors.duplicateAddress') as string;
         }
       });
     }
     return validationResult;
   };
+
   return (
     <Controller
-      name={`walletList.${index}`}
+      name={`whitelistWallets.${index}.address`}
       defaultValue={null}
       control={control}
       rules={{
@@ -68,43 +69,56 @@ export const Row = ({index}: WalletListRowProps) => {
               onAdornmentClick={() => handleClipboardActions(value, onChange)}
             />
             {error?.message && (
-              // <ErrorContainer>
               <AlertInline label={error.message} mode="critical" />
-              // </ErrorContainer>
             )}
           </InputContainer>
-          <Popover
+          <Dropdown
             side="bottom"
-            align="end"
-            width={264}
-            content={
-              <div className="p-1.5 space-y-0.5">
-                {value !== account && (
-                  <ListItemAction
-                    title={t('labels.removeWallet')}
-                    onClick={handleDeleteWallet}
-                    bgWhite
-                  />
-                )}
-                {value === account && (
-                  <ListItemAction
-                    title={t('labels.deleteAllAddresses')}
-                    onClick={handleDeleteAllAddresses}
-                    bgWhite
-                  />
-                )}
-              </div>
+            align="start"
+            open={dropdownOpen}
+            onOpenChange={(open: boolean) => setDropdownOpen(open)}
+            sideOffset={4}
+            trigger={
+              <ButtonIcon
+                size="large"
+                mode="secondary"
+                disabled={index === 0}
+                icon={<IconMenuVertical />}
+                data-testid="trigger"
+              />
             }
-          >
-            <ButtonIcon
-              mode="ghost"
-              size="large"
-              disabled={walletList.length <= 2}
-              bgWhite
-              icon={<IconMenuVertical />}
-              data-testid="trigger"
-            />
-          </Popover>
+            listItems={[
+              {
+                component: (
+                  <ListItemAction
+                    title={t('labels.walletList.duplicateEntry')}
+                    bgWhite
+                  />
+                ),
+                callback: () => append(whitelistWallets[index]),
+              },
+              {
+                component: (
+                  <ListItemAction
+                    title={t('labels.walletList.resetEntry')}
+                    bgWhite
+                  />
+                ),
+                callback: () => update(index, {address: ''}),
+              },
+              {
+                component: (
+                  <ListItemAction
+                    title={t('labels.walletList.deleteEntry')}
+                    bgWhite
+                  />
+                ),
+                callback: () => {
+                  remove(index);
+                },
+              },
+            ]}
+          />
         </Container>
       )}
     />
@@ -112,7 +126,7 @@ export const Row = ({index}: WalletListRowProps) => {
 };
 
 const Container = styled.div.attrs(() => ({
-  className: 'px-2 py-1.5 flex gap-2 items-center',
+  className: 'px-2 py-1.5 flex gap-2 items-start',
 }))``;
 const InputContainer = styled.div.attrs(() => ({
   className: 'flex flex-col gap-1 flex-1',

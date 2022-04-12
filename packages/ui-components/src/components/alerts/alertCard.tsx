@@ -20,7 +20,7 @@ const styles = {
     borderColor: 'border-warning-400',
   },
   critical: {
-    icon: <IconWarning className="text-critical-500" height={20} width={20} />,
+    icon: <IconWarning className="text-critical-500" size={20} height={20} />,
     color: 'text-critical-800',
     borderColor: 'border-critical-400',
   },
@@ -32,20 +32,20 @@ export type AlertCardProps = {
   /** card title */
   title: string;
   /** card subtitle */
-  subtitle?: string;
+  helpText?: string;
 };
 
 export const AlertCard: React.FC<AlertCardProps> = ({
   mode = 'neutral',
   title,
-  subtitle,
+  helpText,
 }) => {
   return (
     <Container mode={mode}>
       {styles[mode].icon}
       <TextContainer>
         <Title mode={mode}>{title}</Title>
-        <Subtitle>{subtitle}</Subtitle>
+        <HelpText>{helpText}</HelpText>
       </TextContainer>
     </Container>
   );
@@ -66,6 +66,6 @@ const Title = styled.div.attrs(({mode}: ContainerProps) => ({
   className: `flex flex-col font-bold  ${styles[mode].color}`,
 }))<ContainerProps>``;
 
-const Subtitle = styled.div.attrs(() => ({
+const HelpText = styled.div.attrs(() => ({
   className: 'text-ui-600 text-sm',
 }))``;

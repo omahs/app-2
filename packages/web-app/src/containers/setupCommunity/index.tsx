@@ -121,7 +121,7 @@ const SetupCommunityForm: React.FC = () => {
           <AlertCard
             mode="warning"
             title={t('createDAO.step3.warningTitle')}
-            subtitle={t('createDAO.step3.warningSubtitle')}
+            helpText={t('createDAO.step3.warningSubtitle')}
           />
           <WalletList />
         </FormItem>
