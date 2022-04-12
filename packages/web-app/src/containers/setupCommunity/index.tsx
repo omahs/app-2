@@ -9,7 +9,7 @@ import {Controller, useFormContext, useWatch} from 'react-hook-form';
 import ExistingTokenPartialForm from './addExistingToken';
 import CreateNewToken from './createNewToken';
 import {AlertCard} from '@aragon/ui-components/src';
-import {WalletList} from 'components/walletList';
+import {WhitelistWallets} from 'components/whitelistWallets';
 
 const SetupCommunityForm: React.FC = () => {
   const {t} = useTranslation();
@@ -123,7 +123,7 @@ const SetupCommunityForm: React.FC = () => {
             title={t('createDAO.step3.warningTitle')}
             helpText={t('createDAO.step3.warningSubtitle')}
           />
-          <WalletList />
+          <WhitelistWallets />
         </FormItem>
       )}
 

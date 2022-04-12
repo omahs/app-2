@@ -84,7 +84,7 @@
     "duplicateAction": "Duplicate Action",
     "resetAction": "Reset Action",
     "removeEntireAction": "Remove Entire Action",
-    "walletList": {
+    "whitelistWallets": {
       "address": "Address",
       "addresses": "{{count}} Addresses",
       "addAddress": "Add address",

@@ -11,14 +11,14 @@ const ConfigureCommunity: React.FC = () => {
     tokenTotalSupply,
     tokenSymbol,
     membership,
-    walletList,
+    whitelistWallets,
     minimumParticipation,
   ] = useWatch({
     name: [
       'tokenTotalSupply',
       'tokenSymbol',
       'membership',
-      'walletList',
+      'whitelistWallets',
       'minimumParticipation',
     ],
   });
@@ -30,11 +30,12 @@ const ConfigureCommunity: React.FC = () => {
   const minimumParticipationPercent = useMemo(
     () =>
       Math.round(
-        ((100 * Math.ceil((minimumParticipation * walletList.length) / 100)) /
-          walletList.length) *
+        ((100 *
+          Math.ceil((minimumParticipation * whitelistWallets.length) / 100)) /
+          whitelistWallets.length) *
           100
       ) / 100,
-    [minimumParticipation, walletList.length]
+    [minimumParticipation, whitelistWallets.length]
   );
 
   return (
@@ -120,7 +121,7 @@ const ConfigureCommunity: React.FC = () => {
                       {
                         percentage: minimumParticipationPercent,
                         walletCount: Math.ceil(
-                          (value * walletList.length) / 100
+                          (value * whitelistWallets.length) / 100
                         ),
                       }
                     )}

@@ -33,11 +33,11 @@ const Community: React.FC = () => {
     isCustomToken,
     tokenSymbol,
     tokenTotalSupply,
-    walletList,
+    whitelistWallets,
   } = getValues();
   const handleSeeAllWallets = () => {
     alert('not implemented');
-    // TODO open the all wallets modal with walletList as a parameter
+    // TODO open the all wallets modal with whitelistWallets as a parameter
   };
   return (
     <Card>
@@ -63,7 +63,7 @@ const Community: React.FC = () => {
             <BadgeWrapper>
               <Link
                 label={t('labels.review.distributionLink', {
-                  walletCount: walletList.length,
+                  walletCount: whitelistWallets.length,
                 })}
                 onClick={handleSeeAllWallets}
               />
