@@ -90,7 +90,14 @@
     "all": "All",
     "walletList": {
       "address": "Address",
-      "addresses": "{{count}} Addresses"
+      "addresses": "{{count}} Addresses",
+      "addAddress": "Add address",
+      "uploadCSV": "Upload CSV",
+      "duplicateEntry":"Duplicate Entry",
+      "resetEntry":"Reset Entry",
+      "deleteEntry":"Delete Entry",
+      "resetAllEntries":"Reset All Entries",
+      "deleteAllEntries":"Delete All Entries"
     },
     "review": {
       "blockchain": "Blockchain",

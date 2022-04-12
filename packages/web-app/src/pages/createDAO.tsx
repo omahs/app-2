@@ -13,6 +13,11 @@ import GoLive, {GoLiveHeader, GoLiveFooter} from 'containers/goLive';
 import {WalletField} from '../components/addWallets/row';
 import {Dashboard} from 'utils/paths';
 
+export type WhitelistWallet = {
+  id: string;
+  address: string;
+};
+
 type FormData = {
   daoLogo: string;
   daoName: string;
@@ -31,7 +36,7 @@ type FormData = {
   minimumParticipation: string;
   support: string;
   membership: string;
-  walletList: string[];
+  whitelistWallets: WhitelistWallet[];
 };
 
 const defaultValues = {
@@ -45,7 +50,7 @@ const defaultValues = {
     {address: 'My Wallet', amount: '0'},
   ],
   membership: 'token',
-  walletList: ['My Wallet', ''],
+  whitelistWallets: [{address: 'My Wallet'}, {address: ''}],
 };
 
 const CreateDAO: React.FC = () => {
@@ -79,7 +84,7 @@ const CreateDAO: React.FC = () => {
     // required fields not dirty
     // if wallet based dao
     if (membership === 'wallet') {
-      if (errors.walletList || !dirtyFields.walletList) {
+      if (errors.whitelistWallets || !dirtyFields.whitelistWallets) {
         return false;
       }
       return true;
@@ -107,12 +112,12 @@ const CreateDAO: React.FC = () => {
     dirtyFields.tokenName,
     dirtyFields.tokenSymbol,
     dirtyFields.wallets,
-    dirtyFields.walletList,
+    dirtyFields.whitelistWallets,
     errors.tokenAddress,
     errors.tokenName,
     errors.tokenSymbol,
     errors.wallets,
-    errors.walletList,
+    errors.whitelistWallets,
     isCustomToken,
     tokenTotalSupply,
     membership,

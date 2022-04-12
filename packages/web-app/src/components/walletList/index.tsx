@@ -3,77 +3,117 @@ import {
   ButtonText,
   IconMenuVertical,
   ListItemAction,
-  Popover,
 } from '@aragon/ui-components';
+import {Dropdown} from '@aragon/ui-components/src';
 import {t} from 'i18next';
-import React, {useEffect} from 'react';
-import {useFormContext, useWatch} from 'react-hook-form';
+import {WhitelistWallet} from 'pages/createDAO';
+import React, {useEffect, useState} from 'react';
+import {useFieldArray, useFormContext} from 'react-hook-form';
 import styled from 'styled-components';
 import {useWallet} from 'use-wallet';
 import {Row} from './row';
 
 export const WalletList = () => {
   const {account} = useWallet();
-  const {setValue} = useFormContext();
-  const walletArray: string[] = useWatch({
-    name: 'walletList',
+  const {control, watch} = useFormContext();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const {update, replace, append} = useFieldArray({
+    control,
+    name: 'whitelistWallets',
   });
+  const whitelistWallets: WhitelistWallet[] = watch('whitelistWallets');
+
   // add empty wallet
   const handleAddWallet = () => {
-    setValue('walletList', [...walletArray, '']);
+    append({address: ''});
   };
   useEffect(() => {
-    setValue('walletList.0', account);
-  }, [account, setValue]);
+    if (account) {
+      update(0, {address: account});
+    }
+  }, [account, update]);
+
+  // reset all
+  const handleDeleteWallets = () => {
+    replace([{address: account}, {address: ''}]);
+  };
+  const handleResetWallets = () => {
+    whitelistWallets.forEach((_, index) => {
+      // skip the first one because is the own address
+      if (index > 0) {
+        update(index, {address: ''});
+      }
+    });
+  };
+
   return (
     <Container>
       <TableContainer>
         <Header>{t('labels.walletList.address')}</Header>
-        {walletArray &&
-          walletArray.map((_, index) => (
-            <>
+        {whitelistWallets &&
+          whitelistWallets.map((_, index) => (
+            <div key={index}>
               <Divider />
-              <Row key={index} index={index} />
-            </>
+              <Row index={index} />
+            </div>
           ))}
         <Divider />
         <Footer>
-          {t('labels.walletList.addresses', {count: walletArray?.length || 0})}
+          {t('labels.walletList.addresses', {
+            count: whitelistWallets?.length || 0,
+          })}
         </Footer>
       </TableContainer>
       <ActionsContainer>
         <TextButtonsContainer>
           <ButtonText
-            label="Add address"
+            label={t('labels.walletList.addAddress')}
             mode="secondary"
             size="large"
             onClick={handleAddWallet}
           />
           <ButtonText
-            label="Upload CSV"
+            label={t('labels.walletList.uploadCSV')}
             mode="ghost"
             size="large"
             onClick={() => alert('upload CSV here')}
           />
         </TextButtonsContainer>
-        <Popover
+        <Dropdown
           side="bottom"
-          align="end"
-          width={264}
-          content={
-            <div className="p-1.5 space-y-0.5">
-              <ListItemAction title="This is a placeholder" bgWhite />
-              <ListItemAction title="This is a placeholder 2" bgWhite />
-            </div>
+          align="start"
+          sideOffset={4}
+          open={dropdownOpen}
+          onOpenChange={(open: boolean) => setDropdownOpen(open)}
+          trigger={
+            <ButtonIcon
+              size="large"
+              mode="secondary"
+              icon={<IconMenuVertical />}
+              data-testid="trigger"
+            />
           }
-        >
-          <ButtonIcon
-            size="large"
-            mode="secondary"
-            icon={<IconMenuVertical />}
-            data-testid="trigger"
-          />
-        </Popover>
+          listItems={[
+            {
+              component: (
+                <ListItemAction
+                  title={t('labels.walletList.resetAllEntries')}
+                  bgWhite
+                />
+              ),
+              callback: handleResetWallets,
+            },
+            {
+              component: (
+                <ListItemAction
+                  title={t('labels.walletList.deleteAllEntries')}
+                  bgWhite
+                />
+              ),
+              callback: handleDeleteWallets,
+            },
+          ]}
+        />
       </ActionsContainer>
     </Container>
   );
