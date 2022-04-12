@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import {useWallet} from 'use-wallet';
 import {Row} from './row';
 
-export const WalletList = () => {
+export const WhitelistWallets = () => {
   const {account} = useWallet();
   const {control, watch} = useFormContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -49,7 +49,7 @@ export const WalletList = () => {
   return (
     <Container>
       <TableContainer>
-        <Header>{t('labels.walletList.address')}</Header>
+        <Header>{t('labels.whitelistWallets.address')}</Header>
         {whitelistWallets &&
           whitelistWallets.map((_, index) => (
             <div key={index}>
@@ -59,7 +59,7 @@ export const WalletList = () => {
           ))}
         <Divider />
         <Footer>
-          {t('labels.walletList.addresses', {
+          {t('labels.whitelistWallets.addresses', {
             count: whitelistWallets?.length || 0,
           })}
         </Footer>
@@ -67,13 +67,13 @@ export const WalletList = () => {
       <ActionsContainer>
         <TextButtonsContainer>
           <ButtonText
-            label={t('labels.walletList.addAddress')}
+            label={t('labels.whitelistWallets.addAddress')}
             mode="secondary"
             size="large"
             onClick={handleAddWallet}
           />
           <ButtonText
-            label={t('labels.walletList.uploadCSV')}
+            label={t('labels.whitelistWallets.uploadCSV')}
             mode="ghost"
             size="large"
             onClick={() => alert('upload CSV here')}
@@ -97,7 +97,7 @@ export const WalletList = () => {
             {
               component: (
                 <ListItemAction
-                  title={t('labels.walletList.resetAllEntries')}
+                  title={t('labels.whitelistWallets.resetAllEntries')}
                   bgWhite
                 />
               ),
@@ -106,7 +106,7 @@ export const WalletList = () => {
             {
               component: (
                 <ListItemAction
-                  title={t('labels.walletList.deleteAllEntries')}
+                  title={t('labels.whitelistWallets.deleteAllEntries')}
                   bgWhite
                 />
               ),

@@ -15,12 +15,12 @@ import {validateAddress} from 'utils/validators';
 import {Dropdown} from '@aragon/ui-components/src';
 import {WhitelistWallet} from 'pages/createDAO';
 
-type WalletListRowProps = {
+type WhitelistWalletsRowProps = {
   index: number;
 };
 
-export const Row = ({index}: WalletListRowProps) => {
-  const {control, watch} = useFormContext();
+export const Row = ({index}: WhitelistWalletsRowProps) => {
+  const {control, watch, trigger} = useFormContext();
   // TODO update with useSigner
   const {account} = useWallet();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -91,16 +91,19 @@ export const Row = ({index}: WalletListRowProps) => {
               {
                 component: (
                   <ListItemAction
-                    title={t('labels.walletList.duplicateEntry')}
+                    title={t('labels.whitelistWallets.duplicateEntry')}
                     bgWhite
                   />
                 ),
-                callback: () => append(whitelistWallets[index]),
+                callback: () => {
+                  append(whitelistWallets[index]);
+                  trigger('whitelistWallets');
+                },
               },
               {
                 component: (
                   <ListItemAction
-                    title={t('labels.walletList.resetEntry')}
+                    title={t('labels.whitelistWallets.resetEntry')}
                     bgWhite
                   />
                 ),
@@ -109,12 +112,13 @@ export const Row = ({index}: WalletListRowProps) => {
               {
                 component: (
                   <ListItemAction
-                    title={t('labels.walletList.deleteEntry')}
+                    title={t('labels.whitelistWallets.deleteEntry')}
                     bgWhite
                   />
                 ),
                 callback: () => {
                   remove(index);
+                  trigger('whitelistWallets');
                 },
               },
             ]}

@@ -89,6 +89,7 @@
     "externalContract": "External Contract",
     "all": "All",
     "walletList": {
+    "whitelistWallets": {
       "address": "Address",
       "addresses": "{{count}} Addresses",
       "addAddress": "Add address",

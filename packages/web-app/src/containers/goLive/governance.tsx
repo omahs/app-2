@@ -32,7 +32,7 @@ const Governance: React.FC = () => {
     durationHours,
     durationDays,
     membership,
-    walletList,
+    whitelistWallets,
   } = getValues();
 
   return (
@@ -61,7 +61,7 @@ const Governance: React.FC = () => {
             <TextContent>
               {t('labels.review.minimumParticipation', {
                 walletCount: Math.ceil(
-                  (minimumParticipation * walletList.length) / 100
+                  (minimumParticipation * whitelistWallets.length) / 100
                 ),
               })}
             </TextContent>
