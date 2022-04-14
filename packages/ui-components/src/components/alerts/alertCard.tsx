@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {IconInfo, IconSuccess, IconWarning} from '../icons';
 
 const styles = {
-  neutral: {
+  info: {
     icon: <IconInfo className="text-info-500" height={20} width={20} />,
     color: 'text-info-800',
     borderColor: 'border-info-400',
@@ -28,7 +28,7 @@ const styles = {
 
 export type AlertCardProps = {
   /** type and severity of alert */
-  mode?: 'neutral' | 'success' | 'warning' | 'critical';
+  mode?: 'info' | 'success' | 'warning' | 'critical';
   /** card title */
   title: string;
   /** card subtitle */
@@ -36,13 +36,13 @@ export type AlertCardProps = {
 };
 
 export const AlertCard: React.FC<AlertCardProps> = ({
-  mode = 'neutral',
+  mode = 'info',
   title,
   helpText,
 }) => {
   return (
     <Container mode={mode}>
-      {styles[mode].icon}
+      <div>{styles[mode].icon}</div>
       <TextContainer>
         <Title mode={mode}>{title}</Title>
         <HelpText>{helpText}</HelpText>

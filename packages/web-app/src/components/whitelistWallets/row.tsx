@@ -9,7 +9,7 @@ import {
 import {t} from 'i18next';
 import {Controller, useFieldArray, useFormContext} from 'react-hook-form';
 import styled from 'styled-components';
-import {useWallet} from 'use-wallet';
+import {useWallet} from 'hooks/useWallet';
 import {handleClipboardActions} from 'utils/library';
 import {validateAddress} from 'utils/validators';
 import {Dropdown} from '@aragon/ui-components/src';
@@ -21,7 +21,6 @@ type WhitelistWalletsRowProps = {
 
 export const Row = ({index}: WhitelistWalletsRowProps) => {
   const {control, watch, trigger} = useFormContext();
-  // TODO update with useSigner
   const {account} = useWallet();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const {remove, update, append} = useFieldArray({
@@ -30,12 +29,12 @@ export const Row = ({index}: WhitelistWalletsRowProps) => {
   });
   const whitelistWallets: WhitelistWallet[] = watch('whitelistWallets');
 
-  const addressValidator = (address: string, index: number) => {
+  const addressValidator = (address: string, addressIndex: number) => {
     let validationResult = validateAddress(address);
-    const wallets = whitelistWallets as WhitelistWallet[];
+    const wallets = whitelistWallets;
     if (wallets) {
       wallets.forEach((wallet: WhitelistWallet, walletIndex: number) => {
-        if (address === wallet.address && index !== walletIndex) {
+        if (address === wallet.address && addressIndex !== walletIndex) {
           validationResult = t('errors.duplicateAddress') as string;
         }
       });

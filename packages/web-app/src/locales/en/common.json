@@ -88,17 +88,16 @@
     "withdraw": "Withdraw",
     "externalContract": "External Contract",
     "all": "All",
-    "walletList": {
     "whitelistWallets": {
       "address": "Address",
       "addresses": "{{count}} Addresses",
       "addAddress": "Add address",
       "uploadCSV": "Upload CSV",
-      "duplicateEntry":"Duplicate Entry",
-      "resetEntry":"Reset Entry",
-      "deleteEntry":"Delete Entry",
-      "resetAllEntries":"Reset All Entries",
-      "deleteAllEntries":"Delete All Entries"
+      "duplicateEntry": "Duplicate Entry",
+      "resetEntry": "Reset Entry",
+      "deleteEntry": "Delete Entry",
+      "resetAllEntries": "Reset All Entries",
+      "deleteAllEntries": "Delete All Entries"
     },
     "review": {
       "blockchain": "Blockchain",

@@ -1,14 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
-import {CheckboxListItem} from '@aragon/ui-components';
-// TODO use npm dependency when the lib is updated
-import {Label} from '@aragon/ui-components/src';
+import {CheckboxListItem, Label, AlertCard} from '@aragon/ui-components';
 import {Controller, useFormContext, useWatch} from 'react-hook-form';
-
 import ExistingTokenPartialForm from './addExistingToken';
 import CreateNewToken from './createNewToken';
-import {AlertCard} from '@aragon/ui-components/src';
 import {WhitelistWallets} from 'components/whitelistWallets';
 
 const SetupCommunityForm: React.FC = () => {
