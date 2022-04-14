@@ -67,14 +67,12 @@
     "logo": "Logo",
     "optional": "Optional",
     "minimumApproval": "Minimum approval",
-    "minimumParticipation": "Minimum participation",
     "minimumSupport": "Minimum support",
     "minimumDuration": "Minimum duration",
     "support": "Support",
     "duration": "Duration",
     "membership": "Who is eligible to participate in your DAO?",
     "communityToken": "Does your community have a token?",
-    "authorisedWallets": "Authorised Wallets / Adresses",
     "addExistingToken": "Add existing Token",
     "tokenName": "Name",
     "tokenSymbol": "Symbol",
@@ -84,16 +82,13 @@
     "duplicateAction": "Duplicate Action",
     "resetAction": "Reset Action",
     "removeEntireAction": "Remove Entire Action",
-    "whitelistWallets": {
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "externalContract": "External Contract",
+    "all": "All",
+    "walletList": {
       "address": "Address",
-      "addresses": "{{count}} Addresses",
-      "addAddress": "Add address",
-      "uploadCSV": "Upload CSV",
-      "duplicateEntry":"Duplicate Entry",
-      "resetEntry":"Reset Entry",
-      "deleteEntry":"Delete Entry",
-      "resetAllEntries":"Reset All Entries",
-      "deleteAllEntries":"Delete All Entries"
+      "addresses": "{{count}} Addresses"
     },
     "review": {
       "blockchain": "Blockchain",
@@ -102,9 +97,7 @@
       "governance": "Governance",
       "network": "Network",
       "eligibleMembers": "Eligible Members",
-      "distribution": "Distribution",
-      "distributionLink": "See all {{walletCount}} Addresses",
-      "minimumParticipation": "{{walletCount}} Wallets"
+      "distribution": "Distribution"
     },
     "author": "Author",
     "sec": "sec",
@@ -208,7 +201,8 @@
       "title": "Title is required",
       "summary": "Summary is required"
     },
-    "startPast": "Process must not start in the past"
+    "startPast": "Process must not start in the past",
+    "ensUnsupported": "Network does not support ens name"
   },
   "alert": {
     "durationAlert": "We recommend a minimum duration of 1 day if it does not have to be a quick financial decision.",
@@ -226,7 +220,7 @@
     "tokens": "Tokens",
     "newTransfer": "New Transfer",
     "allTransfers": "All Transfers",
-    "noTransfers": "No transfer information available",
+    "noTransfers": "No transfer information available.",
     "totalVolume": "Total Volume"
   },
   "allTokens": {
@@ -358,9 +352,6 @@
       "label": "Step 3",
       "title": "Setup Community",
       "newToken": "No",
-      "authorisedWalletsSubtitle": "Add as many addresses as you like to the DAO. These are authorised to create proposals, transactions or suggest changes to the DAO settings after its creation. Upload a CSV with <a href='https://the.csv/template'>this template</a> if you want.",
-      "warningTitle": "Changing the list",
-      "warningSubtitle": "If you want to add addresses after creating your DAO, you will need to create a proposal to be voted by the members.",
       "newTokenSubtitle": "No, I would like to create a token.",
       "existingToken": "Yes",
       "existingTokenSubtitle": "Yes, we already have a token.",
@@ -384,15 +375,13 @@
       "title": "Configure Governance",
       "description": "How are decisions made in the DAO? How long may a proposal be open for voting?",
       "minimumApprovalSubtitle": "Minimum Approval is the percentage of the total token supply that is required to vote “Yes” on a proposal before it can be approved.",
-      "minimumParticipationSubtitle": "Participation is the percentage of the token supply or addresses in the authorized list that vote on a proposal (either yes or no). The minimum is how many have to vote for the result to be valid.",
       "supportSubtitle": "Support is the relative percentage of tokens or wallets that are required to vote “Yes” for a proposal to be approved.",
       "durationSubtitle": "Vote Duration is the length of time that the vote will be open for participation. The duration applies to each proposal in the DAO. However, the proposers can extend the time if necessary, but not shorten it!",
       "days": "Days",
       "hours": "Hours",
       "minutes": "Minutes",
       "alerts": {
-        "minimumApprovalAlert": "{{amount}} {{symbol}} tokens",
-        "minimumParticipationAlert": "Rounded up to {{percentage}}% equals {{walletCount}} Wallets have to vote"
+        "minimumApprovalAlert": "{{amount}} {{symbol}} tokens"
       }
     },
     "review": {
@@ -449,5 +438,25 @@
     "cancel": "Cancel",
     "remainingTime": "Remaining time",
     "voteNow": "Vote now"
+  },
+  "privacyPolicy": {
+    "title": "Privacy policy",
+    "analytics": "Analytics cookies",
+    "analyticsHelpText": "It will allow to collect information of how you use our app.",
+    "functional": "Functional cookies",
+    "functionalHelpText": "Used to store your preferences in the application.",
+    "cookieSettings": "Cookie settings",
+    "acceptAllCookies": "Accept all",
+    "rejectAllCookies": "Reject all",
+    "acceptSelectedCookies": "Accept",
+    "content": "We use cookies and similar technologies to improve your browsing experience in our application, enabling certain features, and analyzing our application usage. You may choose below to opt-out for some specific behaviors. Know more by reading our",
+    "transactionDetail": {
+      "title": "Transaction Detail",
+      "viewTransaction": "View on Block Explorer"
+    }
+  },
+  "transactionDetail": {
+    "title": "Transaction Detail",
+    "viewTransaction": "View on Block Explorer"
   }
 }

@@ -1,3 +1,4 @@
+import styled from 'styled-components';
 import React, {useEffect, lazy, Suspense} from 'react';
 
 // FIXME: Change route to ApmRoute once package has been updated to be
@@ -5,10 +6,10 @@ import React, {useEffect, lazy, Suspense} from 'react';
 import {Navigate, Routes, Route, useLocation} from 'react-router-dom';
 
 import Navbar from 'containers/navbar';
-import WalletMenu from 'containers/walletMenu';
+import {WalletMenu} from 'containers/navbar/walletMenu';
+import {trackPage} from 'services/analytics';
 import TransferMenu from 'containers/transferMenu';
 import TransactionModal, {TransactionState} from 'containers/transactionModal';
-import {trackPage} from 'services/analytics';
 import '../i18n.config';
 
 // HACK: All pages MUST be exported with the withTransaction function
@@ -17,7 +18,7 @@ import '../i18n.config';
 import HomePage from 'pages/home';
 import * as paths from 'utils/paths';
 import DaoSelectMenu from 'containers/navbar/daoSelectMenu';
-import styled from 'styled-components';
+import PrivacyPolicy from 'containers/privacyPolicy';
 
 const TokensPage = lazy(() => import('pages/tokens'));
 const FinancePage = lazy(() => import('pages/finance'));
@@ -62,9 +63,10 @@ function App() {
           </Routes>
         </Suspense>
       </Layout>
-      <WalletMenu />
+      <PrivacyPolicy />
       <TransferMenu />
       <DaoSelectMenu />
+      <WalletMenu />
       <TransactionModal
         title="Sign Deposit"
         subtitle="To register your deposit, you need to submit a transaction which costs you following."
