@@ -11,7 +11,7 @@ const Template: Story<AlertCardProps> = args => <AlertCard {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  mode: 'neutral',
+  mode: 'info',
   title: 'This is a title',
   helpText: 'This is a help text'
 };

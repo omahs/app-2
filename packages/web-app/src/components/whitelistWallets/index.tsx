@@ -10,7 +10,7 @@ import {WhitelistWallet} from 'pages/createDAO';
 import React, {useEffect, useState} from 'react';
 import {useFieldArray, useFormContext} from 'react-hook-form';
 import styled from 'styled-components';
-import {useWallet} from 'use-wallet';
+import {useWallet} from 'hooks/useWallet';
 import {Row} from './row';
 
 export const WhitelistWallets = () => {
@@ -31,7 +31,7 @@ export const WhitelistWallets = () => {
     if (account) {
       update(0, {address: account});
     }
-  }, [account, update]);
+  });
 
   // reset all
   const handleDeleteWallets = () => {
@@ -48,6 +48,7 @@ export const WhitelistWallets = () => {
 
   return (
     <Container>
+      {JSON.stringify(whitelistWallets)}
       <TableContainer>
         <Header>{t('labels.whitelistWallets.address')}</Header>
         {whitelistWallets &&
