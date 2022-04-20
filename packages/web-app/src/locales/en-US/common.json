@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -217,8 +217,7 @@
   },
   "alert": {
     "durationAlert": "We recommend a minimum duration of 1 day if it does not have to be a quick financial decision.",
-    "testNet": "Testnet Active",
-    "unsupportedNet": "Network Not Supported"
+    "wrongWalletNetwork": "Wrong Wallet Network"
   },
   "warnings": {
     "amountGtDaoToken": "Withdraw amount is greater than the current token balance"
