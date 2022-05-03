@@ -78,12 +78,10 @@ export const Row = ({index, ...props}: WhitelistWalletsRowProps) => {
             side="bottom"
             align="start"
             sideOffset={4}
-            disabled={shouldDisable}
             trigger={
               <ButtonIcon
                 size="large"
                 mode="secondary"
-                disabled={shouldDisable}
                 icon={<IconMenuVertical />}
                 data-testid="trigger"
               />

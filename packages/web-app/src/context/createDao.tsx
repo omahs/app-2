@@ -6,6 +6,7 @@ import {
 import React, {
   createContext,
   useContext,
+  useMemo,
   useState,
   ReactNode,
   useCallback,
@@ -15,6 +16,8 @@ import {constants} from 'ethers';
 import {useFormContext, useWatch} from 'react-hook-form';
 
 import {useDao} from 'hooks/useCachedDao';
+import {useClient} from 'hooks/useClient';
+import usePollGasFee from 'hooks/usePollGasFee';
 import PublishDaoModal from 'containers/transactionModals/publishDaoModal';
 import {TransactionState} from 'utils/constants';
 import {getSecondsFromDHM} from 'utils/date';
@@ -41,7 +44,32 @@ const CreateDaoProvider: React.FC<Props> = ({children}) => {
   const {getValues, control} = useFormContext<CreateDaoFormData>();
   const [membership] = useWatch({name: ['membership'], control});
 
+  const {erc20, whitelist} = useClient();
   const {createErc20, createWhitelist} = useDao();
+
+  // condition to be met to initiate and continue polling
+  const startPolling = useMemo(
+    () => showModal && creationProcessState === TransactionState.WAITING,
+    [creationProcessState, showModal]
+  );
+
+  // function to be called to estimate fee
+  const estimateGasFees = useCallback(() => {
+    if (daoCreationData) {
+      return membership === 'token'
+        ? erc20?.estimate.create(daoCreationData as ICreateDaoERC20Voting)
+        : whitelist?.estimate.create(
+            daoCreationData as ICreateDaoWhitelistVoting
+          );
+    }
+  }, [daoCreationData, erc20?.estimate, membership, whitelist?.estimate]);
+
+  // gas estimation
+  const {gasFee, nativeTokenPrice, elapsedTime, stopPolling} = usePollGasFee(
+    estimateGasFees,
+    30,
+    startPolling
+  );
 
   /*************************************************
    *                   Handlers                    *
@@ -77,13 +105,17 @@ const CreateDaoProvider: React.FC<Props> = ({children}) => {
       return;
     }
 
-    // proceed with creation if transaction is waiting or was not successfully executed (retry)
+    // proceed with creation if transaction is waiting or
+    // was not successfully executed(retry)
     await createDao();
   };
 
   // Handler for modal close; don't close modal if transaction is still running
   const handleCloseModal = () => {
-    if (creationProcessState !== TransactionState.LOADING) setShowModal(false);
+    if (creationProcessState !== TransactionState.LOADING) {
+      setShowModal(false);
+      stopPolling();
+    }
   };
 
   /*************************************************
@@ -190,6 +222,9 @@ const CreateDaoProvider: React.FC<Props> = ({children}) => {
     <CreateDaoContext.Provider value={{handlePublishDao}}>
       {children}
       <PublishDaoModal
+        fee={gasFee}
+        price={nativeTokenPrice}
+        seconds={elapsedTime}
         state={creationProcessState || TransactionState.WAITING}
         isOpen={showModal}
         onClose={handleCloseModal}
