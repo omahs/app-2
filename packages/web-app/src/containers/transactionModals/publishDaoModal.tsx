@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
   AlertInline,
   ButtonText,
@@ -9,12 +9,16 @@ import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 import {TransactionState} from 'utils/constants';
+import {formatEther} from 'ethers/lib/utils';
 
 type PublishDaoModalProps = {
   state: TransactionState;
   callback: () => void;
   isOpen: boolean;
   onClose: () => void;
+  price: number; // per ether
+  seconds: number;
+  fee: number; // in wei
   closeOnDrag: boolean;
 };
 
@@ -30,6 +34,9 @@ const PublishDaoModal: React.FC<PublishDaoModalProps> = ({
   callback,
   isOpen,
   onClose,
+  seconds,
+  price,
+  fee,
   closeOnDrag,
 }) => {
   const {t} = useTranslation();
@@ -40,6 +47,8 @@ const PublishDaoModal: React.FC<PublishDaoModalProps> = ({
     [TransactionState.SUCCESS]: t('TransactionModal.dismiss'),
     [TransactionState.ERROR]: t('TransactionModal.tryAgain'),
   };
+
+  const ETHTotal = useMemo(() => formatEther(fee), [fee]);
 
   /**
    * All data's can fetch and shown here
@@ -55,20 +64,27 @@ const PublishDaoModal: React.FC<PublishDaoModalProps> = ({
           <VStack>
             <Label>{t('TransactionModal.estimatedFees')}</Label>
             <p className="text-sm text-ui-500">
-              {`${t('TransactionModal.synced', {time: 30})}`}
+              {`${t('TransactionModal.synced', {time: seconds})}`}
             </p>
           </VStack>
           <VStack>
-            <StrongText>{'0.001ETH'}</StrongText>
-            <p className="text-sm text-right text-ui-500">{'127gwei'}</p>
+            <StrongText>{`${ETHTotal} ETH`}</StrongText>
+            <p className="text-sm text-right text-ui-500">{`${
+              fee / 1000000000
+            } gwei`}</p>
           </VStack>
         </GasCostEthContainer>
 
         <GasTotalCostEthContainer>
           <Label>{t('TransactionModal.totalCost')}</Label>
           <VStack>
-            <StrongText>{'0.001ETH'}</StrongText>
-            <p className="text-sm text-right text-ui-500">{'$33'}</p>
+            <StrongText>{`${ETHTotal} ETH`}</StrongText>
+            <p className="text-sm text-right text-ui-500">
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+              }).format(price * Number(ETHTotal))}
+            </p>
           </VStack>
         </GasTotalCostEthContainer>
       </GasCostTableContainer>
