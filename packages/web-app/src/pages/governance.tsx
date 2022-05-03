@@ -24,6 +24,7 @@ import {
   erc20VotingProposals,
   erc20VotingProposals_erc20VotingProposals,
 } from 'queries/__generated__/erc20VotingProposals';
+import {TEST_DAO} from 'utils/constants';
 
 const Governance: React.FC = () => {
   const {t} = useTranslation();
@@ -36,7 +37,7 @@ const Governance: React.FC = () => {
     loading,
     error,
   } = useQuery<erc20VotingProposals>(ERC20VOTING_PROPOSAL_LIST, {
-    variables: {dao: '0x4d68eaa86557f666decf789a8ab3d59fe390ff42'},
+    variables: {dao: TEST_DAO},
   });
 
   // The number of proposals displayed on each page
