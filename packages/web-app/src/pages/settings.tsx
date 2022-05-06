@@ -9,16 +9,21 @@ import {
   ListItemLink,
 } from '@aragon/ui-components';
 import {useTranslation} from 'react-i18next';
+import {generatePath, useParams, Link as RouterLink} from 'react-router-dom';
 
 import {PageWrapper} from 'components/wrappers';
 import {DescriptionListContainer, Dl, Dt, Dd} from 'components/descriptionList';
 import {useGlobalModalContext} from 'context/globalModals';
 import useScreen from 'hooks/useScreen';
+import {EditSettings} from 'utils/paths';
+import {useNetwork} from 'context/network';
 
 const Settings: React.FC = () => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
   const {isMobile} = useScreen();
+  const {network} = useNetwork();
+  const {dao} = useParams();
 
   return (
     <PageWrapper
@@ -120,12 +125,14 @@ const Settings: React.FC = () => {
           </Dl>
         </DescriptionListContainer>
 
-        <ButtonText
-          label={t('labels.newSettings')}
-          className="mx-auto w-full tablet:w-max"
-          size="large"
-          iconLeft={<IconGovernance />}
-        />
+        <RouterLink to={generatePath(EditSettings, {network, dao})}>
+          <ButtonText
+            label={t('labels.newSettings')}
+            className="mx-auto mt-5 w-full tablet:w-max"
+            size="large"
+            iconLeft={<IconGovernance />}
+          />
+        </RouterLink>
       </div>
     </PageWrapper>
   );
