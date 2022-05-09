@@ -127,7 +127,7 @@ const Settings: React.FC = () => {
 
         <RouterLink to={generatePath(EditSettings, {network, dao})}>
           <ButtonText
-            label={t('labels.newSettings')}
+            label={t('settings.newSettings')}
             className="mx-auto mt-5 w-full tablet:w-max"
             size="large"
             iconLeft={<IconGovernance />}
