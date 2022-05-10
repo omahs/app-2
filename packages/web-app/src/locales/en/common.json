@@ -528,6 +528,7 @@
     "editSubtitle": "To edit the DAO settings, fill the new data and then you have to propose this to the DAO community. If it gets approved, the new settings will get applied.",
     "resetChanges": "Reset Changes",
     "edit": "Edit Settings",
+    "new": "New Settings",
     "proposeSettingsInfo": "To make changes to the settings of this DAO, a vote must be taken via the community."
   }
 }

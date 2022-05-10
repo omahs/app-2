@@ -2,11 +2,20 @@ import React, {useState} from 'react';
 import {withTransaction} from '@elastic/apm-rum-react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
-import {AlertInline, ButtonText, IconGovernance} from '@aragon/ui-components';
+import {
+  AlertInline,
+  Breadcrumb,
+  ButtonText,
+  IconGovernance,
+  Wizard,
+} from '@aragon/ui-components';
 import {constants} from 'ethers';
+import styled from 'styled-components';
+import {useNavigate} from 'react-router-dom';
 
 import DefineMetadata from 'containers/defineMetadata';
 import ConfigureCommunity from 'containers/configureCommunity';
+import {useMappedBreadcrumbs} from 'hooks/useMappedBreadcrumbs';
 
 const defaultValues = {
   links: [{label: '', href: ''}],
@@ -20,6 +29,8 @@ const EditSettings: React.FC = () => {
     'metadata'
   );
   const {t} = useTranslation();
+  const navigate = useNavigate();
+  const {breadcrumbs, icon} = useMappedBreadcrumbs();
   const formMethods = useForm({
     mode: 'onChange',
     defaultValues,
@@ -27,77 +38,119 @@ const EditSettings: React.FC = () => {
 
   return (
     <FormProvider {...formMethods}>
-      <div className="col-span-full desktop:col-start-2 desktop:col-end-12 mt-5 space-y-8">
-        <div className="p-5 space-y-2 bg-white rounded-xl">
-          <h1 className="text-3xl font-bold text-ui-800">
-            {t('settings.editDaoSettings')}
-          </h1>
-          <p className="text-lg text-ui-600">{t('settings.editSubtitle')}</p>
+      <Container>
+        <div className="-mx-2 desktop:mx-0">
+          <Wizard
+            includeStepper={false}
+            title={t('settings.editDaoSettings')}
+            description={t('settings.editSubtitle')}
+            nav={
+              <Breadcrumb icon={icon} crumbs={breadcrumbs} onClick={navigate} />
+            }
+          />
         </div>
 
         <div>
-          <div className="flex justify-between items-center p-3 bg-white rounded-xl">
-            <p className="text-lg text-ui-800">
-              {t('labels.review.daoMetadata')}
-            </p>
-            <ButtonText
-              label={
-                currentMenu === 'metadata'
-                  ? t('settings.resetChanges')
-                  : t('settings.edit')
-              }
-              mode={currentMenu === 'metadata' ? 'secondary' : 'primary'}
-              onClick={() => setCurrentMenu('metadata')}
-              bgWhite
-            />
-          </div>
+          <Accordion>
+            <Heading>{t('labels.review.daoMetadata')}</Heading>
+
+            <HStack>
+              <AlertInline label={t('settings.new')} mode="neutral" />
+              <ButtonText
+                label={
+                  currentMenu === 'metadata'
+                    ? t('settings.resetChanges')
+                    : t('settings.edit')
+                }
+                disabled={currentMenu === 'metadata'}
+                mode={currentMenu === 'metadata' ? 'secondary' : 'primary'}
+                onClick={() => setCurrentMenu('metadata')}
+                bgWhite
+              />
+            </HStack>
+          </Accordion>
           {currentMenu === 'metadata' && (
-            <div className="mx-auto mt-5 desktop:mt-8 space-y-3 desktop:w-3/5">
+            <AccordionContent>
               <DefineMetadata />
-            </div>
+            </AccordionContent>
           )}
         </div>
 
         <div>
-          <div className="flex justify-between items-center p-3 bg-white rounded-xl">
-            <p className="text-lg text-ui-800">
-              {t('labels.review.governance')}
-            </p>
-            <ButtonText
-              label={
-                currentMenu === 'governance'
-                  ? t('settings.resetChanges')
-                  : t('settings.edit')
-              }
-              mode={currentMenu === 'governance' ? 'secondary' : 'primary'}
-              onClick={() => setCurrentMenu('governance')}
-              bgWhite
-            />
-          </div>
+          <Accordion>
+            <Heading>{t('labels.review.governance')}</Heading>
+
+            <HStack>
+              <AlertInline label={t('settings.new')} mode="neutral" />
+              <ButtonText
+                label={
+                  currentMenu === 'governance'
+                    ? t('settings.resetChanges')
+                    : t('settings.edit')
+                }
+                disabled={currentMenu === 'governance'}
+                mode={currentMenu === 'governance' ? 'secondary' : 'primary'}
+                onClick={() => setCurrentMenu('governance')}
+                bgWhite
+              />
+            </HStack>
+          </Accordion>
           {currentMenu === 'governance' && (
-            <div className="mx-auto mt-5 desktop:mt-8 space-y-3 desktop:w-3/5">
+            <AccordionContent>
               <ConfigureCommunity />
-            </div>
+            </AccordionContent>
           )}
         </div>
 
-        <div className="mx-auto mt-5 desktop:mt-8 space-y-2 desktop:w-3/5">
-          <div className="flex space-x-3">
+        <ButtonContainer>
+          <HStack>
             <ButtonText
+              className="w-full tablet:w-max"
               label={t('settings.newSettings')}
               iconLeft={<IconGovernance />}
             />
-            <ButtonText label={t('settings.resetChanges')} mode="secondary" />
-          </div>
+            <ButtonText
+              className="w-full tablet:w-max"
+              label={t('settings.resetChanges')}
+              mode="secondary"
+            />
+          </HStack>
 
           <AlertInline
             label={t('settings.proposeSettingsInfo')}
             mode="neutral"
           />
-        </div>
-      </div>
+        </ButtonContainer>
+      </Container>
     </FormProvider>
   );
 };
 
 export default withTransaction('EditSettings', 'component')(EditSettings);
+
+const Container = styled.div.attrs({
+  className:
+    'col-span-full desktop:col-start-2 desktop:col-end-12 desktop:mt-5 space-y-8',
+})``;
+
+const Accordion = styled.div.attrs({
+  className:
+    'desktop:flex justify-between items-center p-3 bg-white rounded-xl space-y-2 desktop:space-y-0',
+})``;
+
+const AccordionContent = styled.div.attrs({
+  className: 'mx-auto mt-5 desktop:mt-8 space-y-3 desktop:w-3/5',
+})``;
+
+const Heading = styled.div.attrs({
+  className: 'text-lg text-ui-800',
+})``;
+
+const HStack = styled.div.attrs({
+  className:
+    'desktop:flex space-x-0 desktop:space-x-3 space-y-2 desktop:space-y-0',
+})``;
+
+const ButtonContainer = styled.div.attrs({
+  className: 'mx-auto mt-5 desktop:mt-8 space-y-2 desktop:w-3/5',
+})``;
