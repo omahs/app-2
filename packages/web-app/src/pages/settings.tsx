@@ -28,7 +28,7 @@ const Settings: React.FC = () => {
   return (
     <PageWrapper
       title={t('labels.daoSettings')}
-      buttonLabel={t('labels.newSettings')}
+      buttonLabel={t('settings.newSettings')}
       showButton={isMobile}
       buttonIcon={<IconGovernance />}
     >
