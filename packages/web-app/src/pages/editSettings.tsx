@@ -11,12 +11,19 @@ import {
 } from '@aragon/ui-components';
 import {constants} from 'ethers';
 import styled from 'styled-components';
-import {useNavigate} from 'react-router-dom';
+import {
+  generatePath,
+  useParams,
+  useNavigate,
+  Link as RouterLink,
+} from 'react-router-dom';
 
 import DefineMetadata from 'containers/defineMetadata';
 import ConfigureCommunity from 'containers/configureCommunity';
 import {useMappedBreadcrumbs} from 'hooks/useMappedBreadcrumbs';
 import useScreen from 'hooks/useScreen';
+import {ProposeNewSettings} from 'utils/paths';
+import {useNetwork} from 'context/network';
 
 const defaultValues = {
   links: [{label: '', href: ''}],
@@ -32,6 +39,8 @@ const EditSettings: React.FC = () => {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const {isMobile} = useScreen();
+  const {network} = useNetwork();
+  const {dao} = useParams();
   const {breadcrumbs, icon} = useMappedBreadcrumbs();
   const formMethods = useForm({
     mode: 'onChange',
@@ -69,7 +78,7 @@ const EditSettings: React.FC = () => {
             <Heading>{t('labels.review.daoMetadata')}</Heading>
 
             <HStack>
-              <AlertInline label={t('settings.new')} mode="neutral" />
+              <AlertInline label={t('settings.newSettings')} mode="neutral" />
               <ButtonText
                 label={
                   currentMenu === 'metadata'
@@ -95,7 +104,7 @@ const EditSettings: React.FC = () => {
             <Heading>{t('labels.review.governance')}</Heading>
 
             <HStack>
-              <AlertInline label={t('settings.new')} mode="neutral" />
+              <AlertInline label={t('settings.newSettings')} mode="neutral" />
               <ButtonText
                 label={
                   currentMenu === 'governance'
@@ -118,12 +127,14 @@ const EditSettings: React.FC = () => {
 
         <ButtonContainer>
           <HStack>
-            <ButtonText
-              className="w-full tablet:w-max"
-              label={t('settings.newSettings')}
-              iconLeft={<IconGovernance />}
-              size={isMobile ? 'large' : 'medium'}
-            />
+            <RouterLink to={generatePath(ProposeNewSettings, {network, dao})}>
+              <ButtonText
+                className="w-full tablet:w-max"
+                label={t('settings.proposeSettings')}
+                iconLeft={<IconGovernance />}
+                size={isMobile ? 'large' : 'medium'}
+              />
+            </RouterLink>
             <ButtonText
               className="w-full tablet:w-max"
               label={t('settings.resetChanges')}

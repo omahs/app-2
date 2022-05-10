@@ -9,8 +9,10 @@ export const Dashboard = '/:network/:dao/dashboard';
 export const Finance = '/:network/:dao/finance';
 export const Governance = '/:network/:dao/governance';
 export const Community = '/:network/:dao/community';
+
 export const Settings = '/:network/:dao/settings';
 export const EditSettings = '/:network/:dao/settings/edit';
+export const ProposeNewSettings = '/:network/:dao/settings/new-proposal';
 
 export const AllTokens = '/:network/:dao/finance/tokens';
 export const AllTransfers = '/:network/:dao/finance/transfers';
