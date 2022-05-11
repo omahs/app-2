@@ -16,6 +16,7 @@ import {useNavigate} from 'react-router-dom';
 import DefineMetadata from 'containers/defineMetadata';
 import ConfigureCommunity from 'containers/configureCommunity';
 import {useMappedBreadcrumbs} from 'hooks/useMappedBreadcrumbs';
+import useScreen from 'hooks/useScreen';
 
 const defaultValues = {
   links: [{label: '', href: ''}],
@@ -30,6 +31,7 @@ const EditSettings: React.FC = () => {
   );
   const {t} = useTranslation();
   const navigate = useNavigate();
+  const {isMobile} = useScreen();
   const {breadcrumbs, icon} = useMappedBreadcrumbs();
   const formMethods = useForm({
     mode: 'onChange',
@@ -48,6 +50,18 @@ const EditSettings: React.FC = () => {
               <Breadcrumb icon={icon} crumbs={breadcrumbs} onClick={navigate} />
             }
           />
+
+          {isMobile && (
+            <div className="px-2 pb-3 -mt-1 bg-white">
+              <ButtonText
+                className="w-full tablet:w-max"
+                label={t('settings.resetChanges')}
+                mode="secondary"
+                size={isMobile ? 'large' : 'medium'}
+                disabled
+              />
+            </div>
+          )}
         </div>
 
         <div>
@@ -108,11 +122,13 @@ const EditSettings: React.FC = () => {
               className="w-full tablet:w-max"
               label={t('settings.newSettings')}
               iconLeft={<IconGovernance />}
+              size={isMobile ? 'large' : 'medium'}
             />
             <ButtonText
               className="w-full tablet:w-max"
               label={t('settings.resetChanges')}
               mode="secondary"
+              size={isMobile ? 'large' : 'medium'}
             />
           </HStack>
 
@@ -130,7 +146,7 @@ export default withTransaction('EditSettings', 'component')(EditSettings);
 
 const Container = styled.div.attrs({
   className:
-    'col-span-full desktop:col-start-2 desktop:col-end-12 desktop:mt-5 space-y-8',
+    'col-span-full desktop:col-start-2 desktop:col-end-12 desktop:mt-5 space-y-5 desktop:space-y-8',
 })``;
 
 const Accordion = styled.div.attrs({
@@ -139,7 +155,7 @@ const Accordion = styled.div.attrs({
 })``;
 
 const AccordionContent = styled.div.attrs({
-  className: 'mx-auto mt-5 desktop:mt-8 space-y-3 desktop:w-3/5',
+  className: 'mx-auto mt-3 desktop:mt-5 space-y-3 desktop:w-3/5',
 })``;
 
 const Heading = styled.div.attrs({
