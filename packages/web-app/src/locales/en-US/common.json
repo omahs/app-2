@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -27,6 +27,8 @@
     "connectWallet": "Login"
   },
   "labels": {
+    "viewTransactions": "View Transactions",
+    "logOut": "Log Out",
     "seeAll": "See all",
     "seeAllTokens": "See All Tokens",
     "seeAllTransfers": "See All Transfers",
