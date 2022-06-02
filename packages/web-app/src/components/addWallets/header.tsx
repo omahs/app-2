@@ -3,11 +3,15 @@ import styled from 'styled-components';
 import {Label} from '@aragon/ui-components';
 import {useTranslation} from 'react-i18next';
 
-const AddWalletsHeader: React.FC = () => {
+type AddWalletsHeaderProps = {
+  bgWhite?: boolean;
+};
+
+const AddWalletsHeader: React.FC<AddWalletsHeaderProps> = ({bgWhite}) => {
   const {t} = useTranslation();
 
   return (
-    <Container>
+    <Container bgWhite={bgWhite}>
       <HeaderItem>
         <Label label={t('labels.whitelistWallets.address')} />
       </HeaderItem>
@@ -21,9 +25,13 @@ const AddWalletsHeader: React.FC = () => {
 
 export default AddWalletsHeader;
 
-export const Container = styled.div.attrs({
-  className: 'hidden tablet:flex p-2 space-x-2 bg-ui-0',
-})``;
+export const Container = styled.div.attrs(
+  ({bgWhite}: AddWalletsHeaderProps) => ({
+    className: `${
+      bgWhite ? 'bg-ui-50' : 'bg-ui-0'
+    } hidden tablet:flex p-2 space-x-2`,
+  })
+)<AddWalletsHeaderProps>``;
 
 export const HeaderItem = styled.div.attrs({
   className: 'flex-1',

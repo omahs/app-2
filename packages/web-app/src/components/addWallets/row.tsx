@@ -28,13 +28,21 @@ type WalletRowProps = {
   onDelete?: (index: number) => void;
 };
 
+type AddWalletsRowProps = {
+  bgWhite?: boolean;
+};
+
 export type WalletField = {
   id: string;
   address: string;
   amount: string;
 };
 
-const WalletRow: React.FC<WalletRowProps> = ({index, onDelete}) => {
+const WalletRow: React.FC<WalletRowProps & AddWalletsRowProps> = ({
+  index,
+  onDelete,
+  bgWhite,
+}) => {
   const {t} = useTranslation();
   const [isDuplicate, setIsDuplicate] = useState<boolean>(false);
   const {address} = useWallet();
@@ -92,7 +100,7 @@ const WalletRow: React.FC<WalletRowProps> = ({index, onDelete}) => {
   };
 
   return (
-    <Container data-testid="wallet-row">
+    <Container data-testid="wallet-row" bgWhite={bgWhite}>
       <Controller
         defaultValue=""
         name={`wallets.${index}.address`}
@@ -218,9 +226,11 @@ const WalletRow: React.FC<WalletRowProps> = ({index, onDelete}) => {
 
 export default WalletRow;
 
-const Container = styled.div.attrs({
-  className: 'flex flex-wrap gap-x-2 gap-y-1.5 p-2 bg-ui-0',
-})``;
+const Container = styled.div.attrs(({bgWhite}: AddWalletsRowProps) => ({
+  className: `${
+    bgWhite ? 'bg-ui-50' : 'bg-ui-0'
+  } flex flex-wrap gap-x-2 gap-y-1.5 p-2`,
+}))<AddWalletsRowProps>``;
 
 const PercentageInputDisplay = styled(TextInput).attrs({
   className: 'text-right',

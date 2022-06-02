@@ -8,7 +8,13 @@ type WalletsFooterProps = {
   totalAddresses: number;
 };
 
-const AddWalletsFooter: React.FC<WalletsFooterProps> = ({totalAddresses}) => {
+type AddWalletsFooterProps = {
+  bgWhite?: boolean;
+};
+
+const AddWalletsFooter: React.FC<
+  WalletsFooterProps & AddWalletsFooterProps
+> = ({totalAddresses, bgWhite}) => {
   const {t} = useTranslation();
   const {getValues} = useFormContext();
   const totalSupply = getValues('tokenTotalSupply');
@@ -21,7 +27,7 @@ const AddWalletsFooter: React.FC<WalletsFooterProps> = ({totalAddresses}) => {
         });
 
   return (
-    <Container>
+    <Container bgWhite={bgWhite}>
       <FooterItem1>
         <Label label={label} />
       </FooterItem1>
@@ -38,9 +44,13 @@ const AddWalletsFooter: React.FC<WalletsFooterProps> = ({totalAddresses}) => {
 
 export default AddWalletsFooter;
 
-export const Container = styled.div.attrs({
-  className: 'hidden tablet:flex p-2 space-x-2 bg-ui-0',
-})``;
+export const Container = styled.div.attrs(
+  ({bgWhite}: AddWalletsFooterProps) => ({
+    className: `${
+      bgWhite ? 'bg-ui-50' : 'bg-ui-0'
+    } hidden tablet:flex p-2 space-x-2`,
+  })
+)<AddWalletsFooterProps>``;
 
 export const FooterItem1 = styled.div.attrs({
   className: 'flex-1',
