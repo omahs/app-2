@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -556,5 +556,8 @@
     "edit": "Edit Settings",
     "new": "New Settings",
     "proposeSettingsInfo": "To make changes to the settings of this DAO, a vote must be taken via the community."
+  },
+  "dashboard": {
+    "proposalsTitle": "Proposals created"
   }
 }
