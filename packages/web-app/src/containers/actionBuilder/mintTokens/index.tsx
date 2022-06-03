@@ -11,7 +11,7 @@ import {useFormContext} from 'react-hook-form';
 import React, {useState} from 'react';
 
 import {useActionsContext} from 'context/actions';
-import AddWallets from 'components/addWallets';
+import AddAddress from './addAddress';
 
 type Props = {
   index: number;
@@ -86,11 +86,7 @@ const MintTokens: React.FC<Props> = ({index}) => {
       </Header>
       <AlertInline label={t('AddActionModal.mintTokensAlert')} />
       <Body>
-        {/* <ConfigureWithdrawForm
-          index={index}
-          setActionsCounter={setActionsCounter}
-        /> */}
-        <AddWallets />
+        <AddAddress />
       </Body>
     </Container>
   );

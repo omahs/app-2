@@ -191,7 +191,7 @@ const WalletRow: React.FC<WalletRowProps & AddWalletsRowProps> = ({
             <ButtonIcon
               mode="ghost"
               size="large"
-              bgWhite
+              bgWhite={!bgWhite}
               icon={<IconMenuVertical />}
               data-testid="trigger"
             />
