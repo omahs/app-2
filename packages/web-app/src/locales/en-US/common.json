@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -297,6 +297,7 @@
     "dismiss": "Dismiss",
     "errorLabel": "Error while confirming transaction",
     "estimatedFees": "Estimated Gas Fees",
+    "maxFee": "Max Fee",
     "publishDao": "Publish Dao",
     "publishDaoButtonLabel": "Publish DAO Now",
     "signDeposit": "Sign Deposit",
