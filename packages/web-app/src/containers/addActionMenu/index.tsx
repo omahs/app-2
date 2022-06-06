@@ -30,7 +30,12 @@ const AddActionMenu: React.FC = () => {
           title={t('AddActionModal.addRemoveAddresses')}
           subtitle={t('AddActionModal.addRemoveAddressesSubtitle')}
           iconRight={<IconChevronRight />}
-          onClick={() => alert(AddActionItems.ADD_REMOVE_ADDRESS)}
+          onClick={() => {
+            addAction({
+              name: AddActionItems.ADD_REMOVE_ADDRESS,
+            });
+            close('addAction');
+          }}
         />
         <ListItemAction
           title={t('AddActionModal.mintTokens')}

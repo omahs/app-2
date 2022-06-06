@@ -330,7 +330,11 @@
     "withdrawAssetsSubtitle": "Propose to withdraw assets from the DAO treasury",
     "withdrawAssetsActionSubtitle": "Withdraw assets from the DAO treasury",
     "externalContract": "External Contract",
-    "externalContractSubtitle": "Interact with any contract on the blockchain and access any functionality"
+    "externalContractSubtitle": "Interact with any contract on the blockchain and access any functionality",
+    "addAddress": "Add wallets",
+    "addAddressSubtitle": "Add as many wallets as you like to the DAO. These are authorised to create proposals, request transactions or suggest changes to the DAO settings from the time of initial creation.",
+    "removeAddress": "Remove wallets",
+    "removeAddressSubtitle": "Remove existing wallets from the authorised list of this particular DAO."
   },
   "newDeposit": {
     "depositAssets": "Deposit Assets",
