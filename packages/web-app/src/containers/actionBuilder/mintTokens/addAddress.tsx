@@ -64,7 +64,7 @@ const AddAddress: React.FC<AddAddressProps> = ({
             />
           );
         })}
-        <Footer totalAddresses={fields.length || 0} bgWhite />
+        <Footer label={t('labels.whitelistWallets.newTotalSupply')} bgWhite />
       </ListGroup>
       <ActionsWrapper>
         <ButtonText

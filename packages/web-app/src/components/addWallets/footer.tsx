@@ -5,7 +5,8 @@ import {useTranslation} from 'react-i18next';
 import {useFormContext} from 'react-hook-form';
 
 type WalletsFooterProps = {
-  totalAddresses: number;
+  totalAddresses?: number;
+  label?: string;
 };
 
 type AddWalletsFooterProps = {
@@ -14,12 +15,12 @@ type AddWalletsFooterProps = {
 
 const AddWalletsFooter: React.FC<
   WalletsFooterProps & AddWalletsFooterProps
-> = ({totalAddresses, bgWhite}) => {
+> = ({totalAddresses, label, bgWhite}) => {
   const {t} = useTranslation();
   const {getValues} = useFormContext();
   const totalSupply = getValues('tokenTotalSupply');
 
-  const label =
+  const addressCount =
     totalAddresses === 1
       ? `${1} ${t('labels.whitelistWallets.address')}`
       : t('labels.whitelistWallets.addresses', {
@@ -29,7 +30,7 @@ const AddWalletsFooter: React.FC<
   return (
     <Container bgWhite={bgWhite}>
       <FooterItem1>
-        <Label label={label} />
+        <Label label={label || addressCount} />
       </FooterItem1>
       <FooterItem1>
         <StyledLabel>{totalSupply}</StyledLabel>

@@ -114,7 +114,8 @@
       "resetEntry": "Reset Entry",
       "deleteEntry": "Delete Entry",
       "resetAllEntries": "Reset All Entries",
-      "deleteAllEntries": "Delete All Entries"
+      "deleteAllEntries": "Delete All Entries",
+      "newTotalSupply": "New Total Token Supply"
     },
     "review": {
       "blockchain": "Blockchain",
