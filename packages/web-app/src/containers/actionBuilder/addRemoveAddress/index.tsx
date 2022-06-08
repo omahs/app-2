@@ -1,30 +1,30 @@
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
-import {useFormContext} from 'react-hook-form';
-import React, {useState} from 'react';
+// import {useFormContext} from 'react-hook-form';
+import React from 'react';
 
-import {useActionsContext} from 'context/actions';
+// import {useActionsContext} from 'context/actions';
 
 type Props = {
   index: number;
 };
 
-const AddRemoveAddresses: React.FC<Props> = ({index}) => {
+const AddRemoveAddresses: React.FC<Props> = () => {
   const {t} = useTranslation();
-  const [openMenu, setOpenMenu] = useState<boolean>(false);
-  const {removeAction, duplicateAction, setActionsCounter} =
-    useActionsContext();
-  const {setValue, clearErrors} = useFormContext();
+  // const [openMenu, setOpenMenu] = useState<boolean>(false);
+  // const {removeAction, duplicateAction, setActionsCounter} =
+  //   useActionsContext();
+  // const {setValue, clearErrors} = useFormContext();
 
-  const resetWithdrawFields = () => {
-    clearErrors(`actions.${index}`);
-    setValue(`actions.${index}`, {
-      to: '',
-      amount: '',
-      tokenAddress: '',
-      tokenSymbol: '',
-    });
-  };
+  // const resetWithdrawFields = () => {
+  //   clearErrors(`actions.${index}`);
+  //   setValue(`actions.${index}`, {
+  //     to: '',
+  //     amount: '',
+  //     tokenAddress: '',
+  //     tokenSymbol: '',
+  //   });
+  // };
 
   return (
     <Container>

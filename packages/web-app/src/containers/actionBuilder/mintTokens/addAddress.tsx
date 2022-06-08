@@ -15,11 +15,11 @@ type AddAddressProps = {
 
 const AddAddress: React.FC<AddAddressProps> = ({
   index = 0,
-  setActionsCounter,
+  // setActionsCounter,
 }) => {
   const {t} = useTranslation();
 
-  const {control, setValue, trigger} = useFormContext();
+  const {control, trigger} = useFormContext();
   const wallets = useWatch({
     name: `actions.${index}.wallets`,
     control: control,
@@ -38,7 +38,7 @@ const AddAddress: React.FC<AddAddressProps> = ({
 
   useEffect(() => {
     append({address: '', amount: '0'});
-  }, []);
+  }, [append]);
 
   // setTimeout added because instant trigger not working
   const handleAddWallet = () => {

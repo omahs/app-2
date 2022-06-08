@@ -20,8 +20,7 @@ type Props = {
 const MintTokens: React.FC<Props> = ({index}) => {
   const {t} = useTranslation();
   const [openMenu, setOpenMenu] = useState<boolean>(false);
-  const {removeAction, duplicateAction, setActionsCounter} =
-    useActionsContext();
+  const {removeAction, duplicateAction} = useActionsContext();
   const {setValue, clearErrors} = useFormContext();
 
   const resetWithdrawFields = () => {
