@@ -66,5 +66,5 @@ const ProposalSnapshot: React.FC<Props> = ({dao}) => {
 export default ProposalSnapshot;
 
 const Container = styled.div.attrs({
-  className: 'space-y-1.5 desktop:space-y-2 w-full desktop:w-3/5',
+  className: 'space-y-1.5 desktop:space-y-2 w-full',
 })``;

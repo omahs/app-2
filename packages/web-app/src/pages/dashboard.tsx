@@ -16,46 +16,55 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <Layout>
-      <HeaderDao
-        daoName={'DaoName'}
-        description={
-          'We are a community that loves trees and the planet. We track where forestation is increasing (or shrinking), fund people who are growing and protecting trees...'
-        }
-        created_at={'March 2022'}
-        daoChain={'Arbitrum'}
-        daoType={'Wallet Based'}
-        links={[
-          {
-            label: 'Website',
-            href: 'https://google.com',
-          },
-          {
-            label: 'Discord',
-            href: 'https://google.com',
-          },
-          {
-            label: 'Forum',
-            href: 'https://google.com',
-          },
-        ]}
-      />
-      <Container>
+    <>
+      <HeaderWrapper>
+        <HeaderDao
+          daoName={'DaoName'}
+          description={
+            'We are a community that loves trees and the planet. We track where forestation is increasing (or shrinking), fund people who are growing and protecting trees...'
+          }
+          created_at={'March 2022'}
+          daoChain={'Arbitrum'}
+          daoType={'Wallet Based'}
+          links={[
+            {
+              label: 'Website',
+              href: 'https://google.com',
+            },
+            {
+              label: 'Discord',
+              href: 'https://google.com',
+            },
+            {
+              label: 'Forum',
+              href: 'https://google.com',
+            },
+          ]}
+        />
+      </HeaderWrapper>
+      <LeftContent>
         <ProposalSnapshot dao={dao} />
+      </LeftContent>
+      <RightContent>
         <TreasurySnapshot dao={dao} />
-      </Container>
-    </Layout>
+        {/* TODO: Replace with member list */}
+        <TreasurySnapshot dao={dao} />
+      </RightContent>
+    </>
   );
 };
 
 export default withTransaction('Dashboard', 'component')(Dashboard);
 
-const Layout = styled.div.attrs({
-  className:
-    'flex flex-col py-3 col-span-full desktop:col-start-2 desktop:col-end-12',
+const HeaderWrapper = styled.div.attrs({
+  className: 'w-screen -mx-2 tablet:col-span-full tablet:w-full tablet:mx-0',
 })``;
 
-const Container = styled.div.attrs({
+const LeftContent = styled.div.attrs({
+  className: 'col-span-full desktop:col-start-2 desktop:col-span-6',
+})``;
+
+const RightContent = styled.div.attrs({
   className:
-    'flex flex-col desktop:flex-row desktop:gap-x-6 gap-y-5 desktop:justify-between mt-3 desktop:mt-6 w-full',
+    'col-span-full desktop:col-start-8 desktop:col-span-4 desktop:space-y-3',
 })``;

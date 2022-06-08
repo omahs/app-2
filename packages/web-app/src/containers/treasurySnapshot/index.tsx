@@ -68,5 +68,5 @@ const TreasurySnapshot: React.FC<Props> = ({dao}) => {
 export default TreasurySnapshot;
 
 const Container = styled.div.attrs({
-  className: 'space-y-1.5 desktop:space-y-2 desktop:w-2/5',
+  className: 'space-y-1.5 desktop:space-y-2',
 })``;
