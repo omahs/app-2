@@ -7,6 +7,7 @@ const MOCK_ADDRESSES = [
   'beer.eth',
 ];
 
+// eslint-disable-next-line
 export function useDaoMembers(dao: string) {
   //TODO: eventually, this will need to be queried from subgraph.
   // const {data, error, loading} = useQuery(APPROPRIATE_QUERY, {
@@ -15,7 +16,7 @@ export function useDaoMembers(dao: string) {
   //   fetchPolicy: 'no-cache',
   // });
 
-  const daoMembers = MOCK_ADDRESSES.filter(a => Math.random() > 0.4);
+  const daoMembers = MOCK_ADDRESSES.filter(() => Math.random() > 0.4);
 
   return {data: daoMembers, error: null, loading: false};
 }
