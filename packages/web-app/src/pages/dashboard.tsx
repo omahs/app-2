@@ -7,6 +7,7 @@ import {useDaoParam} from 'hooks/useDaoParam';
 import ProposalSnapshot from 'containers/proposalSnapshot';
 import TreasurySnapshot from 'containers/treasurySnapshot';
 import {HeaderDao} from '@aragon/ui-components';
+import {MembershipSnapshot} from 'containers/membershipSnapshot';
 
 const Dashboard: React.FC = () => {
   const {data: dao, loading} = useDaoParam();
@@ -47,8 +48,7 @@ const Dashboard: React.FC = () => {
       </LeftContent>
       <RightContent>
         <TreasurySnapshot dao={dao} />
-        {/* TODO: Replace with member list */}
-        <TreasurySnapshot dao={dao} />
+        <MembershipSnapshot dao={dao} />
       </RightContent>
     </>
   );
@@ -66,5 +66,5 @@ const LeftContent = styled.div.attrs({
 
 const RightContent = styled.div.attrs({
   className:
-    'col-span-full desktop:col-start-8 desktop:col-span-4 desktop:space-y-3',
+    'col-span-full space-y-2 desktop:col-start-8 desktop:col-span-4 desktop:space-y-3',
 })``;
