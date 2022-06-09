@@ -14,11 +14,8 @@ import {useNetwork} from 'context/network';
 import {Community} from 'utils/paths';
 import {isAddress} from 'ethers/lib/utils';
 import {CHAIN_METADATA} from 'utils/constants';
-
-const MOCK_ADDRESSES = [
-  '0x8367dc645e31321CeF3EeD91a10a5b7077e21f70',
-  'cool.eth',
-];
+import {useDaoMembers} from 'hooks/useDaoMembers';
+import {Loading} from 'components/temporary';
 
 type Props = {dao: string};
 
@@ -26,8 +23,9 @@ export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const {network} = useNetwork();
-  const memberCount = MOCK_ADDRESSES.length;
-  const isWalletBased = true;
+  const {data, loading} = useDaoMembers(dao);
+  const memberCount = data.length;
+  const isWalletBased = true; // This should be returned by the above hook as well.
 
   const itemClickHandler = (address: string) => {
     const baseUrl = CHAIN_METADATA[network].explorer;
@@ -36,7 +34,9 @@ export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
     else window.open(baseUrl + '/enslookup-search?search=' + address, '_blank');
   };
 
-  if (!memberCount) {
+  if (loading) return <Loading />;
+
+  if (memberCount < 1) {
     return (
       <div className="flex flex-1 justify-center items-center border">
         Empty State Placeholder
@@ -60,7 +60,7 @@ export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
           alert('This will soon take you to a page that lets you add members')
         }
       />
-      {MOCK_ADDRESSES.slice(0, 3).map(a => (
+      {data.slice(0, 3).map(a => (
         <ListItemAddress src={a} key={a} onClick={() => itemClickHandler(a)} />
       ))}
       <ButtonText
