@@ -1,21 +1,21 @@
 import {
   ButtonText,
   IconChevronRight,
-  IconFinance,
+  IconCommunity,
   ListItemHeader,
   ListItemAddress,
 } from '@aragon/ui-components';
+import {isAddress} from 'ethers/lib/utils';
 import React from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 import {useNavigate, generatePath} from 'react-router-dom';
 
-import {useNetwork} from 'context/network';
-import {Community} from 'utils/paths';
-import {isAddress} from 'ethers/lib/utils';
-import {CHAIN_METADATA} from 'utils/constants';
-import {useDaoMembers} from 'hooks/useDaoMembers';
 import {Loading} from 'components/temporary';
+import {useNetwork} from 'context/network';
+import {useDaoMembers} from 'hooks/useDaoMembers';
+import {CHAIN_METADATA} from 'utils/constants';
+import {Community} from 'utils/paths';
 
 type Props = {dao: string};
 
@@ -47,7 +47,7 @@ export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
   return (
     <Container>
       <ListItemHeader
-        icon={<IconFinance />}
+        icon={<IconCommunity />}
         value={`${memberCount} ${t('labels.members')}`}
         label={
           isWalletBased
