@@ -1,6 +1,10 @@
 const MOCK_ADDRESSES = [
   '0x8367dc645e31321CeF3EeD91a10a5b7077e21f70',
+  '0xDA9dfA130Df4dE4673b89022EE50ff26f6EA73Cf',
+  '0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8',
   'cool.eth',
+  'star.eth',
+  'beer.eth',
 ];
 
 export function useDaoMembers(dao: string) {
@@ -11,5 +15,7 @@ export function useDaoMembers(dao: string) {
   //   fetchPolicy: 'no-cache',
   // });
 
-  return {data: MOCK_ADDRESSES, error: null, loading: false};
+  const daoMembers = MOCK_ADDRESSES.filter(a => Math.random() > 0.4);
+
+  return {data: daoMembers, error: null, loading: false};
 }
