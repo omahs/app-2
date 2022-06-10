@@ -1,9 +1,4 @@
-import {
-  ButtonText,
-  HeaderDao,
-  CardProposalProps,
-  TransferListItem,
-} from '@aragon/ui-components';
+import {ButtonText, HeaderDao} from '@aragon/ui-components';
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {withTransaction} from '@elastic/apm-rum-react';
@@ -13,9 +8,10 @@ import ProposalSnapshot from 'containers/proposalSnapshot';
 import TreasurySnapshot from 'containers/treasurySnapshot';
 import {MembershipSnapshot} from 'containers/membershipSnapshot';
 import {useDaoParam} from 'hooks/useDaoParam';
-import {useDaoProposals} from 'hooks/useDaoProposals';
+import {MockProposal, useDaoProposals} from 'hooks/useDaoProposals';
 import {useDaoVault} from 'hooks/useDaoVault';
 import useScreen from 'hooks/useScreen';
+import {Transfer} from 'utils/types';
 
 const Dashboard: React.FC = () => {
   const {data: dao, loading} = useDaoParam();
@@ -99,8 +95,8 @@ const HeaderWrapper = styled.div.attrs({
 
 type DashboardContentProps = {
   dao: string;
-  proposals: CardProposalProps[];
-  transfers: TransferListItem[];
+  proposals: MockProposal[];
+  transfers: Transfer[];
   totalAssetValue: number;
 };
 

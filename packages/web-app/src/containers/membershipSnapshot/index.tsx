@@ -59,7 +59,7 @@ export const MembershipSnapshot: React.FC<Props> = ({dao, horizontal}) => {
             }
           />
         </div>
-        <div className="w-2/3 space-y-2">
+        <div className="space-y-2 w-2/3">
           <ListItemGrid>
             {data.slice(0, 3).map(a => (
               <ListItemAddress

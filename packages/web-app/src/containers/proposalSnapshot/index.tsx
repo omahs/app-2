@@ -2,7 +2,6 @@ import {
   ListItemHeader,
   IconGovernance,
   CardProposal,
-  CardProposalProps,
   ButtonText,
   IconChevronRight,
 } from '@aragon/ui-components';
@@ -12,9 +11,10 @@ import {useTranslation} from 'react-i18next';
 import {useNavigate, generatePath} from 'react-router-dom';
 
 import {useNetwork} from 'context/network';
+import {MockProposal} from 'hooks/useDaoProposals';
 import {NewProposal, Governance} from 'utils/paths';
 
-type Props = {dao: string; proposals: CardProposalProps[]};
+type Props = {dao: string; proposals: MockProposal[]};
 
 const ProposalSnapshot: React.FC<Props> = ({dao, proposals}) => {
   const {t} = useTranslation();
@@ -40,14 +40,8 @@ const ProposalSnapshot: React.FC<Props> = ({dao, proposals}) => {
         onClick={() => navigate(generatePath(NewProposal, {network, dao}))}
       />
 
-      {proposals.map(({process, ...rest}, index) => (
-        <CardProposal
-          key={index}
-          type="list"
-          onClick={() => null}
-          process={process as CardProposalProps['process']}
-          {...rest}
-        />
+      {proposals.map((p, index) => (
+        <CardProposal key={index} type="list" onClick={() => null} {...p} />
       ))}
 
       <ButtonText

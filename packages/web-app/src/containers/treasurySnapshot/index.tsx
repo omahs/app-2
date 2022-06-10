@@ -14,10 +14,11 @@ import {useNetwork} from 'context/network';
 import {AllTransfers} from 'utils/paths';
 import {useGlobalModalContext} from 'context/globalModals';
 import {useTransactionDetailContext} from 'context/transactionDetail';
+import {Transfer} from 'utils/types';
 
 type Props = {
   dao: string;
-  transfers: TransferListItem[];
+  transfers: Transfer[];
   totalAssetValue: number;
 };
 

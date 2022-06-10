@@ -1,3 +1,5 @@
+import {CardProposalProps} from '@aragon/ui-components';
+
 /**
  * Stub hook for querying subgraph to get dao proposals
  * @returns List of proposals and the top ten proposals
@@ -7,7 +9,7 @@ export const useDaoProposals = (showProposal: boolean) => {
   else return {topTen: MOCK_PROPOSALS};
 };
 
-const MOCK_PROPOSALS = [
+const MOCK_PROPOSALS: MockProposal[] = [
   {
     process: 'pending',
     title: 'New Founding for Lorex Lab SubDao',
@@ -97,3 +99,8 @@ const MOCK_PROPOSALS = [
     ],
   },
 ];
+
+export type MockProposal = Omit<
+  CardProposalProps,
+  'onClick' | 'type' | 'daoLogo' | 'daoName' | 'chainId'
+>;
