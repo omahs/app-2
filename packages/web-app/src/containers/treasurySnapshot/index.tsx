@@ -11,20 +11,26 @@ import {useTranslation} from 'react-i18next';
 import {useNavigate, generatePath} from 'react-router-dom';
 
 import {useNetwork} from 'context/network';
-import {useDaoVault} from 'hooks/useDaoVault';
 import {AllTransfers} from 'utils/paths';
 import {useGlobalModalContext} from 'context/globalModals';
 import {useTransactionDetailContext} from 'context/transactionDetail';
 
-type Props = {dao: string};
+type Props = {
+  dao: string;
+  transfers: TransferListItem[];
+  totalAssetValue: number;
+};
 
-const TreasurySnapshot: React.FC<Props> = ({dao}) => {
+const TreasurySnapshot: React.FC<Props> = ({
+  dao,
+  transfers,
+  totalAssetValue,
+}) => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
   const navigate = useNavigate();
   const {network} = useNetwork();
   const {handleTransferClicked} = useTransactionDetailContext();
-  const {transfers, totalAssetValue} = useDaoVault(dao);
 
   if (transfers.length === 0) {
     return (

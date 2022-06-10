@@ -2,11 +2,12 @@
  * Stub hook for querying subgraph to get dao proposals
  * @returns List of proposals and the top ten proposals
  */
-export const useDaoProposals = () => {
-  return {topTen: proposals};
+export const useDaoProposals = (showProposal: boolean) => {
+  if (!showProposal) return {topTen: []};
+  else return {topTen: MOCK_PROPOSALS};
 };
 
-const proposals = [
+const MOCK_PROPOSALS = [
   {
     process: 'pending',
     title: 'New Founding for Lorex Lab SubDao',

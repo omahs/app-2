@@ -16,13 +16,15 @@ import {useNetwork} from 'context/network';
 import {useDaoMembers} from 'hooks/useDaoMembers';
 import {CHAIN_METADATA} from 'utils/constants';
 import {Community} from 'utils/paths';
+import useScreen from 'hooks/useScreen';
 
-type Props = {dao: string};
+type Props = {dao: string; horizontal?: boolean};
 
-export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
+export const MembershipSnapshot: React.FC<Props> = ({dao, horizontal}) => {
   const {t} = useTranslation();
   const navigate = useNavigate();
   const {network} = useNetwork();
+  const {isDesktop} = useScreen();
   const {data, loading} = useDaoMembers(dao);
   const memberCount = data.length;
   const isWalletBased = true; // This should be returned by the above hook as well.
@@ -36,16 +38,51 @@ export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
 
   if (loading) return <Loading />;
 
-  if (memberCount < 1) {
+  if (horizontal && isDesktop) {
     return (
-      <div className="flex flex-1 justify-center items-center border">
-        Empty State Placeholder
+      <div className="flex space-x-3">
+        <div className="w-1/3">
+          <ListItemHeader
+            icon={<IconCommunity />}
+            value={`${memberCount} ${t('labels.members')}`}
+            label={
+              isWalletBased
+                ? t('explore.explorer.walletBased')
+                : t('explore.explorer.tokenBased')
+            }
+            buttonText={t('labels.addMember')}
+            orientation="vertical"
+            onClick={() =>
+              alert(
+                'This will soon take you to a page that lets you add members'
+              )
+            }
+          />
+        </div>
+        <div className="w-2/3 space-y-2">
+          <ListItemGrid>
+            {data.slice(0, 3).map(a => (
+              <ListItemAddress
+                src={a}
+                key={a}
+                onClick={() => itemClickHandler(a)}
+              />
+            ))}
+          </ListItemGrid>
+          <ButtonText
+            mode="secondary"
+            size="large"
+            iconRight={<IconChevronRight />}
+            label={t('labels.seeAll')}
+            onClick={() => navigate(generatePath(Community, {network, dao}))}
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <Container>
+    <VerticalContainer>
       <ListItemHeader
         icon={<IconCommunity />}
         value={`${memberCount} ${t('labels.members')}`}
@@ -70,10 +107,15 @@ export const MembershipSnapshot: React.FC<Props> = ({dao}) => {
         label={t('labels.seeAll')}
         onClick={() => navigate(generatePath(Community, {network, dao}))}
       />
-    </Container>
+    </VerticalContainer>
   );
 };
 
-const Container = styled.div.attrs({
+const VerticalContainer = styled.div.attrs({
   className: 'space-y-1.5 desktop:space-y-2',
+})``;
+
+const ListItemGrid = styled.div.attrs({
+  className:
+    'desktop:grid desktop:grid-cols-2 desktop:grid-flow-row desktop:gap-2',
 })``;
