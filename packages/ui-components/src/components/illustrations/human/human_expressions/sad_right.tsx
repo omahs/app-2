@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const SadRight: IconType = ({height = 160, width = 160, ...props}) => {
+const SadRight: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -43,3 +43,5 @@ export const SadRight: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default SadRight;

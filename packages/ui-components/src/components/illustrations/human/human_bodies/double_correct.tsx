@@ -53,3 +53,5 @@ export const DoubleCorrect: IconType = ({
     </svg>
   );
 };
+
+export default DoubleCorrect;

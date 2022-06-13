@@ -73,3 +73,5 @@ export const Blocks: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Blocks;

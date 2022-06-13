@@ -65,3 +65,5 @@ export const Correct: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Correct;

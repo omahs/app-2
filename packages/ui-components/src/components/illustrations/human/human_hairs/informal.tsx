@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const Informal: IconType = ({height = 160, width = 160, ...props}) => {
+const Informal: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -25,3 +25,5 @@ export const Informal: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Informal;

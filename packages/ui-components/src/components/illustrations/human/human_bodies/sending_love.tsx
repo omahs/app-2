@@ -77,3 +77,5 @@ export const SendingLove: IconType = ({
     </svg>
   );
 };
+
+export default SendingLove;

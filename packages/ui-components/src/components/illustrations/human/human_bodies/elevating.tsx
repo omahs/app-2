@@ -53,3 +53,5 @@ export const Elevating: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Elevating;

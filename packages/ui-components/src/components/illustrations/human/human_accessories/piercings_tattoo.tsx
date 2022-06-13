@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const PiercingsTattoo: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const PiercingsTattoo: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -49,3 +45,5 @@ export const PiercingsTattoo: IconType = ({
     </svg>
   );
 };
+
+export default PiercingsTattoo;

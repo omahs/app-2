@@ -76,10 +76,10 @@ export type StringIndexed = {
 
 type svgType = {
   Expression: IconType;
-  Body: IconType;
-  Hair: IconType | null;
-  Sunglass: IconType | null;
-  Accessory: IconType | null;
+  Body?: IconType;
+  Hair?: IconType | null;
+  Sunglass?: IconType | null;
+  Accessory?: IconType | null;
 };
 
 export const IlluHuman: React.FC<IlluHumanHairProps> = ({
@@ -94,24 +94,26 @@ export const IlluHuman: React.FC<IlluHumanHairProps> = ({
   const [Svgs, setSvgs] = useState<svgType>({} as svgType);
   useEffect(() => {
     async function fetchIcons() {
-      return await Promise.all([
-        import('./human_expressions'),
-        import('./human_bodies'),
-        import('./human_hairs'),
-        import('./human_sunglasses'),
-        import('./human_accessories'),
+      await Promise.all([
+        import(`./human_expressions/${expression}`),
+        import(`./human_bodies/${body}`),
+        import(`./human_hairs/${hair || 'long'}`),
+        import(`./human_sunglasses/${sunglass || 'big_rounded'}`),
+        import(`./human_accessories/${accessory || 'buddha'}`),
       ]).then(values => {
         setSvgs({
-          Expression: (values[0] as StringIndexed)[expression],
-          Body: (values[1] as StringIndexed)[body],
-          Hair: hair ? (values[2] as StringIndexed)[hair] : null,
-          Sunglass: sunglass ? (values[3] as StringIndexed)[sunglass] : null,
-          Accessory: accessory ? (values[4] as StringIndexed)[accessory] : null,
+          Expression: (values[0] as StringIndexed).default,
+          Body: (values[1] as StringIndexed).default,
+          Hair: hair ? (values[2] as StringIndexed).default : null,
+          Sunglass: sunglass ? (values[3] as StringIndexed).default : null,
+          Accessory: accessory ? (values[4] as StringIndexed).default : null,
         });
       });
     }
     fetchIcons();
   }, [accessory, body, expression, hair, sunglass]);
+
+  console.log(Svgs);
 
   return (
     <Container data-testid="illu-human">

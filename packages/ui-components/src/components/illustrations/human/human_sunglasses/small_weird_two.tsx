@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const SmallWeirdTwo: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const SmallWeirdTwo: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -23,3 +19,5 @@ export const SmallWeirdTwo: IconType = ({
     </svg>
   );
 };
+
+export default SmallWeirdTwo;

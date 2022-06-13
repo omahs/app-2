@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const SmallSympathetic: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const SmallSympathetic: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -23,3 +19,5 @@ export const SmallSympathetic: IconType = ({
     </svg>
   );
 };
+
+export default SmallSympathetic;

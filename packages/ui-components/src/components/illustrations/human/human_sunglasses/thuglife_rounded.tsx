@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const ThuglifeRounded: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const ThuglifeRounded: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -53,3 +49,5 @@ export const ThuglifeRounded: IconType = ({
     </svg>
   );
 };
+
+export default ThuglifeRounded;

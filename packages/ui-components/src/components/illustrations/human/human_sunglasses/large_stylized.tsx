@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const LargeStylized: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const LargeStylized: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -24,3 +20,5 @@ export const LargeStylized: IconType = ({
     </svg>
   );
 };
+
+export default LargeStylized;

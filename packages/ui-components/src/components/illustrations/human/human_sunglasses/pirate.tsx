@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const Pirate: IconType = ({height = 160, width = 160, ...props}) => {
+const Pirate: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -21,3 +21,5 @@ export const Pirate: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Pirate;

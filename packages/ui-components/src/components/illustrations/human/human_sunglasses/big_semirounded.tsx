@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const BigSemirounded: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const BigSemirounded: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -23,3 +19,5 @@ export const BigSemirounded: IconType = ({
     </svg>
   );
 };
+
+export default BigSemirounded;

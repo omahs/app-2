@@ -1,11 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const EarringsThunder: IconType = ({
-  height = 160,
-  width = 160,
-  ...props
-}) => {
+const EarringsThunder: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -25,3 +21,5 @@ export const EarringsThunder: IconType = ({
     </svg>
   );
 };
+
+export default EarringsThunder;

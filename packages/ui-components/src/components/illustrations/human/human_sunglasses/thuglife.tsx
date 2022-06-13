@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const Thuglife: IconType = ({height = 160, width = 160, ...props}) => {
+const Thuglife: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -49,3 +49,5 @@ export const Thuglife: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Thuglife;

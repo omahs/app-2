@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const aragon: IconType = ({height = 160, width = 160, ...props}) => {
+const EarringsRhombus: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -77,3 +77,5 @@ export const aragon: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default EarringsRhombus;

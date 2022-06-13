@@ -89,3 +89,5 @@ export const ComputerCorrect: IconType = ({
     </svg>
   );
 };
+
+export default ComputerCorrect;

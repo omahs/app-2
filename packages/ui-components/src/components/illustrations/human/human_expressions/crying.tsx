@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconType} from '../../../icons';
 
-export const Crying: IconType = ({height = 160, width = 160, ...props}) => {
+const Crying: IconType = ({height = 160, width = 160, ...props}) => {
   return (
     <svg
       width={width}
@@ -51,3 +51,5 @@ export const Crying: IconType = ({height = 160, width = 160, ...props}) => {
     </svg>
   );
 };
+
+export default Crying;
