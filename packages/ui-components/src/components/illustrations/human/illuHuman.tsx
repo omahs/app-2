@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 
 import {IconType} from '../../icons';
@@ -69,6 +69,19 @@ export type IlluHumanHairProps = {
   width?: number;
 };
 
+export type StringIndexed = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: IconType;
+};
+
+type svgType = {
+  Expression: IconType;
+  Body: IconType;
+  Hair: IconType | null;
+  Sunglass: IconType | null;
+  Accessory: IconType | null;
+};
+
 export const IlluHuman: React.FC<IlluHumanHairProps> = ({
   body = 'long',
   expression = 'aragon',
@@ -78,37 +91,53 @@ export const IlluHuman: React.FC<IlluHumanHairProps> = ({
   height,
   width,
 }) => {
-  const Expression: IconType = require('./human_expressions')[expression];
-  const Body: IconType = require('./human_bodies')[body];
-  const Hair: IconType = hair ? require('./human_hairs')[hair] : null;
-  const Sunglass: IconType = sunglass
-    ? require('./human_sunglasses')[sunglass]
-    : null;
-  const Accessory: IconType = accessory
-    ? require('./human_accessories')[accessory]
-    : null;
+  const [Svgs, setSvgs] = useState<svgType>({} as svgType);
+  useEffect(() => {
+    async function fetchIcons() {
+      return await Promise.all([
+        import('./human_expressions'),
+        import('./human_bodies'),
+        import('./human_hairs'),
+        import('./human_sunglasses'),
+        import('./human_accessories'),
+      ]).then(values => {
+        setSvgs({
+          Expression: (values[0] as StringIndexed)[expression],
+          Body: (values[1] as StringIndexed)[body],
+          Hair: hair ? (values[2] as StringIndexed)[hair] : null,
+          Sunglass: sunglass ? (values[3] as StringIndexed)[sunglass] : null,
+          Accessory: accessory ? (values[4] as StringIndexed)[accessory] : null,
+        });
+      });
+    }
+    fetchIcons();
+  }, [accessory, body, expression, hair, sunglass]);
 
   return (
     <Container data-testid="illu-human">
-      {hair && (
+      {Svgs.Hair && (
         <Item>
-          <Hair {...{height, width}} />
+          <Svgs.Hair {...{height, width}} />
         </Item>
       )}
-      <Item>
-        <Expression {...{height, width}} />
-      </Item>
-      <Item>
-        <Body {...{height, width}} />
-      </Item>
-      {Sunglass && (
+      {Svgs.Expression && (
         <Item>
-          <Sunglass {...{height, width}} />
+          <Svgs.Expression {...{height, width}} />
         </Item>
       )}
-      {Accessory && (
+      {Svgs.Body && (
         <Item>
-          <Accessory {...{height, width}} />
+          <Svgs.Body {...{height, width}} />
+        </Item>
+      )}
+      {Svgs.Sunglass && (
+        <Item>
+          <Svgs.Sunglass {...{height, width}} />
+        </Item>
+      )}
+      {Svgs.Accessory && (
+        <Item>
+          <Svgs.Accessory {...{height, width}} />
         </Item>
       )}
     </Container>
