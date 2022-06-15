@@ -6,11 +6,12 @@ import {
   Spinner,
 } from '@aragon/ui-components';
 import styled from 'styled-components';
-import {formatEther} from 'ethers/lib/utils';
 import {useTranslation} from 'react-i18next';
 
-import {TransactionState} from 'utils/constants';
+import {CHAIN_METADATA, TransactionState} from 'utils/constants';
 import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
+import {useNetwork} from 'context/network';
+import {formatUnits} from 'utils/library';
 
 type PublishDaoModalProps = {
   state: TransactionState;
@@ -18,8 +19,8 @@ type PublishDaoModalProps = {
   isOpen: boolean;
   onClose: () => void;
   closeOnDrag: boolean;
-  maxFee: BigInt;
-  averageFee: BigInt;
+  maxFee: BigInt | undefined;
+  averageFee: BigInt | undefined;
   tokenPrice: number;
 };
 
@@ -41,6 +42,7 @@ const PublishDaoModal: React.FC<PublishDaoModalProps> = ({
   tokenPrice,
 }) => {
   const {t} = useTranslation();
+  const {network} = useNetwork();
 
   const label = {
     [TransactionState.WAITING]: t('TransactionModal.publishDaoButtonLabel'),
@@ -49,22 +51,36 @@ const PublishDaoModal: React.FC<PublishDaoModalProps> = ({
     [TransactionState.ERROR]: t('TransactionModal.tryAgain'),
   };
 
-  const totalCost = useMemo(
+  const nativeCurrency = CHAIN_METADATA[network].nativeCurrency;
+
+  // TODO: temporarily returning error when unable to estimate fees
+  // for chain on which contract not deployed
+  const [totalCost, formattedAverage] = useMemo(
     () =>
-      new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(Number(formatEther(averageFee.toString())) * tokenPrice),
-    [averageFee, tokenPrice]
+      averageFee === undefined
+        ? ['Error calculating costs', 'Error estimating fees']
+        : [
+            new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }).format(
+              Number(
+                formatUnits(averageFee.toString(), nativeCurrency.decimals)
+              ) * tokenPrice
+            ),
+            `${Number(
+              formatUnits(averageFee.toString(), nativeCurrency.decimals)
+            ).toFixed(8)} ${nativeCurrency.symbol}`,
+          ],
+    [averageFee, nativeCurrency.decimals, nativeCurrency.symbol, tokenPrice]
   );
 
-  const formattedAverage = `${Number(
-    formatEther(averageFee.toString())
-  ).toFixed(8)} ETH`;
-
-  const formattedMax = `${Number(formatEther(maxFee.toString())).toFixed(
-    8
-  )} ETH`;
+  const formattedMax =
+    maxFee === undefined
+      ? undefined
+      : `${Number(
+          formatUnits(maxFee.toString(), nativeCurrency.decimals)
+        ).toFixed(8)} ${nativeCurrency.symbol}`;
 
   return (
     <ModalBottomSheetSwitcher

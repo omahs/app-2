@@ -29,5 +29,7 @@ export const ASSET_PLATFORMS: Record<SupportedNetworks, string | null> = {
   mumbai: null,
 };
 
-// to be removed
-export const TEST_DAO = '0xa2e993c4fd68fda9e28405cb9d8411a09117a47c';
+export const NATIVE_TOKEN_ID = {
+  default: 'ethereum',
+  polygon: 'matic-network',
+};
