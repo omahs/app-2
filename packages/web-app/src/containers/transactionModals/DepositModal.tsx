@@ -18,6 +18,7 @@ type TransactionModalProps = {
   isOpen: boolean;
   onClose: () => void;
   closeOnDrag: boolean;
+  currentStep: number;
 };
 
 const icons = {
@@ -33,8 +34,10 @@ const DepositModal: React.FC<TransactionModalProps> = ({
   isOpen,
   onClose,
   closeOnDrag,
+  currentStep,
 }) => {
-  const {currentStep, next} = useStepper(2);
+  console.log(currentStep);
+  const {next} = useStepper(2);
   const {t} = useTranslation();
 
   const label = {
@@ -114,7 +117,7 @@ const DepositModal: React.FC<TransactionModalProps> = ({
             className="mt-3 w-full"
             label={t('TransactionModal.approveToken')}
             iconLeft={currentStep === 1 ? icons[state] : undefined}
-            onClick={handleApproveClick}
+            onClick={handleButtonClick}
             disabled={currentStep !== 1}
           />
           <ButtonText

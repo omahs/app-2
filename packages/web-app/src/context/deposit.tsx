@@ -1,4 +1,4 @@
-import {IDeposit} from '@aragon/sdk-client';
+import {DaoDepositSteps, IDeposit} from '@aragon/sdk-client';
 import {useFormContext} from 'react-hook-form';
 import {generatePath, useNavigate, useParams} from 'react-router-dom';
 import React, {createContext, ReactNode, useContext, useState} from 'react';
@@ -9,6 +9,8 @@ import {useNetwork} from './network';
 import DepositModal from 'containers/transactionModals/DepositModal';
 import {DepositFormData} from 'pages/newDeposit';
 import {TransactionState} from 'utils/constants';
+import {useStepper} from 'hooks/useStepper';
+import {constants} from 'ethers';
 
 interface IDepositContextType {
   handleOpenModal: () => void;
@@ -24,6 +26,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
   const navigate = useNavigate();
   const {network} = useNetwork();
   const {erc20: client} = useClient();
+  const {setStep, currentStep} = useStepper(2);
 
   const handleSignDeposit = async () => {
     setDepositState(TransactionState.LOADING);
@@ -52,7 +55,17 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
     }
 
     try {
-      await client.dao.deposit(depositData);
+      for await (const step of client.dao.deposit(depositData)) {
+        switch (step.key) {
+          case DaoDepositSteps.INCREASED_ALLOWANCE:
+            setStep(2);
+            break;
+          case DaoDepositSteps.DEPOSITING:
+            setStep(2);
+            console.log(step.txHash); // 0xb1c14a49...3e8620b0f5832d61c
+            break;
+        }
+      }
       setDepositState(TransactionState.SUCCESS);
     } catch (error) {
       console.error(error);
@@ -75,6 +88,8 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
 
   const handleOpenModal = () => {
     setShowModal(true);
+    const {tokenAddress} = getValues();
+    if (tokenAddress === constants.AddressZero) setStep(2);
   };
 
   return (
@@ -82,6 +97,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
       {children}
       <DepositModal
         callback={handleSignDeposit}
+        currentStep={currentStep}
         state={depositState || TransactionState.WAITING}
         isOpen={showModal}
         onClose={handleCloseModal}
