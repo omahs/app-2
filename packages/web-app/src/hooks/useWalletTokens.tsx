@@ -105,8 +105,8 @@ export function useWalletTokens(): HookData<TokenBalance[]> {
       }
 
       if (
-        Number(balance) !== -1 &&
-        Number(balance) !== 0 &&
+        !balance?.eq(-1) &&
+        !balance?.isZero() &&
         tokenList.indexOf(constants.AddressZero) === -1
       )
         tokenList.unshift(constants.AddressZero);
@@ -157,14 +157,14 @@ export function useWalletTokens(): HookData<TokenBalance[]> {
 
       // map tokens with their balance
       setWalletTokens(
-        balances?.map(balance => ({
+        balances?.map(_balance => ({
           token: {
-            id: balance[1].id,
-            name: balance[1].name,
-            symbol: balance[1].symbol,
-            decimals: balance[1].decimals,
+            id: _balance[1].id,
+            name: _balance[1].name,
+            symbol: _balance[1].symbol,
+            decimals: _balance[1].decimals,
           },
-          balance: BigInt(balance[0]),
+          balance: BigInt(_balance[0]),
         }))
       );
       setIsLoading(false);

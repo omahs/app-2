@@ -153,21 +153,17 @@ export const fetchBalance = async (
   shouldFormat = true
 ) => {
   const contract = new ethers.Contract(tokenAddress, erc20TokenABI, provider);
-  try {
-    const balance = await contract.balanceOf(ownerAddress);
+  const balance = await contract.balanceOf(ownerAddress);
 
-    if (shouldFormat) {
-      const {decimals} = await getTokenInfo(
-        tokenAddress,
-        provider,
-        nativeCurrency
-      );
-      return formatUnits(balance, decimals);
-    }
-    return balance;
-  } catch (err) {
-    return '0';
+  if (shouldFormat) {
+    const {decimals} = await getTokenInfo(
+      tokenAddress,
+      provider,
+      nativeCurrency
+    );
+    return formatUnits(balance, decimals);
   }
+  return balance;
 };
 
 /**
