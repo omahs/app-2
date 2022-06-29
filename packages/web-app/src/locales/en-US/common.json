@@ -2,7 +2,7 @@
   "subtitle": "Welcome to",
   "title": {
     "part1": "Zaragoza",
-    "part2": "The human-centered DAO infrastructure (in US).\n"
+    "part2": "The human-centered DAO infrastructure.\n"
   },
   "testnetIndicator": "TESTNET ACTIVE",
   "menu": "Menu",
@@ -516,7 +516,11 @@
       "tokenBased": "Token-Based"
     },
     "activeProposals": "Active Proposals",
-    "showMore": "Show More"
+    "showMore": "Show More",
+    "emptyStateProposal": {
+      "title": "There are no active proposals",
+      "description": "You can still check upcoming or past proposals on your DAOs."
+    }
   },
   "privacyPolicy": {
     "title": "Privacy policy",
