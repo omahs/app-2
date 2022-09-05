@@ -15,12 +15,14 @@ import {AccordionMethod} from 'components/accordionMethod';
 import ManageWalletsModal from 'containers/manageWalletsModal';
 import {useActionsContext} from 'context/actions';
 import {useGlobalModalContext} from 'context/globalModals';
-import {DaoWhitelist, useDaoMembers} from 'hooks/useDaoMembers';
 import {useDaoParam} from 'hooks/useDaoParam';
 import {ActionIndex} from 'utils/types';
 import {CustomHeaderProps, FormItem} from '../addAddresses';
 import AccordionSummary from '../addAddresses/accordionSummary';
 import {AddressRow} from '../addAddresses/addressRow';
+import {useDaoDetails} from 'hooks/useDaoDetails';
+import {useMembers} from 'hooks/useMembers';
+import {PluginTypes} from 'hooks/usePluginClient';
 
 type RemoveAddressesProps = ActionIndex & CustomHeaderProps;
 
@@ -35,8 +37,12 @@ const RemoveAddresses: React.FC<RemoveAddressesProps> = ({
   const {removeAction} = useActionsContext();
 
   // dao data
-  const {data: dao} = useDaoParam();
-  const {data} = useDaoMembers(dao);
+  const {data: daoId} = useDaoParam();
+  const {data: dao} = useDaoDetails(daoId);
+  const {data: members} = useMembers(
+    dao?.plugins[0].instanceAddress || '',
+    dao?.plugins[0].id as PluginTypes
+  );
 
   // form context data & hooks
   const {control, setValue} = useFormContext();
@@ -213,9 +219,7 @@ const RemoveAddresses: React.FC<RemoveAddressesProps> = ({
 
         <ManageWalletsModal
           addWalletCallback={handleAddSelectedWallets}
-          wallets={
-            (data.members as DaoWhitelist[])?.map(member => member.id) || []
-          }
+          wallets={members || []}
           initialSelections={controlledWallets.map(field => field.address)}
         />
       </AccordionMethod>

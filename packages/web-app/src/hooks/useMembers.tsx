@@ -5,7 +5,7 @@ import {
 import {useEffect, useState} from 'react';
 import {HookData} from 'utils/types';
 
-import {ClientTypes, usePluginClient} from './usePluginClient';
+import {PluginTypes, usePluginClient} from './usePluginClient';
 
 export type Proposal = Erc20ProposalListItem | AddressListProposalListItem;
 
@@ -18,7 +18,7 @@ export type Proposal = Erc20ProposalListItem | AddressListProposalListItem;
  */
 export function useMembers(
   pluginAddress: string,
-  type: ClientTypes
+  type: PluginTypes
 ): HookData<Array<string>> {
   const [data, setData] = useState<Array<string>>([]);
   const [error, setError] = useState<Error>();
@@ -31,7 +31,8 @@ export function useMembers(
       try {
         setIsLoading(true);
 
-        const proposals = await client.methods.getMembers(pluginAddress);
+        const proposals = await client?.methods.getMembers(pluginAddress);
+        console.log(proposals);
         if (proposals) setData(proposals);
       } catch (err) {
         console.error(err);
@@ -42,7 +43,7 @@ export function useMembers(
     }
 
     getDaoProposals();
-  }, [client.methods, pluginAddress]);
+  }, [client?.methods, pluginAddress]);
 
   return {data, error, isLoading};
 }
