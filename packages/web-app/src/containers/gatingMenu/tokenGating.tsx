@@ -1,10 +1,12 @@
 import React from 'react';
 import {ButtonText} from '@aragon/ui-components';
-import {useGlobalModalContext} from 'context/globalModals';
 import styled from 'styled-components';
-import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
 import {useTranslation} from 'react-i18next';
+import {useNavigate, generatePath} from 'react-router-dom';
+
 import WalletIcon from 'public/wallet.svg';
+import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
+import {useGlobalModalContext} from 'context/globalModals';
 import {
   ModalBody,
   StyledImage,
@@ -13,12 +15,16 @@ import {
 } from 'containers/networkErrorMenu';
 import {useDaoToken} from 'hooks/useDaoToken';
 import {useDaoParam} from 'hooks/useDaoParam';
+import {Governance} from 'utils/paths';
+import {useNetwork} from 'context/network';
 
 export const TokenGating = () => {
   const {close, isRequiredTokenOpen} = useGlobalModalContext();
   const {t} = useTranslation();
-  const {data: daoId} = useDaoParam();
-  const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(daoId);
+  const {data: dao} = useDaoParam();
+  const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(dao);
+  const {network} = useNetwork();
+  const navigate = useNavigate();
 
   return (
     <ModalBottomSheetSwitcher
@@ -37,7 +43,10 @@ export const TokenGating = () => {
         </WarningContainer>
         <ButtonText
           label={t('alert.gatingUsers.buttonLabel')}
-          onClick={() => close('requiredToken')}
+          onClick={() => {
+            navigate(generatePath(Governance, {network, dao}));
+            close('requiredToken');
+          }}
           size="large"
         />
       </ModalBody>

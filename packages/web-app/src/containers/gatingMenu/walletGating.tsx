@@ -1,20 +1,28 @@
 import React from 'react';
 import {ButtonText} from '@aragon/ui-components';
-import {useGlobalModalContext} from 'context/globalModals';
 import styled from 'styled-components';
-import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
 import {useTranslation} from 'react-i18next';
+import {useNavigate, generatePath} from 'react-router-dom';
+
 import WalletIcon from 'public/wallet.svg';
+import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
+import {useGlobalModalContext} from 'context/globalModals';
 import {
   ModalBody,
   StyledImage,
   WarningContainer,
   WarningTitle,
 } from 'containers/networkErrorMenu';
+import {Governance} from 'utils/paths';
+import {useDaoParam} from 'hooks/useDaoParam';
+import {useNetwork} from 'context/network';
 
 export const WalletGating = () => {
   const {close, isRequiredWalletOpen} = useGlobalModalContext();
   const {t} = useTranslation();
+  const {data: dao} = useDaoParam();
+  const {network} = useNetwork();
+  const navigate = useNavigate();
 
   return (
     <ModalBottomSheetSwitcher
@@ -31,7 +39,10 @@ export const WalletGating = () => {
         </WarningContainer>
         <ButtonText
           label={t('alert.gatingUsers.buttonLabel')}
-          onClick={() => close('requiredWallet')}
+          onClick={() => {
+            navigate(generatePath(Governance, {network, dao}));
+            close('requiredWallet');
+          }}
           size="large"
         />
       </ModalBody>
