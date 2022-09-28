@@ -7,6 +7,8 @@ import {useDaoParam} from 'hooks/useDaoParam';
 import {Loading} from 'components/temporary';
 import {CreateProposalProvider} from 'context/createProposal';
 import ProposalStepper from 'containers/proposalStepper';
+import {TokenGating} from 'containers/gatingMenu/tokenGating';
+import {WalletGating} from 'containers/gatingMenu/walletGating';
 
 const NewProposal: React.FC = () => {
   const {data: dao, isLoading} = useDaoParam();
@@ -36,6 +38,8 @@ const NewProposal: React.FC = () => {
           setShowTxModal={setShowTxModal}
         >
           <ProposalStepper enableTxModal={enableTxModal} />
+          <TokenGating />
+          <WalletGating />
         </CreateProposalProvider>
       </ActionsProvider>
     </FormProvider>
