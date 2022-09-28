@@ -23,7 +23,7 @@ import {ExecutionWidget} from 'components/executionWidget';
 import ResourceList from 'components/resourceList';
 import {Loading} from 'components/temporary';
 import {StyledEditorContent} from 'containers/reviewProposal';
-import {VotingTerminal} from 'containers/votingTerminal';
+import {TerminalTabs, VotingTerminal} from 'containers/votingTerminal';
 import {useGlobalModalContext} from 'context/globalModals';
 import {useNetwork} from 'context/network';
 import formatDistance from 'date-fns/formatDistance';
@@ -71,6 +71,7 @@ const Proposal: React.FC = () => {
     isLoading: paramsAreLoading,
     pluginAddress,
     pluginType,
+    voteSubmitted,
   } = useProposalTransactionContext();
 
   const {
@@ -92,6 +93,7 @@ const Proposal: React.FC = () => {
   const statusRef = useRef({wasNotLoggedIn: false, wasOnWrongNetwork: false});
 
   // voting
+  const [terminalTab, setTerminalTab] = useState<TerminalTabs>('info');
   const [votingInProcess, setVotingInProcess] = useState(false);
   const [expandedProposal, setExpandedProposal] = useState(false);
 
@@ -135,6 +137,13 @@ const Proposal: React.FC = () => {
       });
     }
   }, [apolloClient, client, network, proposal]);
+
+  useEffect(() => {
+    if (voteSubmitted) {
+      setTerminalTab('voters');
+      setVotingInProcess(false);
+    }
+  }, [voteSubmitted]);
 
   // caches the status for breadcrumb
   useEffect(() => {
@@ -301,8 +310,8 @@ const Proposal: React.FC = () => {
 
   // terminal props
   const terminalPropsFromProposal = useMemo(() => {
-    if (proposal) return getTerminalProps(proposal);
-  }, [proposal]);
+    if (proposal) return getTerminalProps(proposal, address);
+  }, [proposal, address]);
 
   // status steps for proposal
   const proposalSteps = useMemo(() => {
@@ -402,7 +411,9 @@ const Proposal: React.FC = () => {
 
           <VotingTerminal
             statusLabel={voteStatus}
+            selectedTab={terminalTab}
             alertMessage={alertMessage}
+            onTabSelected={setTerminalTab}
             onVoteClicked={onClick}
             onCancelClicked={() => setVotingInProcess(false)}
             voteButtonLabel={buttonLabel}
