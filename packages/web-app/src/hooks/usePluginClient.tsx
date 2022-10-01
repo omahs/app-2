@@ -46,7 +46,8 @@ export const usePluginClient = (
             )
           );
           break;
-        case 'addresslistvoting.dao.eth':
+        // FIXME: Fix this once the SDK Dummy dao plugin name got fixed
+        case 'addreslistvoting.dao.eth' as 'addresslistvoting.dao.eth':
           setPluginClient(
             new ClientAddressList(
               //TODO: replace when method fixed on SDK ContextPlugin.fromContext(context, pluginAddress)

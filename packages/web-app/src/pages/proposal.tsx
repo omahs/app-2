@@ -1,3 +1,5 @@
+import {useApolloClient} from '@apollo/client';
+import {ClientAddressList} from '@aragon/sdk-client';
 import {
   Badge,
   Breadcrumb,
@@ -18,55 +20,51 @@ import {useTranslation} from 'react-i18next';
 import {generatePath, useNavigate, useParams} from 'react-router-dom';
 import styled from 'styled-components';
 
-import {useApolloClient} from '@apollo/client';
 import {ExecutionWidget} from 'components/executionWidget';
 import ResourceList from 'components/resourceList';
 import {Loading} from 'components/temporary';
 import {StyledEditorContent} from 'containers/reviewProposal';
-import {VotingTerminal} from 'containers/votingTerminal';
+import {TerminalTabs, VotingTerminal} from 'containers/votingTerminal';
 import {useGlobalModalContext} from 'context/globalModals';
 import {useNetwork} from 'context/network';
-import format from 'date-fns/format';
+import {useProposalTransactionContext} from 'context/proposalTransaction';
 import formatDistance from 'date-fns/formatDistance';
 import {useCache} from 'hooks/useCache';
 import {useClient} from 'hooks/useClient';
-import {useDaoDetails} from 'hooks/useDaoDetails';
-import {useDaoParam} from 'hooks/useDaoParam';
-import {DetailedProposal, useDaoProposal} from 'hooks/useDaoProposal';
+import {useDaoProposal} from 'hooks/useDaoProposal';
 import {useMappedBreadcrumbs} from 'hooks/useMappedBreadcrumbs';
-import {PluginTypes} from 'hooks/usePluginClient';
+import {usePluginClient} from 'hooks/usePluginClient';
 import useScreen from 'hooks/useScreen';
 import {useWallet} from 'hooks/useWallet';
 import {useWalletCanVote} from 'hooks/useWalletCanVote';
 import {CHAIN_METADATA} from 'utils/constants';
-import {getFormattedUtcOffset, KNOWN_FORMATS} from 'utils/date';
-import {decodeWithdrawToAction} from 'utils/library';
 import {
-  getErc20MinimumApproval,
-  getErc20Results,
-  getErc20VotersAndParticipation,
+  decodeAddMembersToAction,
+  decodeRemoveMembersToAction,
+  decodeWithdrawToAction,
+} from 'utils/library';
+import {NotFound} from 'utils/paths';
+import {
   getProposalStatusSteps,
-  getWhitelistMinimumApproval,
-  getWhitelistResults,
-  getWhitelistVoterParticipation,
+  getTerminalProps,
   isTokenBasedProposal,
 } from 'utils/proposals';
-import {ActionWithdraw} from 'utils/types';
-import {i18n} from '../../i18n.config';
+import {Action} from 'utils/types';
 
 // TODO: @Sepehr Please assign proper tags on action decoding
 const PROPOSAL_TAGS = ['Finance', 'Withdraw'];
 
 const Proposal: React.FC = () => {
   const {t} = useTranslation();
-  const {id} = useParams();
+  const {dao, id: proposalId} = useParams();
   const {open} = useGlobalModalContext();
   const navigate = useNavigate();
   const {isDesktop} = useScreen();
   const {breadcrumbs, tag} = useMappedBreadcrumbs();
+
   const apolloClient = useApolloClient();
   const [decodedActions, setDecodedActions] =
-    useState<(ActionWithdraw | undefined)[]>();
+    useState<(Action | undefined)[]>();
   const {client} = useClient();
 
   const {set, get} = useCache();
@@ -74,22 +72,28 @@ const Proposal: React.FC = () => {
   const {network} = useNetwork();
   const {address, isConnected, isOnWrongNetwork} = useWallet();
 
-  const {data: daoId, isLoading: paramIsLoading} = useDaoParam();
-  const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(
-    daoId || ''
-  );
-  const {data: proposal, isLoading: proposalIsLoading} = useDaoProposal(
-    id || '',
-    daoDetails?.plugins[0].instanceAddress || '',
-    daoDetails?.plugins[0].id as PluginTypes
-  );
+  const {
+    handleSubmitVote,
+    isLoading: paramsAreLoading,
+    pluginAddress,
+    pluginType,
+    voteSubmitted,
+  } = useProposalTransactionContext();
+
+  const {
+    data: proposal,
+    error: proposalError,
+    isLoading: proposalIsLoading,
+  } = useDaoProposal(proposalId!, pluginAddress, pluginType);
 
   const {data: canVote} = useWalletCanVote(
     address,
-    id || '',
-    daoDetails?.plugins[0].instanceAddress || '',
-    daoDetails?.plugins[0].id as PluginTypes
+    proposalId!,
+    pluginAddress,
+    pluginType
   );
+
+  const pluginClient = usePluginClient(pluginAddress, pluginType);
 
   // ref used to hold "memories" of previous "state"
   // across renders in order to automate the following states:
@@ -97,6 +101,7 @@ const Proposal: React.FC = () => {
   const statusRef = useRef({wasNotLoggedIn: false, wasOnWrongNetwork: false});
 
   // voting
+  const [terminalTab, setTerminalTab] = useState<TerminalTabs>('info');
   const [votingInProcess, setVotingInProcess] = useState(false);
   const [expandedProposal, setExpandedProposal] = useState(false);
 
@@ -121,25 +126,91 @@ const Proposal: React.FC = () => {
 
   useEffect(() => {
     if (proposal) {
-      const actionPromises = proposal.actions.map(action => {
-        const functionParams = client?.decoding.findInterface(action.data);
-        switch (functionParams?.functionName) {
-          case 'withdraw':
-            return decodeWithdrawToAction(
-              action.data,
-              client,
-              apolloClient,
-              network
-            );
-          default:
-            return Promise.resolve({} as ActionWithdraw);
-        }
-      });
+      const actionPromises: Promise<Action | undefined>[] =
+        proposal.actions.map(action => {
+          const functionParams =
+            client?.decoding.findInterface(action.data) ||
+            pluginClient?.decoding.findInterface(action.data);
+
+          switch (functionParams?.functionName) {
+            case 'withdraw':
+              return decodeWithdrawToAction(
+                action.data,
+                client,
+                apolloClient,
+                network
+              );
+            case 'mint':
+            case 'addWhitelistedUsers':
+              return decodeAddMembersToAction(
+                action.data,
+                pluginClient as ClientAddressList
+              );
+            case 'removeWhitelistedUsers':
+              return decodeRemoveMembersToAction(
+                action.data,
+                pluginClient as ClientAddressList
+              );
+            default:
+              return Promise.resolve({} as Action);
+          }
+        });
+
       Promise.all(actionPromises).then(value => {
         setDecodedActions(value);
       });
     }
-  }, [apolloClient, client, network, proposal]);
+  }, [apolloClient, client, network, pluginClient, proposal]);
+
+  // caches the status for breadcrumb
+  useEffect(() => {
+    if (proposal && proposal.status !== get('proposalStatus'))
+      set('proposalStatus', proposal.status);
+  }, [get, proposal, set]);
+
+  useEffect(() => {
+    // was not logged in but now logged in
+    if (statusRef.current.wasNotLoggedIn && isConnected) {
+      // reset ref
+      statusRef.current.wasNotLoggedIn = false;
+
+      // logged out technically wrong network
+      statusRef.current.wasOnWrongNetwork = true;
+
+      // throw network modal
+      if (isOnWrongNetwork) {
+        open('network');
+      }
+    }
+  }, [isConnected, isOnWrongNetwork, open]);
+
+  useEffect(() => {
+    // all conditions unmet close voting in process
+    if (isOnWrongNetwork || !isConnected || !canVote) {
+      setVotingInProcess(false);
+    }
+
+    // was on the wrong network but now on the right one
+    if (statusRef.current.wasOnWrongNetwork && !isOnWrongNetwork) {
+      // reset ref
+      statusRef.current.wasOnWrongNetwork = false;
+
+      // show voting in process
+      if (canVote) setVotingInProcess(true);
+    }
+  }, [
+    canVote,
+    isConnected,
+    isOnWrongNetwork,
+    statusRef.current.wasOnWrongNetwork,
+  ]);
+
+  useEffect(() => {
+    if (voteSubmitted) {
+      setTerminalTab('voters');
+      setVotingInProcess(false);
+    }
+  }, [voteSubmitted]);
 
   // caches the status for breadcrumb
   useEffect(() => {
@@ -306,8 +377,8 @@ const Proposal: React.FC = () => {
 
   // terminal props
   const terminalPropsFromProposal = useMemo(() => {
-    if (proposal) return getTerminalProps(proposal);
-  }, [proposal]);
+    if (proposal) return getTerminalProps(proposal, address);
+  }, [proposal, address]);
 
   // status steps for proposal
   const proposalSteps = useMemo(() => {
@@ -336,8 +407,12 @@ const Proposal: React.FC = () => {
   /*************************************************
    *                     Render                    *
    *************************************************/
-  if (paramIsLoading || proposalIsLoading || detailsAreLoading) {
+  if (paramsAreLoading || proposalIsLoading || !proposal) {
     return <Loading />;
+  }
+
+  if (proposalError) {
+    navigate(NotFound, {replace: true, state: {invalidProposal: proposalId}});
   }
 
   return (
@@ -346,7 +421,7 @@ const Proposal: React.FC = () => {
         {!isDesktop && (
           <Breadcrumb
             onClick={(path: string) =>
-              navigate(generatePath(path, {network, daoId}))
+              navigate(generatePath(path, {network, dao}))
             }
             crumbs={breadcrumbs}
             icon={<IconGovernance />}
@@ -401,18 +476,19 @@ const Proposal: React.FC = () => {
             </>
           )}
 
-          {proposal && (
-            <VotingTerminal
-              statusLabel={voteStatus}
-              alertMessage={alertMessage}
-              onVoteClicked={onClick}
-              onCancelClicked={() => setVotingInProcess(false)}
-              voteButtonLabel={buttonLabel}
-              voteNowDisabled={voteNowDisabled}
-              votingInProcess={votingInProcess}
-              {...terminalPropsFromProposal}
-            />
-          )}
+          <VotingTerminal
+            statusLabel={voteStatus}
+            selectedTab={terminalTab}
+            alertMessage={alertMessage}
+            onTabSelected={setTerminalTab}
+            onVoteClicked={onClick}
+            onCancelClicked={() => setVotingInProcess(false)}
+            voteButtonLabel={buttonLabel}
+            voteNowDisabled={voteNowDisabled}
+            votingInProcess={votingInProcess}
+            onVoteSubmitClicked={handleSubmitVote}
+            {...terminalPropsFromProposal}
+          />
 
           <ExecutionWidget actions={decodedActions} status={executionStatus} />
         </ProposalContainer>
@@ -474,92 +550,3 @@ const ContentContainer = styled.div.attrs(
     } mt-3 tablet:flex tablet:space-x-3 space-y-3 tablet:space-y-0`,
   })
 )<ContentContainerProps>``;
-
-// get terminal props from proposal
-function getTerminalProps(proposal: DetailedProposal) {
-  let token;
-  let voters;
-  let participation;
-  let results;
-  let approval;
-  let strategy;
-
-  if (isTokenBasedProposal(proposal)) {
-    // token
-    token = {
-      name: proposal.token.name,
-      symbol: proposal.token.symbol,
-    };
-
-    // voters
-    const ptcResults = getErc20VotersAndParticipation(
-      proposal.votes,
-      proposal.token,
-      proposal.totalVotingWeight,
-      proposal.usedVotingWeight
-    );
-    voters = ptcResults.voters;
-
-    // participation summary
-    participation = ptcResults.summary;
-
-    // results
-    results = getErc20Results(
-      proposal.result,
-      proposal.token.decimals,
-      proposal.totalVotingWeight
-    );
-
-    // min approval
-    approval = getErc20MinimumApproval(
-      proposal.settings.minSupport,
-      proposal.totalVotingWeight,
-      proposal.token
-    );
-
-    // strategy
-    strategy = i18n.t('votingTerminal.tokenVoting');
-  } else {
-    // voters
-    const ptcResults = getWhitelistVoterParticipation(
-      proposal.votes,
-      proposal.totalVotingWeight
-    );
-    voters = ptcResults.voters;
-
-    // participation summary
-    participation = ptcResults.summary;
-
-    // results
-    results = getWhitelistResults(proposal.result, proposal.totalVotingWeight);
-
-    // approval
-    approval = getWhitelistMinimumApproval(
-      proposal.settings.minSupport,
-      proposal.totalVotingWeight
-    );
-
-    // strategy
-    strategy = i18n.t('votingTerminal.multisig');
-  }
-
-  return {
-    token,
-    status: proposal.status,
-    voters,
-    results,
-    approval,
-    strategy,
-    participation,
-
-    startDate: `${format(
-      proposal.startDate,
-      KNOWN_FORMATS.proposals
-    )}  ${getFormattedUtcOffset()}`,
-
-    endDate: `${format(
-      proposal.endDate,
-      KNOWN_FORMATS.proposals
-    )}  ${getFormattedUtcOffset()}`,
-  };
-}
