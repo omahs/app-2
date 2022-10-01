@@ -32,6 +32,10 @@ import {useWallet} from 'hooks/useWallet';
 import {useForm, FormProvider} from 'react-hook-form';
 import TransactionDetail from 'containers/transactionDetail';
 import {useDaoDetails} from 'hooks/useDaoDetails';
+import {useDaoParam} from 'hooks/useDaoParam';
+import {PluginTypes} from 'hooks/usePluginClient';
+import {useDaoMembers} from 'hooks/useDaoMembers';
+import {useGlobalModalContext} from 'context/globalModals';
 
 const ExplorePage = lazy(() => import('pages/explore'));
 const NotFoundPage = lazy(() => import('pages/notFound'));
@@ -104,10 +108,12 @@ function App() {
               <Route path="finance/tokens" element={<TokensPage />} />
               <Route path="finance/transfers" element={<TransfersPage />} />
               <Route path="governance" element={<GovernancePage />} />
-              <Route
-                path="governance/new-proposal"
-                element={<NewProposalPage />}
-              />
+              <Route element={<ProtectedRoute />}>
+                <Route
+                  path="governance/new-proposal"
+                  element={<NewProposalPage />}
+                />
+              </Route>
               <Route
                 path="governance/proposals/:id"
                 element={<ProposalPage />}
@@ -143,6 +149,35 @@ function App() {
     </>
   );
 }
+
+const ProtectedRoute: React.FC = () => {
+  const {data: dao, isLoading: paramIsLoading} = useDaoParam();
+  const {address} = useWallet();
+  const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(
+    dao || ''
+  );
+  const {open} = useGlobalModalContext();
+  const {
+    data: {filteredMembers},
+    isLoading: MembershipIsLoading,
+  } = useDaoMembers(
+    daoDetails?.plugins[0].instanceAddress || '',
+    daoDetails?.plugins[0].id as PluginTypes,
+    address as string
+  );
+
+  if (paramIsLoading || detailsAreLoading || MembershipIsLoading)
+    return <Loading />;
+
+  if (filteredMembers.length === 0 && daoDetails)
+    open(
+      daoDetails?.plugins[0].id === 'erc20voting.dao.eth'
+        ? 'requiredToken'
+        : 'requiredWallet'
+    );
+
+  return <Outlet />;
+};
 
 const NewSettingsWrapper: React.FC = () => {
   const formMethods = useForm({

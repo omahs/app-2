@@ -2,7 +2,7 @@ import React from 'react';
 import {ButtonText} from '@aragon/ui-components';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
-import {useNavigate, generatePath} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
 import WalletIcon from 'public/wallet.svg';
 import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
@@ -15,15 +15,12 @@ import {
 } from 'containers/networkErrorMenu';
 import {useDaoToken} from 'hooks/useDaoToken';
 import {useDaoParam} from 'hooks/useDaoParam';
-import {Governance} from 'utils/paths';
-import {useNetwork} from 'context/network';
 
 export const TokenGating = () => {
   const {close, isRequiredTokenOpen} = useGlobalModalContext();
   const {t} = useTranslation();
   const {data: dao} = useDaoParam();
   const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(dao);
-  const {network} = useNetwork();
   const navigate = useNavigate();
 
   return (
@@ -44,7 +41,7 @@ export const TokenGating = () => {
         <ButtonText
           label={t('alert.gatingUsers.buttonLabel')}
           onClick={() => {
-            navigate(generatePath(Governance, {network, dao}));
+            navigate(-1);
             close('requiredToken');
           }}
           size="large"
