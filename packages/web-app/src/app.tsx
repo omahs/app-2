@@ -34,8 +34,6 @@ import CreateDAO from 'pages/createDAO';
 import {FormProvider, useForm} from 'react-hook-form';
 import {NotFound} from 'utils/paths';
 import ProtectedRoute from 'components/protectedRoute';
-import {TokenGating} from 'containers/gatingMenu/tokenGating';
-import {WalletGating} from 'containers/gatingMenu/walletGating';
 
 const ExplorePage = lazy(() => import('pages/explore'));
 const NotFoundPage = lazy(() => import('pages/notFound'));
@@ -146,8 +144,6 @@ function App() {
         </Routes>
       </Suspense>
       <DaoSelectMenu />
-      <TokenGating />
-      <WalletGating />
       <WalletMenu />
       <NetworkErrorMenu />
     </>

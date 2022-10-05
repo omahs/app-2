@@ -15,13 +15,20 @@ import {
 } from 'containers/networkErrorMenu';
 import {useDaoToken} from 'hooks/useDaoToken';
 import {useDaoParam} from 'hooks/useDaoParam';
+import {useDaoDetails} from 'hooks/useDaoDetails';
 
 export const TokenGating = () => {
   const {close, isRequiredTokenOpen} = useGlobalModalContext();
   const {t} = useTranslation();
   const {data: dao} = useDaoParam();
-  const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(dao);
+  const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(dao!);
+
+  const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(
+    daoDetails?.plugins[0].instanceAddress as string
+  );
   const navigate = useNavigate();
+
+  console.log('view', daoToken);
 
   return (
     <ModalBottomSheetSwitcher
@@ -34,7 +41,8 @@ export const TokenGating = () => {
           <WarningTitle>{t('alert.gatingUsers.tokenTitle')}</WarningTitle>
           <WarningDescription>
             {t('alert.gatingUsers.tokenDescription', {
-              tokenName: !daoTokenLoading ? daoToken?.name : '',
+              tokenName:
+                !daoTokenLoading && !detailsAreLoading ? daoToken?.name : '',
             })}
           </WarningDescription>
         </WarningContainer>
