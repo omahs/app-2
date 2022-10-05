@@ -29,14 +29,11 @@ import TransactionDetail from 'containers/transactionDetail';
 import TransferMenu from 'containers/transferMenu';
 import {ProposalTransactionProvider} from 'context/proposalTransaction';
 import {useDaoDetails} from 'hooks/useDaoDetails';
-import {useDaoParam} from 'hooks/useDaoParam';
-import {PluginTypes} from 'hooks/usePluginClient';
-import {useDaoMembers} from 'hooks/useDaoMembers';
-import {useGlobalModalContext} from 'context/globalModals';
 import {useWallet} from 'hooks/useWallet';
 import CreateDAO from 'pages/createDAO';
 import {FormProvider, useForm} from 'react-hook-form';
 import {NotFound} from 'utils/paths';
+import ProtectedRoute from 'components/protectedRoute';
 
 const ExplorePage = lazy(() => import('pages/explore'));
 const NotFoundPage = lazy(() => import('pages/notFound'));
@@ -121,21 +118,23 @@ function App() {
               />
               <Route path="community" element={<CommunityPage />} />
               <Route path="settings" element={<SettingsPage />} />
-              <Route element={<NewSettingsWrapper />}>
-                <Route path="settings/edit" element={<EditSettingsPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<NewSettingsWrapper />}>
+                  <Route path="settings/edit" element={<EditSettingsPage />} />
+                  <Route
+                    path="settings/new-proposal"
+                    element={<ProposeSettingsPage />}
+                  />
+                </Route>
                 <Route
-                  path="settings/new-proposal"
-                  element={<ProposeSettingsPage />}
+                  path="community/mint-tokens"
+                  element={<MintTokensProposalPage />}
+                />
+                <Route
+                  path="community/manage-members"
+                  element={<ManageMembersProposalPage />}
                 />
               </Route>
-              <Route
-                path="community/mint-tokens"
-                element={<MintTokensProposalPage />}
-              />
-              <Route
-                path="community/manage-members"
-                element={<ManageMembersProposalPage />}
-              />
               {/* Redirects the user to the dashboard page by default if no dao-specific page is specified. */}
               <Route index element={<Navigate to={'dashboard'} replace />} />
             </Route>
@@ -150,35 +149,6 @@ function App() {
     </>
   );
 }
-
-const ProtectedRoute: React.FC = () => {
-  const {data: dao, isLoading: paramIsLoading} = useDaoParam();
-  const {address} = useWallet();
-  const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(
-    dao || ''
-  );
-  const {open} = useGlobalModalContext();
-  const {
-    data: {filteredMembers},
-    isLoading: MembershipIsLoading,
-  } = useDaoMembers(
-    daoDetails?.plugins[0].instanceAddress || '',
-    daoDetails?.plugins[0].id as PluginTypes,
-    address as string
-  );
-
-  if (paramIsLoading || detailsAreLoading || MembershipIsLoading)
-    return <Loading />;
-
-  if (filteredMembers.length === 0 && daoDetails)
-    open(
-      daoDetails?.plugins[0].id === 'erc20voting.dao.eth'
-        ? 'requiredToken'
-        : 'requiredWallet'
-    );
-
-  return <Outlet />;
-};
 
 const NewSettingsWrapper: React.FC = () => {
   const formMethods = useForm({
