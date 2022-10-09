@@ -27,6 +27,8 @@ const ProtectedRoute: React.FC = () => {
   );
 
   useEffect(() => {
+    // Note: if user came to protected routes by direct link the status could be disconnected > connecting > connected
+    // In this scenario "close" on else case will help to fix unexpected behaviors at the wallet loading moment
     if (!isConnected && status !== 'connecting') open('wallet');
     else close('wallet');
   }, [address, close, isConnected, open, status]);
