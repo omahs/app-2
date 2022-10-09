@@ -2,7 +2,7 @@ import React from 'react';
 import {ButtonText} from '@aragon/ui-components';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
-import {useNavigate} from 'react-router-dom';
+import {generatePath, useNavigate} from 'react-router-dom';
 
 import WalletIcon from 'public/wallet.svg';
 import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
@@ -17,9 +17,10 @@ import {useDaoToken} from 'hooks/useDaoToken';
 import {useDaoParam} from 'hooks/useDaoParam';
 import {useDaoDetails} from 'hooks/useDaoDetails';
 import {PluginTypes} from 'hooks/usePluginClient';
+import {Governance} from 'utils/paths';
+import {useNetwork} from 'context/network';
 
-const TokenContainer = () => {
-  const {data: dao} = useDaoParam();
+const TokenContainer = ({dao}: {dao: string}) => {
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(dao!);
   const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(
     daoDetails?.plugins[0].instanceAddress as string
@@ -55,20 +56,22 @@ export const GatingMenu = ({pluginType}: {pluginType: PluginTypes}) => {
   const {close, isGatingOpen} = useGlobalModalContext();
   const {t} = useTranslation();
   const navigate = useNavigate();
+  const {network} = useNetwork();
+  const {data: dao} = useDaoParam();
 
   return (
     <ModalBottomSheetSwitcher isOpen={isGatingOpen}>
       <ModalBody>
         <StyledImage src={WalletIcon} />
         {pluginType === 'erc20voting.dao.eth' ? (
-          <TokenContainer />
+          <TokenContainer dao={dao} />
         ) : (
           <WalletContainer />
         )}
         <ButtonText
           label={t('alert.gatingUsers.buttonLabel')}
           onClick={() => {
-            navigate(-1);
+            navigate(generatePath(Governance, {network, dao}));
             close('gating');
           }}
           size="large"

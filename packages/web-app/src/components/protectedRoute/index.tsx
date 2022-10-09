@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Outlet} from 'react-router-dom';
 
 import {useGlobalModalContext} from 'context/globalModals';
@@ -12,11 +12,11 @@ import {GatingMenu} from 'containers/gatingMenu';
 
 const ProtectedRoute: React.FC = () => {
   const {data: dao, isLoading: paramIsLoading} = useDaoParam();
-  const {address, isConnected} = useWallet();
+  const {address, isConnected, status} = useWallet();
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(
     dao || ''
   );
-  const {open} = useGlobalModalContext();
+  const {open, close} = useGlobalModalContext();
   const {
     data: {filteredMembers},
     isLoading: MembershipIsLoading,
@@ -26,12 +26,17 @@ const ProtectedRoute: React.FC = () => {
     address as string
   );
 
-  if (paramIsLoading || detailsAreLoading || MembershipIsLoading)
-    return <Loading />;
+  useEffect(() => {
+    if (!isConnected && status !== 'connecting') open('wallet');
+    else close('wallet');
+  }, [address, close, isConnected, open, status]);
 
   if (filteredMembers.length === 0 && daoDetails && isConnected) {
     open('gating');
   }
+
+  if (paramIsLoading || detailsAreLoading || MembershipIsLoading)
+    return <Loading />;
 
   return (
     <>
