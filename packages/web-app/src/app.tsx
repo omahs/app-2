@@ -99,26 +99,17 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="finance" element={<FinancePage />} />
               <Route path="finance/new-deposit" element={<NewDepositPage />} />
-              <Route
-                path="finance/new-withdrawal"
-                element={<NewWithdrawPage />}
-              />
               <Route path="finance/tokens" element={<TokensPage />} />
               <Route path="finance/transfers" element={<TransfersPage />} />
-              <Route path="governance" element={<GovernancePage />} />
               <Route element={<ProtectedRoute />}>
+                <Route
+                  path="finance/new-withdrawal"
+                  element={<NewWithdrawPage />}
+                />
                 <Route
                   path="governance/new-proposal"
                   element={<NewProposalPage />}
                 />
-              </Route>
-              <Route
-                path="governance/proposals/:id"
-                element={<ProposalDetailsWrapper />}
-              />
-              <Route path="community" element={<CommunityPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route element={<ProtectedRoute />}>
                 <Route element={<NewSettingsWrapper />}>
                   <Route path="settings/edit" element={<EditSettingsPage />} />
                   <Route
@@ -135,6 +126,13 @@ function App() {
                   element={<ManageMembersProposalPage />}
                 />
               </Route>
+              <Route path="governance" element={<GovernancePage />} />
+              <Route
+                path="governance/proposals/:id"
+                element={<ProposalDetailsWrapper />}
+              />
+              <Route path="community" element={<CommunityPage />} />
+              <Route path="settings" element={<SettingsPage />} />
               {/* Redirects the user to the dashboard page by default if no dao-specific page is specified. */}
               <Route index element={<Navigate to={'dashboard'} replace />} />
             </Route>

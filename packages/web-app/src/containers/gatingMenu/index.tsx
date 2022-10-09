@@ -16,41 +16,60 @@ import {
 import {useDaoToken} from 'hooks/useDaoToken';
 import {useDaoParam} from 'hooks/useDaoParam';
 import {useDaoDetails} from 'hooks/useDaoDetails';
+import {PluginTypes} from 'hooks/usePluginClient';
 
-export const TokenGating = () => {
-  const {close, isRequiredTokenOpen} = useGlobalModalContext();
-  const {t} = useTranslation();
+const TokenContainer = () => {
   const {data: dao} = useDaoParam();
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(dao!);
-
   const {data: daoToken, isLoading: daoTokenLoading} = useDaoToken(
     daoDetails?.plugins[0].instanceAddress as string
   );
-  const navigate = useNavigate();
-
-  console.log('view', daoToken);
+  const {t} = useTranslation();
 
   return (
-    <ModalBottomSheetSwitcher
-      isOpen={isRequiredTokenOpen}
-      onClose={() => close('requiredToken')}
-    >
+    <WarningContainer>
+      <WarningTitle>{t('alert.gatingUsers.tokenTitle')}</WarningTitle>
+      <WarningDescription>
+        {t('alert.gatingUsers.tokenDescription', {
+          tokenName:
+            !daoTokenLoading && !detailsAreLoading ? daoToken?.name : '',
+        })}
+      </WarningDescription>
+    </WarningContainer>
+  );
+};
+
+const WalletContainer = () => {
+  const {t} = useTranslation();
+  return (
+    <WarningContainer>
+      <WarningTitle>{t('alert.gatingUsers.walletTitle')}</WarningTitle>
+      <WarningDescription>
+        {t('alert.gatingUsers.walletDescription')}
+      </WarningDescription>
+    </WarningContainer>
+  );
+};
+
+export const GatingMenu = ({pluginType}: {pluginType: PluginTypes}) => {
+  const {close, isGatingOpen} = useGlobalModalContext();
+  const {t} = useTranslation();
+  const navigate = useNavigate();
+
+  return (
+    <ModalBottomSheetSwitcher isOpen={isGatingOpen}>
       <ModalBody>
         <StyledImage src={WalletIcon} />
-        <WarningContainer>
-          <WarningTitle>{t('alert.gatingUsers.tokenTitle')}</WarningTitle>
-          <WarningDescription>
-            {t('alert.gatingUsers.tokenDescription', {
-              tokenName:
-                !daoTokenLoading && !detailsAreLoading ? daoToken?.name : '',
-            })}
-          </WarningDescription>
-        </WarningContainer>
+        {pluginType === 'erc20voting.dao.eth' ? (
+          <TokenContainer />
+        ) : (
+          <WalletContainer />
+        )}
         <ButtonText
           label={t('alert.gatingUsers.buttonLabel')}
           onClick={() => {
             navigate(-1);
-            close('requiredToken');
+            close('gating');
           }}
           size="large"
         />

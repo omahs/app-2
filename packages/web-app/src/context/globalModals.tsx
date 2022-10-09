@@ -19,8 +19,7 @@ type GlobalModalsContextType = {
   isNetworkOpen: boolean;
   isMobileMenuOpen: boolean;
   isManageWalletOpen: boolean;
-  isRequiredTokenOpen: boolean;
-  isRequiredWalletOpen: boolean;
+  isGatingOpen: boolean;
   open: (arg?: MenuTypes) => void;
   close: (arg?: MenuTypes) => void;
 };
@@ -37,8 +36,7 @@ export type MenuTypes =
   | 'mobileMenu'
   | 'network'
   | 'manageWallet'
-  | 'requiredToken'
-  | 'requiredWallet';
+  | 'gating';
 
 type Props = Record<'children', ReactNode>;
 
@@ -67,10 +65,8 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
     useState<GlobalModalsContextType['isMobileMenuOpen']>(false);
   const [isManageWalletOpen, setManageWalletOpen] =
     useState<GlobalModalsContextType['isManageWalletOpen']>(false);
-  const [isRequiredTokenOpen, setIsRequiredTokenOpen] =
-    useState<GlobalModalsContextType['isRequiredTokenOpen']>(false);
-  const [isRequiredWalletOpen, setIsRequiredWalletOpen] =
-    useState<GlobalModalsContextType['isRequiredWalletOpen']>(false);
+  const [isGatingOpen, setIsGatingOpen] =
+    useState<GlobalModalsContextType['isGatingOpen']>(false);
 
   const open = (type?: MenuTypes) => {
     switch (type) {
@@ -101,11 +97,8 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
       case 'manageWallet':
         setManageWalletOpen(true);
         break;
-      case 'requiredToken':
-        setIsRequiredTokenOpen(true);
-        break;
-      case 'requiredWallet':
-        setIsRequiredWalletOpen(true);
+      case 'gating':
+        setIsGatingOpen(true);
         break;
       default:
         setIsTransferOpen(true);
@@ -142,11 +135,8 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
       case 'manageWallet':
         setManageWalletOpen(false);
         break;
-      case 'requiredToken':
-        setIsRequiredTokenOpen(false);
-        break;
-      case 'requiredWallet':
-        setIsRequiredWalletOpen(false);
+      case 'gating':
+        setIsGatingOpen(false);
         break;
       default:
         setIsTransferOpen(false);
@@ -175,24 +165,22 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
       isNetworkOpen,
       isMobileMenuOpen,
       isManageWalletOpen,
-      isRequiredTokenOpen,
-      isRequiredWalletOpen,
+      isGatingOpen,
       open,
       close,
     }),
     [
-      isTransferOpen,
-      isTokenOpen,
-      isUtcOpen,
       isAddActionOpen,
-      isSelectDaoOpen,
       isAddressesOpen,
-      isWalletOpen,
-      isNetworkOpen,
-      isMobileMenuOpen,
+      isGatingOpen,
       isManageWalletOpen,
-      isRequiredTokenOpen,
-      isRequiredWalletOpen,
+      isMobileMenuOpen,
+      isNetworkOpen,
+      isSelectDaoOpen,
+      isTokenOpen,
+      isTransferOpen,
+      isUtcOpen,
+      isWalletOpen,
     ]
   );
 

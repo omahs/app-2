@@ -8,8 +8,7 @@ import {useWallet} from 'hooks/useWallet';
 import {useDaoMembers} from 'hooks/useDaoMembers';
 import {PluginTypes} from 'hooks/usePluginClient';
 import {Loading} from 'components/temporary';
-import {TokenGating} from 'containers/gatingMenu/tokenGating';
-import {WalletGating} from 'containers/gatingMenu/walletGating';
+import {GatingMenu} from 'containers/gatingMenu';
 
 const ProtectedRoute: React.FC = () => {
   const {data: dao, isLoading: paramIsLoading} = useDaoParam();
@@ -31,18 +30,13 @@ const ProtectedRoute: React.FC = () => {
     return <Loading />;
 
   if (filteredMembers.length === 0 && daoDetails && isConnected) {
-    open(
-      daoDetails?.plugins[0].id === 'erc20voting.dao.eth'
-        ? 'requiredToken'
-        : 'requiredWallet'
-    );
+    open('gating');
   }
 
   return (
     <>
       <Outlet />
-      <TokenGating />
-      <WalletGating />
+      <GatingMenu pluginType={daoDetails?.plugins[0].id as PluginTypes} />
     </>
   );
 };
