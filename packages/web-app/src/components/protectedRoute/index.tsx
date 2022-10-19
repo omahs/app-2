@@ -35,16 +35,24 @@ const ProtectedRoute: React.FC = () => {
       if (isOnWrongNetwork) open('network');
       else close('network');
     }
-  }, [address, close, isConnected, isOnWrongNetwork, open, status]);
 
-  if (
-    filteredMembers.length === 0 &&
-    daoDetails &&
-    isConnected &&
-    !isOnWrongNetwork
-  ) {
-    open('gating');
-  }
+    if (
+      filteredMembers.length === 0 &&
+      daoDetails &&
+      isConnected &&
+      !isOnWrongNetwork
+    ) {
+      open('gating');
+    }
+  }, [
+    close,
+    daoDetails,
+    filteredMembers.length,
+    isConnected,
+    isOnWrongNetwork,
+    open,
+    status,
+  ]);
 
   if (paramIsLoading || detailsAreLoading || MembershipIsLoading)
     return <Loading />;
