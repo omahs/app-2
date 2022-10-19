@@ -1,6 +1,13 @@
 import {useReactiveVar} from '@apollo/client';
-import {VoteProposalStep, VoteValues} from '@aragon/sdk-client';
-import {IVoteProposalParams} from '@aragon/sdk-client/dist/internal/interfaces/plugins';
+import {
+  VoteProposalStep,
+  VoteValues,
+  ExecuteProposalStep,
+} from '@aragon/sdk-client';
+import {
+  IExecuteProposalParams,
+  IVoteProposalParams,
+} from '@aragon/sdk-client/dist/internal/interfaces/plugins';
 import React, {
   createContext,
   ReactNode,
@@ -18,21 +25,29 @@ import {useDaoParam} from 'hooks/useDaoParam';
 import {PluginTypes, usePluginClient} from 'hooks/usePluginClient';
 import {usePollGasFee} from 'hooks/usePollGasfee';
 import {useWallet} from 'hooks/useWallet';
-import {CHAIN_METADATA, TransactionState} from 'utils/constants';
+import {
+  CHAIN_METADATA,
+  PENDING_VOTES_KEY,
+  TransactionState,
+} from 'utils/constants';
 import {fetchBalance} from 'utils/tokens';
 import {pendingVotesVar} from './apolloClient';
 import {useNetwork} from './network';
 import {useProviders} from './providers';
+import {customJSONReplacer} from 'utils/library';
+import {usePrivacyContext} from './privacyContext';
 
 //TODO: currently a context, but considering there might only ever be one child,
 // might need to turn it into a wrapper that passes props to proposal page
 type ProposalTransactionContextType = {
   /** handles voting on proposal */
   handleSubmitVote: (vote: VoteValues, token?: string) => void;
+  handleExecuteProposal: () => void;
   pluginAddress: string;
   pluginType: PluginTypes;
   isLoading: boolean;
   voteSubmitted: boolean;
+  executeSubmitted: boolean;
 };
 
 type Props = Record<'children', ReactNode>;
@@ -48,17 +63,23 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
   const {t} = useTranslation();
   const {id} = useParams();
 
-  const {address} = useWallet();
+  const {address, isConnected} = useWallet();
   const {network} = useNetwork();
   const {infura: provider} = useProviders();
 
   const [tokenAddress, setTokenAddress] = useState<string>();
   const [showVoteModal, setShowVoteModal] = useState(false);
+  const [showExecuteModal, setShowExecuteModal] = useState(false);
 
   const cachedVotes = useReactiveVar(pendingVotesVar);
   const [voteParams, setVoteParams] = useState<IVoteProposalParams>();
   const [voteSubmitted, setVoteSubmitted] = useState(false);
   const [voteProcessState, setVoteProcessState] = useState<TransactionState>();
+
+  const [executeParams, setExecuteParams] = useState<IExecuteProposalParams>();
+  const [executeSubmitted, setExecuteSubmitted] = useState(false);
+  const [executeProcessState, setExecuteProcessState] =
+    useState<TransactionState>();
 
   const {data: daoId, isLoading: paramIsLoading} = useDaoParam();
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetails(
@@ -75,6 +96,8 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
   const pluginClient = usePluginClient(
     daoDetails?.plugins[0].id as PluginTypes
   );
+
+  const {preferences} = usePrivacyContext();
 
   const shouldPollVoteFees = useMemo(
     () =>
@@ -104,9 +127,21 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     if (voteParams) return pluginClient?.estimation.voteProposal(voteParams);
   }, [pluginClient?.estimation, voteParams]);
 
-  // estimation fees for voting on proposal
+  const handleExecuteProposal = () => {
+    setExecuteParams({proposalId: id!, pluginAddress});
+    setShowExecuteModal(true);
+    setExecuteProcessState(TransactionState.WAITING);
+  };
+
+  // estimate proposal execution fees
+  const estimateExecuteFees = useCallback(async () => {
+    if (executeParams)
+      return pluginClient?.estimation.executeProposal(executeParams);
+  }, [executeParams, pluginClient?.estimation]);
+
+  // estimation fees for voting on proposal/executing proposal
   const {tokenPrice, maxFee, averageFee, stopPolling} = usePollGasFee(
-    estimateVotingFees,
+    showExecuteModal ? estimateExecuteFees : estimateVotingFees,
     shouldPollVoteFees
   );
 
@@ -135,9 +170,18 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
 
       if (!address) return;
 
+      let newCache;
       // no token address, not tokenBased proposal
       if (!tokenAddress) {
-        pendingVotesVar({...cachedVotes, [proposalId]: {address, vote}});
+        newCache = {...cachedVotes, [proposalId]: {address, vote}};
+        pendingVotesVar(newCache);
+
+        if (preferences?.functional) {
+          localStorage.setItem(
+            PENDING_VOTES_KEY,
+            JSON.stringify(newCache, customJSONReplacer)
+          );
+        }
         return;
       }
 
@@ -150,9 +194,23 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
         false
       );
 
-      pendingVotesVar({...cachedVotes, [proposalId]: {address, vote, weight}});
+      newCache = {...cachedVotes, [proposalId]: {address, vote, weight}};
+      pendingVotesVar(newCache);
+      if (preferences?.functional) {
+        localStorage.setItem(
+          PENDING_VOTES_KEY,
+          JSON.stringify(newCache, customJSONReplacer)
+        );
+      }
     },
-    [address, cachedVotes, network, provider, tokenAddress]
+    [
+      address,
+      cachedVotes,
+      network,
+      preferences?.functional,
+      provider,
+      tokenAddress,
+    ]
   );
 
   // handles vote submission/execution
@@ -204,6 +262,74 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     voteProcessState,
   ]);
 
+  // handles closing execute modal
+  const handleCloseExecuteModal = useCallback(() => {
+    switch (executeProcessState) {
+      case TransactionState.LOADING:
+        break;
+      case TransactionState.SUCCESS:
+        {
+          setShowExecuteModal(false);
+          setExecuteSubmitted(true);
+        }
+        break; // TODO: reload and cache
+      default: {
+        setShowExecuteModal(false);
+        stopPolling();
+      }
+    }
+  }, [executeProcessState, stopPolling]);
+
+  // handles proposal execution
+  const handleProposalExecution = useCallback(async () => {
+    if (executeProcessState === TransactionState.SUCCESS) {
+      handleCloseExecuteModal();
+      return;
+    }
+    if (!executeParams || executeProcessState === TransactionState.LOADING) {
+      console.log('Transaction is running');
+      return;
+    }
+    if (!pluginAddress) {
+      console.error('Plugin address is required');
+      return;
+    }
+    if (!isConnected) {
+      open('wallet');
+      return;
+    }
+
+    setExecuteProcessState(TransactionState.LOADING);
+    const executeSteps = pluginClient?.methods.executeProposal(executeParams);
+    if (!executeSteps) {
+      throw new Error('Voting function is not initialized correctly');
+    }
+    for await (const step of executeSteps) {
+      try {
+        switch (step.key) {
+          case ExecuteProposalStep.EXECUTING:
+            console.log(step.txHash);
+            break;
+          case ExecuteProposalStep.DONE:
+            console.log(step.key);
+            break;
+        }
+        setExecuteParams(undefined);
+        setExecuteProcessState(TransactionState.SUCCESS);
+      } catch (err) {
+        console.error(err);
+        setExecuteProcessState(TransactionState.ERROR);
+      }
+    }
+  }, [
+    executeParams,
+    executeProcessState,
+    handleCloseExecuteModal,
+    isConnected,
+    pluginAddress,
+    pluginClient?.methods,
+  ]);
+
   /*************************************************
    *                    Render                     *
    *************************************************/
@@ -211,21 +337,42 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     <ProposalTransactionContext.Provider
       value={{
         handleSubmitVote,
+        handleExecuteProposal,
         isLoading: paramIsLoading || detailsAreLoading,
         pluginAddress,
         pluginType,
         voteSubmitted,
+        executeSubmitted,
       }}
     >
       {children}
       <PublishModal
-        title={t('labels.signVote')}
-        state={voteProcessState || TransactionState.WAITING}
-        isOpen={showVoteModal}
-        onClose={handleCloseVoteModal}
-        buttonLabel={t('governance.proposals.buttons.vote')}
-        callback={handleVoteExecution}
-        closeOnDrag={voteProcessState !== TransactionState.LOADING}
+        title={
+          showExecuteModal
+            ? t('labels.signExecuteProposal')
+            : t('labels.signVote')
+        }
+        buttonLabel={
+          showExecuteModal
+            ? t('governance.proposals.buttons.execute')
+            : t('governance.proposals.buttons.vote')
+        }
+        state={
+          (showExecuteModal ? executeProcessState : voteProcessState) ||
+          TransactionState.WAITING
+        }
+        isOpen={showVoteModal || showExecuteModal}
+        onClose={
+          showExecuteModal ? handleCloseExecuteModal : handleCloseVoteModal
+        }
+        callback={
+          showExecuteModal ? handleProposalExecution : handleVoteExecution
+        }
+        closeOnDrag={
+          showExecuteModal
+            ? executeProcessState !== TransactionState.LOADING
+            : voteProcessState !== TransactionState.LOADING
+        }
         maxFee={maxFee}
         averageFee={averageFee}
         tokenPrice={tokenPrice}

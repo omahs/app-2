@@ -1,11 +1,12 @@
 import {useReactiveVar} from '@apollo/client';
-import {Transfer, TransferSortBy} from '@aragon/sdk-client';
+import {Transfer, TransferSortBy, TransferType} from '@aragon/sdk-client';
 import {Address} from '@aragon/ui-components/dist/utils/addresses';
 import {useEffect, useState} from 'react';
 
 import {pendingDeposits} from 'context/apolloClient';
 import {HookData} from 'utils/types';
 import {useClient} from './useClient';
+import {PENDING_DEPOSITS_KEY} from 'utils/constants';
 
 export type IAssetTransfers = Transfer[];
 
@@ -30,7 +31,9 @@ export const useDaoTransfers = (
         });
 
         if (transfers) {
-          const deposits = transfers.filter(t => t.type === 'Deposit');
+          const deposits = transfers.filter(
+            t => t.type === TransferType.DEPOSIT
+          );
 
           for (let i = 0; i < pendingDepositsTxs.length; ) {
             const tx = pendingDepositsTxs[i];
@@ -48,7 +51,7 @@ export const useDaoTransfers = (
           }
 
           localStorage.setItem(
-            'pendingDeposits',
+            PENDING_DEPOSITS_KEY,
             JSON.stringify(pendingDepositsTxs)
           );
 

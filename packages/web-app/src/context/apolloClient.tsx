@@ -5,11 +5,19 @@ import {
   makeVar,
   NormalizedCacheObject,
 } from '@apollo/client';
-import {Deposit} from '@aragon/sdk-client';
+import {AddressListProposal, Deposit, Erc20Proposal} from '@aragon/sdk-client';
 import {RestLink} from 'apollo-link-rest';
 import {CachePersistor, LocalStorageWrapper} from 'apollo3-cache-persist';
 
-import {BASE_URL, SUBGRAPH_API_URL, SupportedNetworks} from 'utils/constants';
+import {
+  BASE_URL,
+  PENDING_DEPOSITS_KEY,
+  PENDING_PROPOSALS_KEY,
+  PENDING_VOTES_KEY,
+  SUBGRAPH_API_URL,
+  SupportedNetworks,
+} from 'utils/constants';
+import {customJSONReviver} from 'utils/library';
 import {AddressListVote, Erc20ProposalVote} from 'utils/types';
 import {PRIVACY_KEY} from './privacyContext';
 
@@ -83,6 +91,11 @@ export const rinkebyClient = new ApolloClient({
   link: restLink.concat(new HttpLink({uri: SUBGRAPH_API_URL['rinkeby']})),
 });
 
+export const goerliClient = new ApolloClient({
+  cache,
+  link: restLink.concat(new HttpLink({uri: SUBGRAPH_API_URL['goerli']})),
+});
+
 const mumbaiClient = new ApolloClient({
   cache,
   link: restLink.concat(new HttpLink({uri: SUBGRAPH_API_URL['mumbai']})),
@@ -100,6 +113,7 @@ const client: Record<
 > = {
   ethereum: undefined,
   rinkeby: rinkebyClient,
+  goerli: goerliClient,
   polygon: undefined,
   mumbai: mumbaiClient,
   arbitrum: undefined,
@@ -120,14 +134,37 @@ const favoriteDAOs = makeVar<Array<favoriteDAO>>([
 ]);
 selectedDAO(favoriteDAOs()[0]);
 
-const depositTxs = JSON.parse(localStorage.getItem('pendingDeposits') || '[]');
+const depositTxs = JSON.parse(
+  localStorage.getItem(PENDING_DEPOSITS_KEY) || '[]'
+);
 const pendingDeposits = makeVar<Deposit[]>(depositTxs);
 
 // PENDING VOTES
 type PendingVotes = {
+  /** key is proposal id */
   [key: string]: AddressListVote | Erc20ProposalVote;
 };
-const pendingVotes = JSON.parse(localStorage.getItem('pendingVotes') || '{}');
+const pendingVotes = JSON.parse(
+  localStorage.getItem(PENDING_VOTES_KEY) || '{}'
+);
 const pendingVotesVar = makeVar<PendingVotes>(pendingVotes);
 
-export {client, favoriteDAOs, selectedDAO, pendingDeposits, pendingVotesVar};
+// PENDING PROPOSAL
+type PendingProposals = {
+  /** key is proposal id */
+  [key: string]: Erc20Proposal | AddressListProposal;
+};
+const pendingProposals = JSON.parse(
+  localStorage.getItem(PENDING_PROPOSALS_KEY) || '{}',
+  customJSONReviver
+);
+const pendingProposalsVar = makeVar<PendingProposals>(pendingProposals);
+
+export {
+  client,
+  favoriteDAOs,
+  selectedDAO,
+  pendingDeposits,
+  pendingProposalsVar,
+  pendingVotesVar,
+};

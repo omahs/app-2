@@ -175,12 +175,12 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
         );
     }
   }, [
-    daoToken.address,
+    daoToken?.address,
     nativeCurrency,
     infura,
     setValue,
     actionIndex,
-    daoToken.symbol,
+    daoToken?.symbol,
   ]);
 
   // Count number of addresses that don't yet own token
@@ -252,7 +252,7 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mints, daoToken.address]);
+  }, [mints, daoToken?.address]);
 
   useEffect(() => {
     // Collecting token amounts that are to be minted
@@ -280,7 +280,7 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
         );
       }
     }
-  }, [mints, daoToken, daoToken.address, setValue, actionIndex, newTokens]);
+  }, [mints, daoToken, daoToken?.address, setValue, actionIndex, newTokens]);
 
   /*************************************************
    *             Callbacks and Handlers            *
@@ -383,7 +383,7 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
           <HStack>
             <Label>{t('labels.newTokens')}</Label>
             <p>
-              +{'' + newTokens} {daoToken.symbol}
+              +{'' + newTokens} {daoToken?.symbol}
             </p>
           </HStack>
           <HStack>
@@ -394,7 +394,7 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
             <Label>{t('labels.totalTokens')}</Label>
             {tokenSupply ? (
               <p>
-                {'' + newTokens.plus(Big(tokenSupply))} {daoToken.symbol}
+                {'' + newTokens.plus(Big(tokenSupply))} {daoToken?.symbol}
               </p>
             ) : (
               <p>...</p>

@@ -1,18 +1,18 @@
 import {useTranslation} from 'react-i18next';
 
 import {ActionParameter, HookData} from 'utils/types';
-import {useDaoMetadata} from './useDaoMetadata';
+import {useDaoDetails} from './useDaoDetails';
 
 export function useDaoActions(dao: string): HookData<ActionParameter[]> {
-  const {data, error, isLoading} = useDaoMetadata(dao);
-  const whitelist = data?.packages[0].pkg.__typename === 'WhitelistPackage';
+  const {data: daoDetails, error, isLoading} = useDaoDetails(dao);
+  const whitelist = daoDetails?.plugins[0].id === 'addresslistvoting.dao.eth';
 
   const {t} = useTranslation();
 
   const baseActions: ActionParameter[] = [
     {
       type: 'withdraw_assets',
-      title: t('AddActionModal.withdrawAssets'),
+      title: t('TransferModal.item2Title'),
       subtitle: t('AddActionModal.withdrawAssetsSubtitle'),
       isReuseable: true,
     },
