@@ -28,6 +28,8 @@
     "@tiptap/starter-kit": "^2.0.0-beta.168",
     "@types/graphql": "^14.5.0",
     "@types/react-router-dom": "^5.3.2",
+    "@walletconnect/client": "^1.8.0",
+    "@walletconnect/types": "^1.8.0",
     "apollo": "^2.33.10",
     "apollo-link-rest": "^0.9.0-rc.1",
     "apollo3-cache-persist": "^0.14.0",

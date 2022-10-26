@@ -22,6 +22,12 @@ export function useDaoActions(dao: string): HookData<ActionParameter[]> {
       subtitle: t('AddActionModal.externalContractSubtitle'),
       isReuseable: true,
     },
+    {
+      type: 'wallet_connect_interceptor',
+      title: t('AddActionModal.walletConnectInterceptor'),
+      subtitle: t('AddActionModal.walletConnectInterceptorSubtitle'),
+      isReuseable: true,
+    },
   ];
 
   const whitelistActions = baseActions.concat([
@@ -44,7 +50,7 @@ export function useDaoActions(dao: string): HookData<ActionParameter[]> {
       subtitle: t('AddActionModal.mintTokensSubtitle'),
     },
   ]);
-
+  
   return {
     data: whitelist ? whitelistActions : erc20Actions,
     isLoading,

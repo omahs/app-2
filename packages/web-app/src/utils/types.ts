@@ -211,7 +211,9 @@ export type ActionsTypes =
   | 'withdraw_assets'
   | 'mint_tokens'
   | 'external_contract'
-  | 'modify_settings';
+  | 'modify_settings'
+  | 'wallet_connect_interceptor'
+;
 
 // TODO Refactor ActionWithdraw With the new input structure
 export type ActionWithdraw = {

@@ -19,6 +19,7 @@ import AddAddresses from './addAddresses';
 import MintTokens from './mintTokens';
 import RemoveAddresses from './removeAddresses';
 import WithdrawAction from './withdraw/withdrawAction';
+import WalletConnectInterceptor from './walletConnectInterceptor';
 
 /**
  * This Component is responsible for generating all actions that append to pipeline context (actions)
@@ -49,6 +50,8 @@ const Action: React.FC<ActionsComponentProps> = ({name, actionIndex}) => {
       return <AddAddresses {...{actionIndex}} />;
     case 'remove_address':
       return <RemoveAddresses {...{actionIndex}} />;
+    case 'wallet_connect_interceptor':
+      return <WalletConnectInterceptor {...{actionIndex}} />;
     default:
       throw Error('Action not found');
   }

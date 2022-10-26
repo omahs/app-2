@@ -19,6 +19,7 @@ import {WalletMenuProvider} from 'context/walletMenu';
 import {UseCacheProvider} from 'hooks/useCache';
 import {UseClientProvider} from 'hooks/useClient';
 import App from './app';
+import {Buffer} from 'buffer';
 
 const providerOptions: IProviderOptions = {
   walletconnect: {
@@ -29,6 +30,8 @@ const providerOptions: IProviderOptions = {
     },
   },
 };
+
+window.Buffer = Buffer;
 
 ReactDOM.render(
   <React.StrictMode>
