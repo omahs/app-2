@@ -11,11 +11,18 @@ type TransactionContent = {
   value: string;
 }
 
+type WalletConnectPeerMeta = {
+  description: string;
+  icons: string[];
+  name: string;
+  url: string;
+}
+
 const useWalletConnect = () => {
   const [wcClientData, setWcClientData] = useState<any>(null);
-  const [transactions, setTransactions] = useState<Array<string>>([]);
-  const [transaction, setTransaction] = useState<TransactionContent | null>(null);
+  const [peerMeta, setPeerMeta] = useState<WalletConnectPeerMeta | null>(null);
   const [connector, setConnector] = useState<WalletConnect | undefined>();
+  const [transactions, setTransactions] = useState<Array<TransactionContent>>([]);
 
   const wcDisconnect = useCallback(async () => {
     connector?.killSession();
@@ -48,14 +55,13 @@ const useWalletConnect = () => {
         if (error) {
           throw error;
         }
-        alert("Connected!")
+        console.log('The payload is: ', payload.params[0].peerMeta)
+        setPeerMeta(payload.params[0].peerMeta)
 
         wcConnector.approveSession({
           accounts: [daoAddress],
           chainId: network,
         });
-
-        setWcClientData(payload.params[0].peerMeta);
       });
 
       wcConnector.on("call_request", (error, payload) => {
@@ -65,13 +71,14 @@ const useWalletConnect = () => {
         if (payload.method === "eth_sendTransaction") {
           const txInfo = payload.params[0];
           // Add transaction to the Proposal Payload
-          let data = txInfo.data || "0x"
           let tx: TransactionContent = { 
-            to: txInfo.to,
+            to: txInfo.to || "0x0",
             value: txInfo.value || "0x0",
             data: txInfo.data || "0x"
           }
-          setTransaction(tx)
+         
+          setTransactions(txs => [...txs, tx])
+          console.log('Transaction received: ', payload)
         }
       });
 
@@ -93,7 +100,7 @@ const useWalletConnect = () => {
     }
   }, [connector, wcConnect]);
 
-  return { wcClientData, wcConnect, wcDisconnect, transactions, transaction };
+  return { wcClientData, wcConnect, wcDisconnect, transactions, peerMeta };
 };
 
 export default useWalletConnect;

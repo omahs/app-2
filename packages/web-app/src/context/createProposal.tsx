@@ -186,6 +186,11 @@ const CreateProposalProvider: React.FC<Props> = ({
           );
           break;
         }
+        /*
+        case 'wallet_connect_interceptor': {
+          actions.push( )
+        }
+        */
       }
     });
 

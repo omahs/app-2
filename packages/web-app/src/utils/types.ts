@@ -262,6 +262,19 @@ export type ActionMintToken = {
   };
 };
 
+export type ActionWalletConnectInterceptor = {
+  name: 'wallet_connect_interceptor';
+  to: Address;
+  data: string;
+  value: number;
+  dappData: {
+    description: string;
+    url: string;
+    icons: string[];
+    name: string;
+  }
+}
+
 // TODO: Consider making this a generic type that take other types of the form
 // like ActionAddAddress (or more generically, ActionItem...?) instead taking the
 // union of those subtypes. [VR 11-08-2022]
@@ -269,7 +282,8 @@ export type Action =
   | ActionWithdraw
   | ActionAddAddress
   | ActionRemoveAddress
-  | ActionMintToken;
+  | ActionMintToken
+  | ActionWalletConnectInterceptor;
 
 export type ParamType = {
   type: string;

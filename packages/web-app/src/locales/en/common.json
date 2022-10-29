@@ -128,6 +128,7 @@
     "notChangeable": "Not Changeable",
     "changeableVote": "Changeable with a vote",
     "changeable": "Changeable",
+    "connect": "Connect",
     "whitelistWallets": {
       "address": "Address",
       "addresses": "{{count}} Addresses",
@@ -186,7 +187,8 @@
     "searchTransfers": "Type to filter ...",
     "daoName": "Type your DAOs name ...",
     "daoDescription": "Type your summary ...",
-    "addResource": "e.g. Website, Discord, etc"
+    "addResource": "e.g. Website, Discord, etc",
+    "walletConnectInterceptorUri": "Paste the QR URI from WalletConnect dApp"
   },
   "finance": {
     "tokenSection": "Tokens",
