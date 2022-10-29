@@ -1,15 +1,10 @@
 import { useState, useCallback, useEffect } from "react";
 import WalletConnect from "@walletconnect/client";
 // import { IClientMeta } from "@walletconnect/types";
+import {MinimalTransactionInput} from "utils/types";
 
 export const LOCAL_STORAGE_URI_KEY = "aragonAppWcUri";
 export const LOCAL_STORAGE_DAO_ADDRESS_KEY = "aragonDAOAddress";
-
-type TransactionContent = {
-  to: string;
-  data: string;
-  value: string;
-}
 
 type WalletConnectPeerMeta = {
   description: string;
@@ -22,7 +17,7 @@ const useWalletConnect = () => {
   const [wcClientData, setWcClientData] = useState<any>(null);
   const [peerMeta, setPeerMeta] = useState<WalletConnectPeerMeta | null>(null);
   const [connector, setConnector] = useState<WalletConnect | undefined>();
-  const [transactions, setTransactions] = useState<Array<TransactionContent>>([]);
+  const [transactions, setTransactions] = useState<Array<MinimalTransactionInput>>([]);
 
   const wcDisconnect = useCallback(async () => {
     connector?.killSession();
@@ -71,10 +66,11 @@ const useWalletConnect = () => {
         if (payload.method === "eth_sendTransaction") {
           const txInfo = payload.params[0];
           // Add transaction to the Proposal Payload
-          let tx: TransactionContent = { 
-            to: txInfo.to || "0x0",
-            value: txInfo.value || "0x0",
-            data: txInfo.data || "0x"
+          let tx: MinimalTransactionInput = { 
+            id: payload.id,
+            to: txInfo.to || '0x0',
+            value: txInfo.value || '0x0',
+            data: txInfo.data || '0x'
           }
          
           setTransactions(txs => [...txs, tx])

@@ -308,6 +308,13 @@ export type TransactionItem = {
   };
 };
 
+export type MinimalTransactionInput = {
+  id: number;
+  to: Address;
+  data: string;
+  value: number;
+}
+
 export type Dao = {
   address: string;
 };

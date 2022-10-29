@@ -9,24 +9,25 @@ import {
   ValueInput
 } from '@aragon/ui-components';
 import React, {useEffect, useState, useCallback, MouseEvent, SyntheticEvent} from 'react';
-import {useFieldArray, useFormContext, useWatch} from 'react-hook-form';
+// import {useFieldArray, useFormContext, useWatch} from 'react-hook-form';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 
 import {AccordionMethod} from 'components/accordionMethod';
-import ManageWalletsModal from 'containers/manageWalletsModal';
 import {useActionsContext} from 'context/actions';
 import {useGlobalModalContext} from 'context/globalModals';
-import {useDaoMembers} from 'hooks/useDaoMembers';
 import {useDaoParam} from 'hooks/useDaoParam';
-import {ActionIndex} from 'utils/types';
+import {ActionIndex, MinimalTransactionInput} from 'utils/types';
 import {CustomHeaderProps, FormItem} from '../addAddresses';
-import AccordionSummary from '../addAddresses/accordionSummary';
-import {AddressRow} from '../addAddresses/addressRow';
 import useWalletConnect from 'hooks/useWalletConnectInterceptor';
-import {shortenAddress} from '@aragon/ui-components/src/utils/addresses';
+import {decodeTransactionInputs} from 'services/transactionDecoder';
+import {TransactionDescription} from 'ethers/lib/utils';
+import {ethers} from 'ethers';
 
 type RemoveAddressesProps = ActionIndex & CustomHeaderProps;
+interface ExtendedTransactionDescription extends TransactionDescription {
+  id: number;
+}
 
 const WalletConnectInterceptor: React.FC<RemoveAddressesProps> = ({
   actionIndex,
@@ -37,6 +38,7 @@ const WalletConnectInterceptor: React.FC<RemoveAddressesProps> = ({
   const {removeAction} = useActionsContext();
   const {data: dao} = useDaoParam();
   const { wcClientData, wcConnect, wcDisconnect, transactions, peerMeta } = useWalletConnect();
+  const [transactionDescriptions, setTransactionDescriptions] = useState<Array<MinimalTransactionInput | ExtendedTransactionDescription>>([]);
   const [isConnecting, setIsConnecting] = useState(false)
   const [uri, setUri] = useState('')
   
@@ -68,6 +70,19 @@ const WalletConnectInterceptor: React.FC<RemoveAddressesProps> = ({
     event.preventDefault();
     wcConnect(uri, dao);
   }
+  
+  useEffect(() => {
+   transactions.forEach(tx => {
+      console.log('Going through this tx:', tx)
+      if (!transactionDescriptions.some(td => tx.id === td.id))
+        decodeTransactionInputs(tx).then(transactionDescriptionAttempt => {
+          if (transactionDescriptionAttempt)
+           setTransactionDescriptions([...transactionDescriptions, {...transactionDescriptionAttempt, id: tx.id}])
+          else
+           setTransactionDescriptions([...transactionDescriptions, tx])
+        });
+    }); 
+  }, [transactions]);
 
   return (
     <AccordionMethod
@@ -105,30 +120,47 @@ const WalletConnectInterceptor: React.FC<RemoveAddressesProps> = ({
         : (<img src={peerMeta.icons[0]} width="50" height="50"></img>)
     }
     </FormItem>
-    { peerMeta && (!transactions.length
+    { peerMeta && 
+      (!transactionDescriptions.length
         ? (<FormItem className="py-3 space-y-3 rounded-b-xl"><p>Listening for transactions...</p></FormItem>)
         : (
           <div>
-            { transactions.map((tx, index) => (
-              <FormItem key={index} className="py-3 space-y-3 rounded-b-xl">
-                <p><b>Transaction {index}:</b></p>
-                <p>to: {tx.to}</p>
-                <p>data: {
-                      tx.data.substring(0,20)+
-                      '...'+
-                      tx.data.substring(tx.data.length-20, tx.data.length)
-                }
-                </p>
-                <p> value: {tx.value}</p>
-              </FormItem>
-             ))}
-         </div>
+            { transactionDescriptions.map((tx, index) => {
+              if ('name' in tx) return (<TransactionDescriptionRenderer key={index} {...tx} />)
+              else return (<MinimalTransactionRenderer key={index} {...tx }/>)
+            }
+            )}
+          </div>
         )
       )
     }
   </AccordionMethod>
   );
 };
+
+const TransactionDescriptionRenderer = ({name, value, args, functionFragment}: ExtendedTransactionDescription) => (
+  <FormItem className="py-3 space-y-3 rounded-b-xl">
+    <p><b>Decoded transaction:</b></p>
+    <p>Function name: <b>{name}</b></p>
+    <p>Value: {(ethers.utils.formatEther(value)).toString()} ether</p>
+    <p>Args:{
+      args.map((arg, argIndex) => (<p key={argIndex}>{functionFragment.inputs[argIndex].name}: {arg.toString()}</p>))
+    }</p>
+  </FormItem>
+);
+
+const MinimalTransactionRenderer = ({to, data, value}: MinimalTransactionInput) => (
+    <FormItem className="py-3 space-y-3 rounded-b-xl">
+      <p><b>Transaction could not be decoded:</b></p>
+      <p>to: {to}</p>
+      <p>data: {
+        data.substring(0,20)+
+        '...'+
+        data.substring(data.length-20, data.length)
+      } </p>
+      <p> value: {value}</p>
+    </FormItem>
+)
 
 export default WalletConnectInterceptor;
 
