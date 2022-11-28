@@ -69,13 +69,14 @@ const DesktopNav: React.FC<DesktopNavProp> = props => {
       <NetworkIndicator />
       <Menu>
         <Content>
-          <CardDao
-            daoName={currentDao?.daoName}
-            daoAddress={currentDao?.daoEns}
-            src={currentDao?.daoLogo}
-            onClick={props.onDaoSelect}
-          />
-
+          {currentDao?.daoName && (
+            <CardDao
+              daoName={currentDao?.daoName}
+              daoAddress={currentDao?.daoEns}
+              src={currentDao?.daoLogo}
+              onClick={props.onDaoSelect}
+            />
+          )}
           <LinksWrapper>
             {breadcrumbs.length < MIN_ROUTE_DEPTH_FOR_BREADCRUMBS ? (
               <NavLinks />

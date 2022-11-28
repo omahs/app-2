@@ -61,11 +61,13 @@ const MobileNav: React.FC<MobileNavProps> = props => {
           </FlexOne>
           <FlexOne className="justify-center">
             <DaoContainer>
-              <AvatarDao
-                src={daoLogo}
-                daoName={daoName}
-                onClick={props.onDaoSelect}
-              />
+              {daoName && (
+                <AvatarDao
+                  src={daoLogo}
+                  daoName={daoName}
+                  onClick={props.onDaoSelect}
+                />
+              )}
               <DaoName>{daoName}</DaoName>
             </DaoContainer>
           </FlexOne>
