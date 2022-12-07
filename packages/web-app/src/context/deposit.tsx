@@ -29,6 +29,7 @@ import {useGlobalModalContext} from './globalModals';
 import {useReactiveVar} from '@apollo/client';
 import {pendingDeposits} from './apolloClient';
 import {trackEvent} from 'services/analytics';
+import {customJSONReplacer} from 'utils/library';
 
 interface IDepositContextType {
   handleOpenModal: () => void;
@@ -229,7 +230,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
             {
               transactionId: transactionHash,
               from,
-              amount: BigInt(amount),
+              amount: depositParams?.amount,
               reference,
               type: TransferType.DEPOSIT,
               tokenType: isNativeToken(tokenAddress) ? 'native' : 'erc20',
@@ -246,7 +247,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
           pendingDeposits(depositTxs);
           localStorage.setItem(
             PENDING_DEPOSITS_KEY,
-            JSON.stringify(depositTxs)
+            JSON.stringify(depositTxs, customJSONReplacer)
           );
           trackEvent('newDeposit_transaction_signed', {
             network,

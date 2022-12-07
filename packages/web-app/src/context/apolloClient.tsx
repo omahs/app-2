@@ -130,7 +130,8 @@ const selectedDaoVar = makeVar<NavigationDao>({
 const favoriteDAOs = makeVar<Array<NavigationDao>>([]);
 
 const depositTxs = JSON.parse(
-  localStorage.getItem(PENDING_DEPOSITS_KEY) || '[]'
+  localStorage.getItem(PENDING_DEPOSITS_KEY) || '[]',
+  customJSONReviver
 );
 const pendingDeposits = makeVar<Deposit[]>(depositTxs);
 
