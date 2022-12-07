@@ -204,8 +204,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
   };
 
   const handleDeposit = async () => {
-    const {amount, from, reference, tokenAddress, tokenName, tokenSymbol} =
-      getValues();
+    const {from, reference, tokenAddress, tokenName, tokenSymbol} = getValues();
 
     let transactionHash = '';
 
@@ -227,19 +226,34 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
           transactionHash = step.txHash;
           const depositTxs = [
             ...pendingDepositsTxs,
-            {
-              transactionId: transactionHash,
-              from,
-              amount: depositParams?.amount,
-              reference,
-              type: TransferType.DEPOSIT,
-              tokenType: isNativeToken(tokenAddress) ? 'native' : 'erc20',
-              address: tokenAddress,
-              name: tokenName,
-              symbol: tokenSymbol,
-              // TODO: Fix the decimals value
-              decimals: '18',
-            },
+            isNativeToken(tokenAddress)
+              ? {
+                  transactionId: transactionHash,
+                  from,
+                  amount: depositParams?.amount,
+                  reference,
+                  type: TransferType.DEPOSIT,
+                  tokenType: 'native',
+                  address: tokenAddress,
+                  name: tokenName,
+                  symbol: tokenSymbol,
+                  decimals: '18',
+                }
+              : {
+                  transactionId: transactionHash,
+                  from,
+                  amount: depositParams?.amount,
+                  reference,
+                  type: TransferType.DEPOSIT,
+                  tokenType: 'erc20',
+                  token: {
+                    name: tokenName,
+                    address: tokenAddress,
+                    symbol: tokenSymbol,
+                    // TODO: Fix the decimals value
+                    decimals: '18',
+                  },
+                },
           ];
 
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
