@@ -4,6 +4,7 @@ import {
   TransferType,
 } from '@aragon/sdk-client';
 import {useFormContext} from 'react-hook-form';
+import {Web3Provider} from '@ethersproject/providers';
 import {generatePath, useNavigate, useParams} from 'react-router-dom';
 import React, {
   createContext,
@@ -21,8 +22,12 @@ import {useWallet} from 'hooks/useWallet';
 import {useNetwork} from './network';
 import DepositModal from 'containers/transactionModals/DepositModal';
 import {DepositFormData} from 'pages/newDeposit';
-import {PENDING_DEPOSITS_KEY, TransactionState} from 'utils/constants';
-import {isNativeToken} from 'utils/tokens';
+import {
+  CHAIN_METADATA,
+  PENDING_DEPOSITS_KEY,
+  TransactionState,
+} from 'utils/constants';
+import {getTokenInfo, isNativeToken} from 'utils/tokens';
 import {useStepper} from 'hooks/useStepper';
 import {usePollGasFee} from 'hooks/usePollGasfee';
 import {useGlobalModalContext} from './globalModals';
@@ -205,6 +210,11 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
 
   const handleDeposit = async () => {
     const {from, reference, tokenAddress, tokenName, tokenSymbol} = getValues();
+    const {decimals} = await getTokenInfo(
+      tokenAddress,
+      provider as Web3Provider,
+      CHAIN_METADATA[network].nativeCurrency
+    );
 
     let transactionHash = '';
 
@@ -250,8 +260,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
                     name: tokenName,
                     address: tokenAddress,
                     symbol: tokenSymbol,
-                    // TODO: Fix the decimals value
-                    decimals: '18',
+                    decimals: decimals,
                   },
                 },
           ];

@@ -340,7 +340,9 @@ const Proposal: React.FC = () => {
   const voted = useMemo(() => {
     return address &&
       proposal?.votes.some(
-        voter => voter.address.toLowerCase() === address.toLowerCase()
+        voter =>
+          voter.address.toLowerCase() === address.toLowerCase() &&
+          voter.vote !== undefined
       )
       ? true
       : false;
@@ -537,7 +539,7 @@ const Proposal: React.FC = () => {
           </ProposerLink>
         </ContentWrapper>
         <SummaryText>{proposal?.metadata.summary}</SummaryText>
-        {!expandedProposal && (
+        {proposal.metadata.description && !expandedProposal && (
           <ButtonText
             className="w-full tablet:w-max"
             size="large"
@@ -551,7 +553,7 @@ const Proposal: React.FC = () => {
 
       <ContentContainer expandedProposal={expandedProposal}>
         <ProposalContainer>
-          {expandedProposal && (
+          {proposal.metadata.description && expandedProposal && (
             <>
               <StyledEditorContent editor={editor} />
               <ButtonText

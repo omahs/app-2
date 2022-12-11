@@ -31,7 +31,10 @@ import {
 import {getCanonicalUtcOffset} from 'utils/date';
 import {customJSONReplacer} from 'utils/library';
 import {Proposal} from 'utils/paths';
-import {mapToDetailedProposal} from 'utils/proposals';
+import {
+  mapToDetailedProposal,
+  prefixProposalIdWithPlgnAdr,
+} from 'utils/proposals';
 import {getTokenInfo} from 'utils/tokens';
 import {Action, ProposalResource} from 'utils/types';
 import {pendingProposalsVar} from './apolloClient';
@@ -263,7 +266,7 @@ const CreateProposalProvider: React.FC<Props> = ({
     shouldPoll
   );
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     switch (creationProcessState) {
       case TransactionState.LOADING:
         break;
@@ -276,87 +279,15 @@ const CreateProposalProvider: React.FC<Props> = ({
         stopPolling();
       }
     }
-  };
-
-  const handlePublishProposal = async () => {
-    if (!pluginClient) {
-      return new Error('ERC20 SDK client is not initialized correctly');
-    }
-
-    // if no creation data is set, or transaction already running, do nothing.
-    if (
-      !proposalCreationData ||
-      creationProcessState === TransactionState.LOADING
-    ) {
-      console.log('Transaction is running');
-      return;
-    }
-
-    trackEvent('newProposal_createNowBtn_clicked', {
-      dao_address: dao,
-      estimated_gwei_fee: averageFee,
-      total_usd_cost: averageFee ? tokenPrice * Number(averageFee) : 0,
-    });
-
-    const proposalIterator =
-      pluginClient.methods.createProposal(proposalCreationData);
-
-    trackEvent('newProposal_transaction_signed', {
-      dao_address: dao,
-      network: network,
-      wallet_provider: provider?.connection.url,
-    });
-
-    if (creationProcessState === TransactionState.SUCCESS) {
-      handleCloseModal();
-      return;
-    }
-
-    if (isOnWrongNetwork) {
-      open('network');
-      handleCloseModal();
-      return;
-    }
-
-    setCreationProcessState(TransactionState.LOADING);
-
-    // NOTE: quite weird, I've had to wrap the entirety of the generator
-    // in a try-catch because when the user rejects the transaction,
-    // the try-catch block inside the for loop would not catch the error
-    // FF - 11/21/2020
-    try {
-      for await (const step of proposalIterator) {
-        switch (step.key) {
-          case ProposalCreationSteps.CREATING:
-            console.log(step.txHash);
-            break;
-          case ProposalCreationSteps.DONE:
-            console.log('proposal id', step.proposalId);
-            setProposalId(step.proposalId);
-            setCreationProcessState(TransactionState.SUCCESS);
-            trackEvent('newProposal_transaction_success', {
-              dao_address: dao,
-              network: network,
-              wallet_provider: provider?.connection.url,
-              proposalId: step.proposalId,
-            });
-
-            // cache proposal
-            handleCacheProposal(step.proposalId);
-            break;
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      setCreationProcessState(TransactionState.ERROR);
-      trackEvent('newProposal_transaction_failed', {
-        dao_address: dao,
-        network: network,
-        wallet_provider: provider?.connection.url,
-        error,
-      });
-    }
-  };
+  }, [
+    creationProcessState,
+    dao,
+    navigate,
+    network,
+    proposalId,
+    setShowTxModal,
+    stopPolling,
+  ]);
 
   const handleCacheProposal = useCallback(
     (proposalId: string) => {
@@ -408,6 +339,107 @@ const CreateProposalProvider: React.FC<Props> = ({
       tokenSupply,
     ]
   );
+
+  const handlePublishProposal = useCallback(async () => {
+    if (!pluginClient) {
+      return new Error('ERC20 SDK client is not initialized correctly');
+    }
+
+    // if no creation data is set, or transaction already running, do nothing.
+    if (
+      !proposalCreationData ||
+      creationProcessState === TransactionState.LOADING
+    ) {
+      console.log('Transaction is running');
+      return;
+    }
+
+    trackEvent('newProposal_createNowBtn_clicked', {
+      dao_address: dao,
+      estimated_gwei_fee: averageFee,
+      total_usd_cost: averageFee ? tokenPrice * Number(averageFee) : 0,
+    });
+
+    const proposalIterator =
+      pluginClient.methods.createProposal(proposalCreationData);
+
+    trackEvent('newProposal_transaction_signed', {
+      dao_address: dao,
+      network: network,
+      wallet_provider: provider?.connection.url,
+    });
+
+    if (creationProcessState === TransactionState.SUCCESS) {
+      handleCloseModal();
+      return;
+    }
+
+    if (isOnWrongNetwork) {
+      open('network');
+      handleCloseModal();
+      return;
+    }
+
+    setCreationProcessState(TransactionState.LOADING);
+
+    // NOTE: quite weird, I've had to wrap the entirety of the generator
+    // in a try-catch because when the user rejects the transaction,
+    // the try-catch block inside the for loop would not catch the error
+    // FF - 11/21/2020
+    try {
+      for await (const step of proposalIterator) {
+        switch (step.key) {
+          case ProposalCreationSteps.CREATING:
+            console.log(step.txHash);
+            break;
+          case ProposalCreationSteps.DONE: {
+            //TODO: replace with step.proposal id when SDK returns proper format
+            const prefixedId = prefixProposalIdWithPlgnAdr(
+              step.proposalId,
+              pluginAddress
+            );
+
+            console.log('proposal id', prefixedId);
+            setProposalId(prefixedId);
+            setCreationProcessState(TransactionState.SUCCESS);
+            trackEvent('newProposal_transaction_success', {
+              dao_address: dao,
+              network: network,
+              wallet_provider: provider?.connection.url,
+              proposalId: prefixedId,
+            });
+
+            // cache proposal
+            handleCacheProposal(prefixedId);
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      setCreationProcessState(TransactionState.ERROR);
+      trackEvent('newProposal_transaction_failed', {
+        dao_address: dao,
+        network: network,
+        wallet_provider: provider?.connection.url,
+        error,
+      });
+    }
+  }, [
+    averageFee,
+    creationProcessState,
+    dao,
+    handleCacheProposal,
+    handleCloseModal,
+    isOnWrongNetwork,
+    network,
+    open,
+    pluginAddress,
+    pluginClient,
+    proposalCreationData,
+    provider?.connection.url,
+    tokenPrice,
+  ]);
 
   /*************************************************
    *                    Render                     *

@@ -19,6 +19,7 @@ import {
 import {ProgressStatusProps, VoterType} from '@aragon/ui-components';
 import Big from 'big.js';
 import {format} from 'date-fns';
+import {BigNumber} from 'ethers';
 
 import {ProposalVoteResults} from 'containers/votingTerminal';
 import differenceInSeconds from 'date-fns/fp/differenceInSeconds';
@@ -27,7 +28,6 @@ import {getFormattedUtcOffset, KNOWN_FORMATS} from './date';
 import {formatUnits} from './library';
 import {abbreviateTokenAmount} from './tokens';
 import {AddressListVote, DetailedProposal, Erc20ProposalVote} from './types';
-import {BigNumber} from 'ethers';
 
 export const MappedVotes: {[key in VoteValues]: VoterType['option']} = {
   1: 'abstain',
@@ -97,7 +97,9 @@ export function getErc20VotersAndParticipation(
   let tokenAmount;
 
   // map to voters structure
-  const voters = votes.map(vote => {
+  const voters = votes.flatMap(vote => {
+    if (vote.vote === undefined) return [];
+
     votingPower =
       parseFloat(
         Big(Number(vote.weight))
@@ -162,11 +164,15 @@ export function getWhitelistVoterParticipation(
   votes: AddressListProposal['votes'],
   totalVotingWeight: number
 ): {voters: Array<VoterType>; summary: string} {
-  const voters = votes.map(voter => ({
-    wallet: voter.address,
-    option: MappedVotes[voter.vote],
-    votingPower: '1',
-  }));
+  const voters = votes.flatMap(voter => {
+    return voter.vote !== undefined
+      ? {
+          wallet: voter.address,
+          option: MappedVotes[voter.vote],
+          votingPower: '1',
+        }
+      : [];
+  });
 
   // calculate summary
   return {
@@ -581,4 +587,36 @@ export function addVoteToProposal(
       },
     } as AddressListProposal;
   }
+}
+
+/**
+ * Strips proposal id of plugin address
+ * @param proposalId id with following format:  *0x4206cdbc...a675cae35_0x0*
+ * @returns proposal id without the pluginAddress
+ * or the given proposal id if already stripped of the plugin address: *0x3*
+ */
+export function stripPlgnAdrFromProposalId(proposalId: string) {
+  // return the "pure" contract proposal id or consider given proposal already stripped
+  return proposalId?.split('_')[1] || proposalId;
+}
+
+/**
+ * Adds plugin address to proposal id
+ * @param proposalId id with following format: *0x000000000...00000000002*
+ * @param pluginAddress address of plugin on which proposal was created
+ * @returns proposal id prefixed with the plugin address
+ * or the given proposal id if already prefixed with teh plugin address: *0x4206cdbc...a675cae35_0x0*
+ */
+export function prefixProposalIdWithPlgnAdr(
+  proposalId: string,
+  pluginAddress: string
+) {
+  const parts = proposalId.split('_');
+
+  // address already prefixed
+  if (parts.length === 2) return proposalId;
+
+  // get last five characters from proposal, remove leading zeros, and prefix with
+  // plugin address
+  return `${pluginAddress}_0x${proposalId.slice(-5).replace(/^0+/, '') || 0}`;
 }

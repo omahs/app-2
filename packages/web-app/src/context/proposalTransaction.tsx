@@ -6,6 +6,7 @@ import {
   VoteProposalStep,
   VoteValues,
 } from '@aragon/sdk-client';
+import {BigNumber} from 'ethers';
 import React, {
   createContext,
   ReactNode,
@@ -29,6 +30,7 @@ import {
   TransactionState,
 } from 'utils/constants';
 import {customJSONReplacer, generateCachedProposalId} from 'utils/library';
+import {stripPlgnAdrFromProposalId} from 'utils/proposals';
 import {fetchBalance} from 'utils/tokens';
 import {pendingVotesVar} from './apolloClient';
 import {useNetwork} from './network';
@@ -126,19 +128,26 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
 
   // estimate voting fees
   const estimateVotingFees = useCallback(async () => {
-    if (voteParams) return pluginClient?.estimation.voteProposal(voteParams);
+    if (voteParams)
+      return pluginClient?.estimation.voteProposal({
+        ...voteParams,
+        proposalId: stripPlgnAdrFromProposalId(voteParams.proposalId),
+      });
   }, [pluginClient?.estimation, voteParams]);
 
-  const handleExecuteProposal = () => {
+  const handleExecuteProposal = useCallback(() => {
     setExecuteParams({proposalId: id!, pluginAddress});
     setShowExecuteModal(true);
     setExecuteProcessState(TransactionState.WAITING);
-  };
+  }, [id, pluginAddress]);
 
   // estimate proposal execution fees
   const estimateExecuteFees = useCallback(async () => {
     if (executeParams)
-      return pluginClient?.estimation.executeProposal(executeParams);
+      return pluginClient?.estimation.executeProposal({
+        ...executeParams,
+        proposalId: stripPlgnAdrFromProposalId(executeParams.proposalId),
+      });
   }, [executeParams, pluginClient?.estimation]);
 
   // estimation fees for voting on proposal/executing proposal
@@ -177,7 +186,10 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
 
       // no token address, not tokenBased proposal
       if (!tokenAddress) {
-        newCache = {...cachedVotes, [cachedProposalId]: {address, vote}};
+        newCache = {
+          ...cachedVotes,
+          [cachedProposalId]: {address, vote},
+        };
         pendingVotesVar(newCache);
 
         if (preferences?.functional) {
@@ -190,7 +202,7 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
       }
 
       // fetch token user balance, ie vote weight
-      const weight: bigint = await fetchBalance(
+      const weight: BigNumber = await fetchBalance(
         tokenAddress,
         address!,
         provider,
@@ -198,7 +210,10 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
         false
       );
 
-      newCache = {...cachedVotes, [cachedProposalId]: {address, vote, weight}};
+      newCache = {
+        ...cachedVotes,
+        [cachedProposalId]: {address, vote, weight: weight.toBigInt()},
+      };
       pendingVotesVar(newCache);
       if (preferences?.functional) {
         localStorage.setItem(
@@ -236,7 +251,10 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     }
 
     setVoteProcessState(TransactionState.LOADING);
-    const voteSteps = pluginClient?.methods.voteProposal(voteParams);
+    const voteSteps = pluginClient?.methods.voteProposal({
+      ...voteParams,
+      proposalId: stripPlgnAdrFromProposalId(voteParams.proposalId),
+    });
 
     if (!voteSteps) {
       throw new Error('Voting function is not initialized correctly');
@@ -305,7 +323,11 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     }
 
     setExecuteProcessState(TransactionState.LOADING);
-    const executeSteps = pluginClient?.methods.executeProposal(executeParams);
+    const executeSteps = pluginClient?.methods.executeProposal({
+      ...executeParams,
+      proposalId: stripPlgnAdrFromProposalId(executeParams.proposalId),
+    });
+
     if (!executeSteps) {
       throw new Error('Voting function is not initialized correctly');
     }
@@ -337,23 +359,36 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     pluginClient?.methods,
   ]);
 
+  const value = useMemo(
+    () => ({
+      handleSubmitVote,
+      handleExecuteProposal,
+      isLoading: paramIsLoading || detailsAreLoading,
+      pluginAddress,
+      pluginType,
+      voteSubmitted,
+      executeSubmitted,
+      executionFailed,
+      transactionHash,
+    }),
+    [
+      detailsAreLoading,
+      executeSubmitted,
+      executionFailed,
+      handleExecuteProposal,
+      handleSubmitVote,
+      paramIsLoading,
+      pluginAddress,
+      pluginType,
+      transactionHash,
+      voteSubmitted,
+    ]
+  );
   /*************************************************
    *                    Render                     *
    *************************************************/
   return (
-    <ProposalTransactionContext.Provider
-      value={{
-        handleSubmitVote,
-        handleExecuteProposal,
-        isLoading: paramIsLoading || detailsAreLoading,
-        pluginAddress,
-        pluginType,
-        voteSubmitted,
-        executeSubmitted,
-        executionFailed,
-        transactionHash,
-      }}
-    >
+    <ProposalTransactionContext.Provider value={value}>
       {children}
       <PublishModal
         title={
