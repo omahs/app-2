@@ -34,7 +34,9 @@ import {useGlobalModalContext} from './globalModals';
 import {useReactiveVar} from '@apollo/client';
 import {pendingDeposits} from './apolloClient';
 import {trackEvent} from 'services/analytics';
-import {customJSONReplacer} from 'utils/library';
+import {customJSONReplacer, formatUnits} from 'utils/library';
+import {BigNumber} from 'ethers';
+import {parseUnits} from 'ethers/lib/utils';
 
 interface IDepositContextType {
   handleOpenModal: () => void;
@@ -180,33 +182,33 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
     open,
   ]);
 
-  const handleApproval = async () => {
-    // Check if SDK initialized properly
-    if (!client) {
-      throw new Error('SDK client is not initialized correctly');
-    }
+  // const handleApproval = async () => {
+  //   // Check if SDK initialized properly
+  //   if (!client) {
+  //     throw new Error('SDK client is not initialized correctly');
+  //   }
 
-    // Check if deposit function is initialized
-    if (!depositIterator) {
-      throw new Error('deposit function is not initialized correctly');
-    }
+  //   // Check if deposit function is initialized
+  //   if (!depositIterator) {
+  //     throw new Error('deposit function is not initialized correctly');
+  //   }
 
-    try {
-      setDepositState(TransactionState.LOADING);
+  //   try {
+  //     setDepositState(TransactionState.LOADING);
 
-      // run approval steps
-      for (let step = 0; step < 3; step++) {
-        await depositIterator.next();
-      }
+  //     // run approval steps
+  //     for (let step = 0; step < 3; step++) {
+  //       await depositIterator.next();
+  //     }
 
-      // update modal button and transaction state
-      setModalStep(2);
-      setDepositState(TransactionState.WAITING);
-    } catch (error) {
-      console.error(error);
-      setDepositState(TransactionState.ERROR);
-    }
-  };
+  //     // update modal button and transaction state
+  //     setModalStep(2);
+  //     setDepositState(TransactionState.WAITING);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setDepositState(TransactionState.ERROR);
+  //   }
+  // };
 
   const handleDeposit = async () => {
     const {from, reference, tokenAddress, tokenName, tokenSymbol} = getValues();
@@ -230,9 +232,24 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
 
     try {
       setDepositState(TransactionState.LOADING);
-
+      console.log('startLoading');
       for await (const step of depositIterator) {
-        if (step.key === DaoDepositSteps.DEPOSITING) {
+        console.log('viewStep', step);
+        if (step.key === DaoDepositSteps.CHECKED_ALLOWANCE) {
+          if (step.allowance && depositParams?.amount) {
+            if (BigNumber.from(step.allowance).gt(depositParams.amount)) {
+              setModalStep(2);
+              setDepositState(TransactionState.WAITING);
+              break;
+            }
+          }
+        }
+        if (step.key === DaoDepositSteps.UPDATED_ALLOWANCE) {
+          setModalStep(2);
+          setDepositState(TransactionState.WAITING);
+          break;
+        } else if (step.key === DaoDepositSteps.DEPOSITING) {
+          setDepositState(TransactionState.LOADING);
           transactionHash = step.txHash;
           const depositTxs = [
             ...pendingDepositsTxs,
@@ -276,15 +293,15 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
             network,
             wallet_provider: provider?.connection.url,
           });
+        } else if (step.key === DaoDepositSteps.DONE) {
+          setDepositState(TransactionState.SUCCESS);
+          console.log(transactionHash);
+          trackEvent('newDeposit_transaction_success', {
+            network,
+            wallet_provider: provider?.connection.url,
+          });
         }
       }
-
-      setDepositState(TransactionState.SUCCESS);
-      console.log(transactionHash);
-      trackEvent('newDeposit_transaction_success', {
-        network,
-        wallet_provider: provider?.connection.url,
-      });
     } catch (error) {
       console.error(error);
       setDepositState(TransactionState.ERROR);
@@ -306,8 +323,6 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
         {...{
           currentStep,
           includeApproval,
-          handleDeposit,
-          handleApproval,
           maxFee,
           averageFee,
           modalParams,
@@ -317,7 +332,7 @@ const DepositProvider = ({children}: {children: ReactNode}) => {
         isOpen={showModal}
         onClose={handleCloseModal}
         handleDeposit={handleDeposit}
-        handleApproval={handleApproval}
+        handleApproval={handleDeposit}
         closeOnDrag={depositState !== TransactionState.LOADING}
         depositAmount={depositParams?.amount as bigint}
         tokenAddress={depositParams?.tokenAddress as string}
