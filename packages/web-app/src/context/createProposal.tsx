@@ -22,7 +22,10 @@ import {useDaoDetails} from 'hooks/useDaoDetails';
 import {useDaoMembers} from 'hooks/useDaoMembers';
 import {useDaoParam} from 'hooks/useDaoParam';
 import {PluginTypes, usePluginClient} from 'hooks/usePluginClient';
-import {usePluginSettings} from 'hooks/usePluginSettings';
+import {
+  isMultisigVotingSettings,
+  usePluginSettings,
+} from 'hooks/usePluginSettings';
 import {usePollGasFee} from 'hooks/usePollGasfee';
 import {useWallet} from 'hooks/useWallet';
 import {trackEvent} from 'services/analytics';
@@ -41,7 +44,7 @@ import {
   minutesToMills,
   offsetToMills,
 } from 'utils/date';
-import {customJSONReplacer} from 'utils/library';
+import {customJSONReplacer, sortMultisigActions} from 'utils/library';
 import {Proposal} from 'utils/paths';
 import {
   getNonEmptyActions,
@@ -140,11 +143,20 @@ const CreateProposalProvider: React.FC<Props> = ({
   }, [daoToken?.address, infura, network]);
 
   const encodeActions = useCallback(async () => {
-    const actionsFromForm = getValues('actions');
+    let actionsFromForm: Array<Action> = getValues('actions');
     const actions: Array<Promise<DaoAction>> = [];
 
     // return an empty array for undefined clients
     if (!pluginClient || !client) return Promise.resolve([] as DaoAction[]);
+
+    // Only sort action if plugin is multisig.
+    if (isMultisigVotingSettings(pluginSettings)) {
+      actionsFromForm = sortMultisigActions(
+        actionsFromForm,
+        members.length,
+        (pluginSettings as MultisigVotingSettings).minApprovals
+      );
+    }
 
     getNonEmptyActions(actionsFromForm).forEach((action: Action) => {
       switch (action.name) {
@@ -226,7 +238,15 @@ const CreateProposalProvider: React.FC<Props> = ({
     });
 
     return Promise.all(actions);
-  }, [client, dao, getValues, pluginClient, pluginSettings, pluginAddress]);
+  }, [
+    getValues,
+    pluginClient,
+    client,
+    pluginSettings,
+    members.length,
+    dao,
+    pluginAddress,
+  ]);
 
   // Because getValues does NOT get updated on each render, leaving this as
   // a function to be called when data is needed instead of a memoized value

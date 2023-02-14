@@ -21,6 +21,7 @@ import {
   SupportedNetworks,
 } from 'utils/constants';
 import {
+  Action,
   ActionAddAddress,
   ActionMintToken,
   ActionRemoveAddress,
@@ -254,6 +255,7 @@ export async function decodeRemoveMembersToAction(
 
   return Promise.resolve({
     name: 'remove_address',
+    previousLength: 0,
     inputs: {
       memberWallets: addresses,
     },
@@ -402,4 +404,60 @@ export function resolveDaoAvatarIpfsCid(avatar?: string): string | undefined {
       console.warn('Error resolving DAO avatar IPFS Cid', err);
     }
   }
+}
+
+/**
+ * @dev This function checks actions array and reorder the multisig related actions.
+ * @param actions Unsorted list of actions that needs to be sorted.
+ * @returns sorted actions list.
+ */
+export function sortMultisigActions(
+  actions: Array<Action>,
+  previousMembersLength: number,
+  previousApprovals: number
+): Array<Action> {
+  const sorted = [...actions].sort((a, b) => {
+    // Always keep the `add_address` at the top
+    if (a.name === 'add_address') {
+      return -1;
+    } else if (b.name === 'add_address') {
+      return 1;
+    }
+
+    // If (a) is `remove_address` and (b) is `update_minimum_approval`
+    // and remove count is below original minApprovals
+    // then move (b) up.
+    if (
+      a.name === 'remove_address' &&
+      b.name === 'update_minimum_approval' &&
+      previousMembersLength - a.inputs.memberWallets.length < previousApprovals
+    ) {
+      return 1;
+    }
+
+    // If (b) is `remove_address` and (a) is `update_minimum_approval`
+    // and remove count is below original minApprovals
+    // then move (a) up.
+    if (
+      b.name === 'remove_address' &&
+      a.name === 'update_minimum_approval' &&
+      previousMembersLength - b.inputs.memberWallets.length < previousApprovals
+    ) {
+      return -1;
+    }
+
+    // Move `remove_address` up until the second element is `update_minimum_approval`.
+    if (a.name === 'remove_address' && b.name !== 'update_minimum_approval') {
+      return -1;
+    } else if (
+      b.name === 'remove_address' &&
+      a.name !== 'update_minimum_approval'
+    ) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return sorted;
 }
