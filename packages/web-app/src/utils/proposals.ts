@@ -41,7 +41,9 @@ import {
   Erc20ProposalVote,
   StrictlyExclude,
   SupportedProposals,
+  SupportedVotingSettings,
 } from './types';
+import {isMultisigVotingSettings} from 'hooks/usePluginSettings';
 
 export type TokenVotingOptions = StrictlyExclude<
   VoterType['option'],
@@ -314,6 +316,7 @@ export function getWhitelistResults(
  * @returns list of status steps based on proposal status
  */
 export function getProposalStatusSteps(
+  t: TFunction,
   status: ProposalStatus,
   startDate: Date,
   endDate: Date,
@@ -326,9 +329,9 @@ export function getProposalStatusSteps(
   switch (status) {
     case 'Active':
       return [
-        {...getPublishedProposalStep(creationDate, publishedBlock)},
+        {...getPublishedProposalStep(t, creationDate, publishedBlock)},
         {
-          label: i18n.t('governance.statusWidget.active'),
+          label: t('governance.statusWidget.active'),
           mode: 'active',
           date: `${format(
             startDate,
@@ -338,9 +341,9 @@ export function getProposalStatusSteps(
       ];
     case 'Defeated':
       return [
-        {...getPublishedProposalStep(creationDate, publishedBlock)},
+        {...getPublishedProposalStep(t, creationDate, publishedBlock)},
         {
-          label: i18n.t('governance.statusWidget.defeated'),
+          label: t('governance.statusWidget.defeated'),
           mode: 'failed',
           date: `${format(
             endDate,
@@ -351,9 +354,9 @@ export function getProposalStatusSteps(
     case 'Succeeded':
       if (executionFailed)
         return [
-          ...getPassedProposalSteps(creationDate, startDate, publishedBlock),
+          ...getPassedProposalSteps(t, creationDate, startDate, publishedBlock),
           {
-            label: i18n.t('governance.statusWidget.failed'),
+            label: t('governance.statusWidget.failed'),
             mode: 'failed',
             date: `${format(
               new Date(),
@@ -363,18 +366,18 @@ export function getProposalStatusSteps(
         ];
       else
         return [
-          ...getPassedProposalSteps(creationDate, startDate, publishedBlock),
+          ...getPassedProposalSteps(t, creationDate, startDate, publishedBlock),
           {
-            label: i18n.t('governance.statusWidget.succeeded'),
+            label: t('governance.statusWidget.succeeded'),
             mode: 'upcoming',
           },
         ];
     case 'Executed':
       if (executionDate)
         return [
-          ...getPassedProposalSteps(creationDate, startDate, publishedBlock),
+          ...getPassedProposalSteps(t, creationDate, startDate, publishedBlock),
           {
-            label: i18n.t('governance.statusWidget.executed'),
+            label: t('governance.statusWidget.executed'),
             mode: 'succeeded',
             date: `${format(
               executionDate,
@@ -385,16 +388,16 @@ export function getProposalStatusSteps(
         ];
       else
         return [
-          ...getPassedProposalSteps(creationDate, startDate, publishedBlock),
-          {label: i18n.t('governance.statusWidget.failed'), mode: 'failed'},
+          ...getPassedProposalSteps(t, creationDate, startDate, publishedBlock),
+          {label: t('governance.statusWidget.failed'), mode: 'failed'},
         ];
 
     // Pending by default
     default:
       return [
-        {...getPublishedProposalStep(creationDate, publishedBlock)},
+        {...getPublishedProposalStep(t, creationDate, publishedBlock)},
         {
-          label: i18n.t('governance.statusWidget.pending'),
+          label: t('governance.statusWidget.pending'),
           mode: 'upcoming',
           date: `${format(
             startDate,
@@ -406,14 +409,15 @@ export function getProposalStatusSteps(
 }
 
 function getPassedProposalSteps(
+  t: TFunction,
   creationDate: Date,
   startDate: Date,
   block: string
 ): Array<ProgressStatusProps> {
   return [
-    {...getPublishedProposalStep(creationDate, block)},
+    {...getPublishedProposalStep(t, creationDate, block)},
     {
-      label: i18n.t('governance.statusWidget.passed'),
+      label: t('governance.statusWidget.passed'),
       mode: 'done',
       date: `${format(
         startDate,
@@ -424,11 +428,12 @@ function getPassedProposalSteps(
 }
 
 function getPublishedProposalStep(
+  t: TFunction,
   creationDate: Date,
   block: string
 ): ProgressStatusProps {
   return {
-    label: i18n.t('governance.statusWidget.published'),
+    label: t('governance.statusWidget.published'),
     date: `${format(
       creationDate,
       KNOWN_FORMATS.proposals
@@ -443,10 +448,11 @@ function getPublishedProposalStep(
  * @param proposal
  * @returns transformed data for terminal
  */
-export function getTerminalProps(
+export function getLiveProposalTerminalProps(
   t: TFunction,
   proposal: DetailedProposal,
   voter: string | null,
+  votingSettings: SupportedVotingSettings,
   members?: MultisigMember[]
 ) {
   let token;
@@ -512,7 +518,6 @@ export function getTerminalProps(
     strategy = t('votingTerminal.tokenVoting');
     return {
       token,
-      status: proposal.status,
       voters,
       results,
       strategy,
@@ -520,6 +525,7 @@ export function getTerminalProps(
       minParticipation,
       currentParticipation,
       missingParticipation,
+      voteOptions: t('votingTerminal.yes+no'),
       startDate: `${format(
         proposal.startDate,
         KNOWN_FORMATS.proposals
@@ -532,28 +538,37 @@ export function getTerminalProps(
     };
   }
   // This method's return needs to be typed properly
-  else if (isMultisigProposal(proposal)) {
+  else if (
+    isMultisigProposal(proposal) &&
+    isMultisigVotingSettings(votingSettings)
+  ) {
     // add members to Map of VoterType
     const mappedMembers = new Map(
       // map multisig members to voterType
-      members
-        ?.map(m => ({wallet: m.address, option: 'none'} as VoterType))
-        .map(v => [v.wallet, v])
+      members?.map(member => [
+        member.address,
+        {wallet: member.address, option: 'none'} as VoterType,
+      ])
     );
 
     // loop through approvals and update vote option to approved;
+    let approvalAddress;
     proposal.approvals.forEach(address => {
+      approvalAddress = stripPlgnAdrFromProposalId(address);
+
       // considering only members can approve, no need to check if Map has the key
-      mappedMembers.set(address, {
-        wallet: stripPlgnAdrFromProposalId(address),
+      mappedMembers.set(approvalAddress, {
+        wallet: approvalAddress,
         option: 'approved',
       });
     });
 
     return {
       approvals: proposal.approvals,
+      minApproval: votingSettings.minApprovals,
       voters: [...mappedMembers.values()],
-      status: proposal.status,
+      strategy: t('votingTerminal.multisig'),
+      voteOptions: t('votingTerminal.approve'),
     };
   }
 }
@@ -861,9 +876,9 @@ export function getNonEmptyActions(
   minApprovals?: number
 ) {
   return actions.flatMap(action => {
-    if (action.name === 'update_minimum_approval') {
+    if (action.name === 'modify_multisig_voting_settings') {
       // minimum approval changed: return action or don't include
-      return action.inputs.minimumApproval !== minApprovals ? action : [];
+      return action.inputs.minApprovals !== minApprovals ? action : [];
     } else if (action.name === 'add_address') {
       // address added to the list: return action or don't include
       return action.inputs.memberWallets.some(w => w.address === '')

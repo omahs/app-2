@@ -1,8 +1,10 @@
 import {useApolloClient} from '@apollo/client';
 import {
   DaoAction,
+  MultisigClient,
   TokenVotingClient,
   TokenVotingProposal,
+  VoteValues,
   VotingMode,
 } from '@aragon/sdk-client';
 import {
@@ -51,21 +53,25 @@ import {useWallet} from 'hooks/useWallet';
 import {useWalletCanVote} from 'hooks/useWalletCanVote';
 import {CHAIN_METADATA} from 'utils/constants';
 import {
+  decodeAddMembersToAction,
   decodeMetadataToAction,
   decodeMintTokensToAction,
+  decodeMultisigSettingsToAction,
   decodePluginSettingsToAction,
+  decodeRemoveMembersToAction,
   decodeWithdrawToAction,
 } from 'utils/library';
 import {NotFound} from 'utils/paths';
 import {
   getProposalExecutionStatus,
   getProposalStatusSteps,
-  getTerminalProps,
+  getLiveProposalTerminalProps,
   getVoteButtonLabel,
   getVoteStatus,
   isEarlyExecutable,
   isErc20VotingProposal,
   isMultisigProposal,
+  stripPlgnAdrFromProposalId,
 } from 'utils/proposals';
 import {Action} from 'utils/types';
 
@@ -97,6 +103,9 @@ const Proposal: React.FC = () => {
     daoDetails?.plugins[0].instanceAddress as string,
     daoDetails?.plugins[0].id as PluginTypes
   );
+
+  const multisigDAO =
+    (daoDetails?.plugins[0].id as PluginTypes) === 'multisig.plugin.dao.eth';
 
   const earlyExecution =
     isTokenVotingSettings(daoSettings) &&
@@ -204,24 +213,29 @@ const Proposal: React.FC = () => {
             }
             mintTokenActions.actions.push(action.data);
             return Promise.resolve({} as Action);
-
-          // case 'addAllowedUsers':
-          //   return decodeAddMembersToAction(
-          //     action.data,
-          //     pluginClient as AddresslistVotingClient
-          //   );
-          // case 'removeAllowedUsers':
-          //   return decodeRemoveMembersToAction(
-          //     action.data,
-          //     pluginClient as AddresslistVotingClient
-          //   );
+          case 'addAddresses':
+            return decodeAddMembersToAction(
+              action.data,
+              pluginClient as MultisigClient
+            );
+          case 'removeAddresses':
+            return decodeRemoveMembersToAction(
+              action.data,
+              pluginClient as MultisigClient
+            );
           case 'updateVotingSettings':
-            // TODO add multisig option here or inside decoder
             return decodePluginSettingsToAction(
               action.data,
               pluginClient as TokenVotingClient,
               (proposal as TokenVotingProposal).totalVotingWeight as bigint,
               proposalErc20Token
+            );
+          case 'updateMultisigSettings':
+            return Promise.resolve(
+              decodeMultisigSettingsToAction(
+                action.data,
+                pluginClient as MultisigClient
+              )
             );
           case 'setMetadata':
             return decodeMetadataToAction(action.data, client);
@@ -309,15 +323,14 @@ const Proposal: React.FC = () => {
   // terminal props
   const mappedProps = useMemo(() => {
     if (proposal)
-      return getTerminalProps(
+      return getLiveProposalTerminalProps(
         t,
         proposal,
         address,
-        isMultisigProposal(proposal)
-          ? (members as unknown as MultisigMember[])
-          : undefined
+        daoSettings,
+        isMultisigProposal(proposal) ? (members as MultisigMember[]) : undefined
       );
-  }, [address, members, proposal, t]);
+  }, [address, daoSettings, members, proposal, t]);
 
   // get early execution status
   const canExecuteEarly = useMemo(
@@ -354,7 +367,9 @@ const Proposal: React.FC = () => {
 
     if (isMultisigProposal(proposal)) {
       return proposal.approvals.some(
-        a => a.toLowerCase() === address.toLowerCase()
+        a =>
+          // remove the call to strip plugin address when sdk returns proper plugin address
+          stripPlgnAdrFromProposalId(a).toLowerCase() === address.toLowerCase()
       );
     } else {
       return proposal.votes.some(
@@ -409,14 +424,22 @@ const Proposal: React.FC = () => {
     else if (canVote) {
       return {
         voteNowDisabled: false,
-        onClick: () => setVotingInProcess(true),
+        onClick: () => {
+          if (multisigDAO) {
+            handleSubmitVote(VoteValues.YES);
+          } else {
+            setVotingInProcess(true);
+          }
+        },
       };
     } else return {voteNowDisabled: true};
   }, [
     address,
     canVote,
     earlyExecution,
+    handleSubmitVote,
     isOnWrongNetwork,
+    multisigDAO,
     open,
     proposal?.status,
     voteSubmitted,
@@ -426,10 +449,11 @@ const Proposal: React.FC = () => {
   const alertMessage = useMemo(() => {
     if (
       proposal &&
-      proposal.status === 'Active' &&
-      address &&
-      !isOnWrongNetwork &&
-      !canVote
+      proposal.status === 'Active' && // active proposal
+      address && // logged in
+      !isOnWrongNetwork && // on proper network
+      !voted && // haven't voted
+      !canVote // cannot vote
     ) {
       // presence of token delineates token voting proposal
       // people add types to these things!!
@@ -439,7 +463,7 @@ const Proposal: React.FC = () => {
           })
         : t('votingTerminal.status.ineligibleWhitelist');
     }
-  }, [address, canVote, isOnWrongNetwork, proposal, t]);
+  }, [address, canVote, isOnWrongNetwork, proposal, t, voted]);
 
   // status steps for proposal
   const proposalSteps = useMemo(() => {
@@ -453,6 +477,7 @@ const Proposal: React.FC = () => {
       proposal?.creationDate
     ) {
       return getProposalStatusSteps(
+        t,
         proposal.status,
         proposal.startDate,
         proposal.endDate,
@@ -463,7 +488,7 @@ const Proposal: React.FC = () => {
         proposal.executionDate
       );
     } else return [];
-  }, [proposal, executionFailed]);
+  }, [proposal, executionFailed, t]);
 
   /*************************************************
    *                     Render                    *
@@ -539,6 +564,7 @@ const Proposal: React.FC = () => {
           )}
 
           <VotingTerminal
+            status={proposal.status}
             statusLabel={voteStatus}
             selectedTab={terminalTab}
             alertMessage={alertMessage}

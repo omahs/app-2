@@ -40,9 +40,6 @@ import {
 import {useGlobalModalContext} from './globalModals';
 import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import {toAscii} from 'idna-uts46';
 
 function readFile(file: Blob): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {
@@ -83,6 +80,9 @@ const CreateDaoProvider: React.FC = ({children}) => {
   const shouldPoll =
     daoCreationData !== undefined &&
     creationProcessState === TransactionState.WAITING;
+
+  const disableActionButton =
+    !daoCreationData && creationProcessState !== TransactionState.SUCCESS;
 
   /*************************************************
    *                   Handlers                    *
@@ -217,7 +217,8 @@ const CreateDaoProvider: React.FC = ({children}) => {
 
   // Get dao setting configuration for creation process
   const getDaoSettings = useCallback(async (): Promise<CreateDaoParams> => {
-    const {membership, daoName, daoSummary, daoLogo, links} = getValues();
+    const {membership, daoName, daoEnsName, daoSummary, daoLogo, links} =
+      getValues();
     const plugins: IPluginInstallItem[] = [];
     switch (membership) {
       case 'multisig': {
@@ -265,11 +266,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
         metadataUri: ipfsUri || '',
         // TODO: We're using dao name without spaces for ens, We need to add alert
         // to inform this to user
-        ensSubdomain: toAscii(daoName?.replaceAll(/[ .]/g, '-'), {
-          transitional: true,
-          useStd3ASCII: true,
-          verifyDnsLength: true,
-        }),
+        ensSubdomain: daoEnsName,
         plugins: [...plugins],
       };
     } catch {
@@ -410,7 +407,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
         averageFee={averageFee}
         gasEstimationError={gasEstimationError}
         tokenPrice={tokenPrice}
-        disabledCallback={!daoCreationData}
+        disabledCallback={disableActionButton}
       />
     </CreateDaoContext.Provider>
   );

@@ -20,9 +20,6 @@ import {
   Nullable,
 } from './types';
 import {isOnlyWhitespace} from './library';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import {toAscii} from 'idna-uts46';
 
 /**
  * Validate given token contract address
@@ -175,15 +172,21 @@ export function actionsAreValid(
   return isValid;
 }
 
-export function isDaoNameValid(
+export function isDaoEnsNameValid(
   value: string,
   provider: InfuraProvider,
   setError: (name: string, error: FieldError) => void,
   clearError: (name?: string | string[]) => void,
-  getValues: (payload?: string | string[]) => Object
+  getValues: (payload?: string | string[]) => Object,
+  currentDaoEnsName: string
 ) {
+  if (value === currentDaoEnsName) return true;
   if (isOnlyWhitespace(value)) return i18n.t('errors.required.name');
   if (value.length > 128) return i18n.t('errors.ensNameLength');
+
+  const pattern = /^[a-z0-9-]+$/;
+  if (!pattern.test(value)) return i18n.t('errors.ensNameInvalidFormat');
+
   // some networks like Arbitrum Goerli and other L2s do not support ENS domains as of now
   // don't check and allow name collision failure to happen when trying to run transaction
   if (!provider.network.ensAddress) {
@@ -196,26 +199,18 @@ export function isDaoNameValid(
   // We might need to combine the method with setTimeout (Similar to useDebouncedState)
   // for better performance
   try {
-    provider
-      ?.resolveName(
-        `${toAscii(value.replaceAll(/[ .]/g, '-'), {
-          transitional: true,
-          useStd3ASCII: true,
-          verifyDnsLength: true,
-        })}.dao.eth`
-      )
-      .then(result => {
-        const inputValue = getValues('daoName');
-        // Check to see if the response belongs to current value
-        if (value === inputValue) {
-          if (result)
-            setError('daoName', {
-              type: 'validate',
-              message: i18n.t('errors.ensDuplication'),
-            });
-          else clearError();
-        }
-      });
+    provider?.resolveName(`${value}.dao.eth`).then(result => {
+      const inputValue = getValues('daoEnsName');
+      // Check to see if the response belongs to current value
+      if (value === inputValue) {
+        if (result) {
+          setError('daoEnsName', {
+            type: 'validate',
+            message: i18n.t('errors.ensDuplication'),
+          });
+        } else clearError();
+      }
+    });
 
     return i18n.t('infos.checkingEns');
 

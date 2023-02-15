@@ -32,6 +32,7 @@ export type CreateDaoFormData = {
   };
   daoLogo: Blob;
   daoName: string;
+  daoEnsName: string;
   daoSummary: string;
   tokenName: string;
   tokenSymbol: string;
@@ -90,6 +91,7 @@ const CreateDAO: React.FC = () => {
     tokenTotalSupply,
     membership,
     daoName,
+    daoEnsName,
     eligibilityType,
   ] = useWatch({
     control: formMethods.control,
@@ -99,6 +101,7 @@ const CreateDAO: React.FC = () => {
       'tokenTotalSupply',
       'membership',
       'daoName',
+      'daoEnsName',
       'eligibilityType',
     ],
   });
@@ -134,12 +137,19 @@ const CreateDAO: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const daoMetadataIsValid = useMemo(() => {
     // required fields not dirty
-    if (!daoName || !dirtyFields.daoSummary) return false;
+    if (!daoEnsName || !daoName || !dirtyFields.daoSummary) return false;
 
-    return errors.daoName || errors.links || errors.daoSummary ? false : true;
+    return errors.daoEnsName ||
+      errors.daoName ||
+      errors.links ||
+      errors.daoSummary
+      ? false
+      : true;
   }, [
+    daoEnsName,
     daoName,
     dirtyFields.daoSummary,
+    errors.daoEnsName,
     errors.daoName,
     errors.daoSummary,
     errors.links,
@@ -292,8 +302,8 @@ const CreateDAO: React.FC = () => {
               <>
                 {t('createDAO.step2.description')}
                 <Link
-                  href="https://aragon.org/how-to/how-to-build-a-dao-brand-identity"
-                  label={t('createDAO.step2.metadataOverviewGuide')}
+                  href={t('createDAO.step2.descriptionLinkURL')}
+                  label={t('createDAO.step2.descriptionLinkLabel')}
                 />
               </>
             }
@@ -337,8 +347,8 @@ const CreateDAO: React.FC = () => {
               <>
                 {t('createDAO.step4.description')}
                 <Link
-                  href="https://aragon.org/how-to/setting-dao-governance-thresholds"
-                  label={t('createDAO.step4.bestPractices')}
+                  href={t('createDAO.step4.descriptionLinkURL')}
+                  label={t('createDAO.step4.descriptionLinkLabel')}
                 />
               </>
             }

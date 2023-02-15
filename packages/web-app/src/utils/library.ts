@@ -1,10 +1,10 @@
 // Library utils / Ethers for now
 import {ApolloClient} from '@apollo/client';
 import {
-  AddresslistVotingClient,
   Client,
   Erc20TokenDetails,
   IMintTokenParams,
+  MultisigClient,
   TokenVotingClient,
   VotingMode,
 } from '@aragon/sdk-client';
@@ -26,6 +26,7 @@ import {
   ActionMintToken,
   ActionRemoveAddress,
   ActionUpdateMetadata,
+  ActionUpdateMultisigPluginSettings,
   ActionUpdatePluginSettings,
   ActionWithdraw,
 } from 'utils/types';
@@ -207,12 +208,12 @@ export async function decodeMintTokensToAction(
 /**
  * decodeAddMembersToAction
  * @param data Uint8Array action data
- * @param client SDK AddressListClient, Fetched using usePluginClient
+ * @param client SDK MultisigClient, Fetched using usePluginClient
  * @returns Return Decoded AddMembers action
  */
 export async function decodeAddMembersToAction(
   data: Uint8Array | undefined,
-  client: AddresslistVotingClient | undefined
+  client: MultisigClient | undefined
 ): Promise<ActionAddAddress | undefined> {
   if (!client || !data) {
     console.error('SDK client is not initialized correctly');
@@ -221,7 +222,7 @@ export async function decodeAddMembersToAction(
 
   const addresses: {
     address: Address;
-  }[] = client.decoding.addMembersAction(data)?.map(address => ({
+  }[] = client.decoding.addAddressesAction(data)?.map(address => ({
     address,
   }));
 
@@ -236,12 +237,12 @@ export async function decodeAddMembersToAction(
 /**
  * decodeRemoveMembersToAction
  * @param data Uint8Array action data
- * @param client SDK AddressListClient, Fetched using usePluginClient
+ * @param client SDK MultisigClient, Fetched using usePluginClient
  * @returns Return Decoded RemoveMembers action
  */
 export async function decodeRemoveMembersToAction(
   data: Uint8Array | undefined,
-  client: AddresslistVotingClient | undefined
+  client: MultisigClient | undefined
 ): Promise<ActionRemoveAddress | undefined> {
   if (!client || !data) {
     console.error('SDK client is not initialized correctly');
@@ -249,7 +250,7 @@ export async function decodeRemoveMembersToAction(
   }
   const addresses: {
     address: Address;
-  }[] = client.decoding.removeMembersAction(data)?.map(address => ({
+  }[] = client.decoding.removeAddressesAction(data)?.map(address => ({
     address,
   }));
 
@@ -286,6 +287,21 @@ export async function decodePluginSettingsToAction(
       token,
       totalVotingWeight,
     },
+  };
+}
+
+export function decodeMultisigSettingsToAction(
+  data: Uint8Array | undefined,
+  client: MultisigClient
+): ActionUpdateMultisigPluginSettings | undefined {
+  if (!client || !data) {
+    console.error('SDK client is not initialized correctly');
+    return;
+  }
+
+  return {
+    name: 'modify_multisig_voting_settings',
+    inputs: client.decoding.updateMultisigVotingSettings(data),
   };
 }
 
