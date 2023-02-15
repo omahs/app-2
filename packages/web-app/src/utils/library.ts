@@ -256,7 +256,6 @@ export async function decodeRemoveMembersToAction(
 
   return Promise.resolve({
     name: 'remove_address',
-    previousLength: 0,
     inputs: {
       memberWallets: addresses,
     },
