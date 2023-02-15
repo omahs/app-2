@@ -440,34 +440,37 @@ export function sortMultisigActions(
       return 1;
     }
 
-    // If (a) is `remove_address` and (b) is `update_minimum_approval`
+    // If (a) is `remove_address` and (b) is `modify_multisig_voting_settings`
     // and remove count is below original minApprovals
     // then move (b) up.
     if (
       a.name === 'remove_address' &&
-      b.name === 'update_minimum_approval' &&
+      b.name === 'modify_multisig_voting_settings' &&
       previousMembersLength - a.inputs.memberWallets.length < previousApprovals
     ) {
       return 1;
     }
 
-    // If (b) is `remove_address` and (a) is `update_minimum_approval`
+    // If (b) is `remove_address` and (a) is `modify_multisig_voting_settings`
     // and remove count is below original minApprovals
     // then move (a) up.
     if (
       b.name === 'remove_address' &&
-      a.name === 'update_minimum_approval' &&
+      a.name === 'modify_multisig_voting_settings' &&
       previousMembersLength - b.inputs.memberWallets.length < previousApprovals
     ) {
       return -1;
     }
 
-    // Move `remove_address` up until the second element is `update_minimum_approval`.
-    if (a.name === 'remove_address' && b.name !== 'update_minimum_approval') {
+    // Move `remove_address` up until the second element is `modify_multisig_voting_settings`.
+    if (
+      a.name === 'remove_address' &&
+      b.name !== 'modify_multisig_voting_settings'
+    ) {
       return -1;
     } else if (
       b.name === 'remove_address' &&
-      a.name !== 'update_minimum_approval'
+      a.name !== 'modify_multisig_voting_settings'
     ) {
       return 1;
     }

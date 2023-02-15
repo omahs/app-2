@@ -34,7 +34,7 @@ const addAddress = {
 };
 const minApprovals = {
   inputs: {minimumApproval: '1'},
-  name: 'update_minimum_approval',
+  name: 'modify_multisig_voting_settings',
 };
 const withdraw: ActionWithdraw = {
   to: '0xfCb24EcB272a791dd699bFbAAFD2af69DF88AF9D',
@@ -73,14 +73,14 @@ const testCases = [
     sortedActions: [addAddress, removeAddress(), withdraw, withdraw],
   },
   {
-    case: 'should not move `update_minimum_approval` above `remove_address` if condition not met',
+    case: 'should not move `modify_multisig_voting_settings` above `remove_address` if condition not met',
     previousMembersLength: 3,
     previousApprovals: 2,
     passedActions: [removeAddress(), addAddress, minApprovals],
     sortedActions: [addAddress, removeAddress(), minApprovals],
   },
   {
-    case: 'should move `update_minimum_approval` above `remove_address` if condition met',
+    case: 'should move `modify_multisig_voting_settings` above `remove_address` if condition met',
     previousMembersLength: 3,
     previousApprovals: 2,
     passedActions: [removeAddress(3), addAddress, minApprovals],
