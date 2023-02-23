@@ -21,6 +21,7 @@ type MobileNavProps = {
   isProcess?: boolean;
   onDaoSelect: () => void;
   onWalletClick: () => void;
+  onFeedbackClick: () => void;
 };
 
 const MobileNav: React.FC<MobileNavProps> = props => {
@@ -82,7 +83,7 @@ const MobileNav: React.FC<MobileNavProps> = props => {
         </Menu>
         <NetworkIndicator />
       </Container>
-      <MobileMenu />
+      <MobileMenu onFeedbackClick={props.onFeedbackClick} />
     </>
   );
 };

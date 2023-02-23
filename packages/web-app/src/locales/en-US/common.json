@@ -24,7 +24,8 @@
     "subtitle": "Go back to Explorer page"
   },
   "navButtons": {
-    "connectWallet": "Login"
+    "connectWallet": "Login",
+    "giveFeedback": "Give feedback"
   },
   "labels": {
     "members": "Members",

@@ -9,7 +9,7 @@ import {usePrivacyContext} from 'context/privacyContext';
 import {useDaoDetails} from 'hooks/useDaoDetails';
 import useScreen from 'hooks/useScreen';
 import {useWallet} from 'hooks/useWallet';
-import {CHAIN_METADATA} from 'utils/constants';
+import {CHAIN_METADATA, FEEDBACK_FORM} from 'utils/constants';
 import {
   Community,
   CreateDAO,
@@ -119,12 +119,17 @@ const Navbar: React.FC = () => {
     });
   };
 
+  const handleFeedbackButtonClick = () => {
+    window.open(FEEDBACK_FORM, '_blank');
+  };
+
   if (isDesktop) {
     return (
       <DesktopNav
         {...(processName ? {...processes[processName]} : {})}
         onDaoSelect={handleOnDaoSelect}
         onWalletClick={handleWalletButtonClick}
+        onFeedbackClick={handleFeedbackButtonClick}
       />
     );
   }
@@ -133,6 +138,7 @@ const Navbar: React.FC = () => {
       isProcess={processName !== undefined}
       onDaoSelect={handleOnDaoSelect}
       onWalletClick={handleWalletButtonClick}
+      onFeedbackClick={handleFeedbackButtonClick}
     />
   );
 };

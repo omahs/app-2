@@ -38,3 +38,4 @@ export {IconExpand} from './icon_expand';
 export {IconStorage} from './icon_storage';
 export {IconReload} from './icon_reload';
 export {IconFlag} from './icon_flag';
+export {IconFeedback} from './icon_feedback';

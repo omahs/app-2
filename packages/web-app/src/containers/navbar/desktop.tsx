@@ -1,4 +1,6 @@
-import {Breadcrumb, ButtonWallet} from '@aragon/ui-components';
+import {Breadcrumb, ButtonWallet, ButtonText} from '@aragon/ui-components';
+import {IconFeedback} from '@aragon/ui-components/src/components/icons';
+
 import NavLinks from 'components/navLinks';
 import React, {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -22,6 +24,7 @@ type DesktopNavProp = {
   processLabel?: string;
   onDaoSelect: () => void;
   onWalletClick: () => void;
+  onFeedbackClick: () => void;
 };
 
 const DesktopNav: React.FC<DesktopNavProp> = props => {
@@ -94,14 +97,25 @@ const DesktopNav: React.FC<DesktopNavProp> = props => {
           </LinksWrapper>
         </Content>
 
-        <ButtonWallet
-          src={ensAvatarUrl || address}
-          onClick={props.onWalletClick}
-          isConnected={isConnected}
-          label={
-            isConnected ? ensName || address : t('navButtons.connectWallet')
-          }
-        />
+        <div className="flex gap-2">
+          <ButtonText
+            className="w-full tablet:w-max"
+            size="large"
+            label={t('navButtons.giveFeedback')}
+            mode="secondary"
+            iconRight={<IconFeedback />}
+            onClick={props.onFeedbackClick}
+          />
+
+          <ButtonWallet
+            src={ensAvatarUrl || address}
+            onClick={props.onWalletClick}
+            isConnected={isConnected}
+            label={
+              isConnected ? ensName || address : t('navButtons.connectWallet')
+            }
+          />
+        </div>
       </Menu>
     </Container>
   );

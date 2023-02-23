@@ -2,6 +2,8 @@ import {SupportedNetworks} from './chains';
 
 type SubgraphNetworkUrl = Record<SupportedNetworks, string | undefined>;
 
+export const FEEDBACK_FORM = 'https://form.typeform.com/to/apg4gHYO';
+
 export const SUBGRAPH_API_URL: SubgraphNetworkUrl = {
   ethereum: undefined,
   goerli:

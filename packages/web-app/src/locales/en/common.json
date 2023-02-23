@@ -19,7 +19,8 @@
     "subtitle": "Go back to explorer page"
   },
   "navButtons": {
-    "connectWallet": "Connect wallet"
+    "connectWallet": "Connect wallet",
+    "giveFeedback": "Give feedback"
   },
   "labels": {
     "approvals": "Approvals",

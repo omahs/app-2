@@ -1,6 +1,7 @@
 import {useReactiveVar} from '@apollo/client';
 import React from 'react';
 import styled from 'styled-components';
+import {useTranslation} from 'react-i18next';
 
 import BottomSheet from 'components/bottomSheet';
 import {DaoSelector} from 'components/daoSelector';
@@ -8,10 +9,17 @@ import NavLinks from 'components/navLinks';
 import {selectedDaoVar} from 'context/apolloClient';
 import {useGlobalModalContext} from 'context/globalModals';
 import {usePrivacyContext} from 'context/privacyContext';
+import {ButtonText} from '@aragon/ui-components';
+import {IconFeedback} from '@aragon/ui-components/src/components/icons';
 
-const MobileNavMenu: React.FC = () => {
+type MobileNavMenuProps = {
+  onFeedbackClick: () => void;
+};
+
+const MobileNavMenu = (props: MobileNavMenuProps) => {
   const currentDao = useReactiveVar(selectedDaoVar);
   const {open, close, isMobileMenuOpen} = useGlobalModalContext();
+  const {t} = useTranslation();
 
   const {handleWithFunctionalPreferenceMenu} = usePrivacyContext();
 
@@ -31,6 +39,15 @@ const MobileNavMenu: React.FC = () => {
         </CardWrapper>
         <div className="py-3 px-2 space-y-3">
           <NavLinks onItemClick={() => close('mobileMenu')} />
+
+          <ButtonText
+            className="w-full"
+            size="large"
+            label={t('navButtons.giveFeedback')}
+            mode="secondary"
+            iconRight={<IconFeedback />}
+            onClick={props.onFeedbackClick}
+          />
         </div>
       </div>
     </BottomSheet>
