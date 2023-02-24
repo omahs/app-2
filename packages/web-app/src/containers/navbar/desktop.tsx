@@ -1,5 +1,9 @@
-import {Breadcrumb, ButtonWallet, ButtonText} from '@aragon/ui-components';
-import {IconFeedback} from '@aragon/ui-components/src/components/icons';
+import {
+  Breadcrumb,
+  ButtonWallet,
+  ButtonText,
+  IconFeedback,
+} from '@aragon/ui-components';
 
 import NavLinks from 'components/navLinks';
 import React, {useMemo} from 'react';

@@ -9,8 +9,7 @@ import NavLinks from 'components/navLinks';
 import {selectedDaoVar} from 'context/apolloClient';
 import {useGlobalModalContext} from 'context/globalModals';
 import {usePrivacyContext} from 'context/privacyContext';
-import {ButtonText} from '@aragon/ui-components';
-import {IconFeedback} from '@aragon/ui-components/src/components/icons';
+import {ButtonText, IconFeedback} from '@aragon/ui-components';
 
 type MobileNavMenuProps = {
   onFeedbackClick: () => void;
