@@ -1,11 +1,12 @@
 import {useReactiveVar} from '@apollo/client';
 import {
   DaoAction,
-  ICreateProposalParams,
+  CreateMajorityVotingProposalParams,
   InstalledPluginListItem,
   ProposalCreationSteps,
   ProposalMetadata,
   VotingMode,
+  VotingSettings,
 } from '@aragon/sdk-client';
 import {withTransaction} from '@elastic/apm-rum-react';
 import React, {useCallback, useEffect, useState} from 'react';
@@ -50,7 +51,17 @@ import {
   PENDING_PROPOSALS_KEY,
   TransactionState,
 } from 'utils/constants';
-import {getCanonicalUtcOffset, getSecondsFromDHM} from 'utils/date';
+import {
+  daysToMills,
+  getCanonicalDate,
+  getCanonicalTime,
+  getCanonicalUtcOffset,
+  getDHMFromSeconds,
+  getSecondsFromDHM,
+  hoursToMills,
+  minutesToMills,
+  offsetToMills,
+} from 'utils/date';
 import {customJSONReplacer} from 'utils/library';
 import {EditSettings, Proposal} from 'utils/paths';
 import {CacheProposalParams, mapToCacheProposal} from 'utils/proposals';
@@ -151,6 +162,11 @@ const ProposeSettingWrapper: React.FC<Props> = ({
     pluginAddress,
     pluginType as PluginTypes
   );
+  const {
+    days: minDays,
+    hours: minHours,
+    minutes: minMinutes,
+  } = getDHMFromSeconds((pluginSettings as VotingSettings).minDuration);
 
   const {data: daoToken} = useDaoToken(pluginAddress);
   const {data: tokenSupply, isLoading: tokenSupplyIsLoading} = useTokenSupply(
@@ -162,7 +178,7 @@ const ProposeSettingWrapper: React.FC<Props> = ({
   const pluginClient = usePluginClient(pluginType as PluginTypes);
 
   const [proposalCreationData, setProposalCreationData] =
-    useState<ICreateProposalParams>();
+    useState<CreateMajorityVotingProposalParams>();
 
   const [creationProcessState, setCreationProcessState] =
     useState<TransactionState>(TransactionState.WAITING);
@@ -311,7 +327,7 @@ const ProposeSettingWrapper: React.FC<Props> = ({
     };
 
     const getProposalCreationParams =
-      async (): Promise<ICreateProposalParams> => {
+      async (): Promise<CreateMajorityVotingProposalParams> => {
         const [
           title,
           summary,
@@ -323,6 +339,8 @@ const ProposeSettingWrapper: React.FC<Props> = ({
           endDate,
           endTime,
           endUtc,
+          durationSwitch,
+          startSwitch,
         ] = getValues([
           'proposalTitle',
           'proposalSummary',
@@ -334,6 +352,8 @@ const ProposeSettingWrapper: React.FC<Props> = ({
           'endDate',
           'endTime',
           'endUtc',
+          'durationSwitch',
+          'startSwitch',
         ]);
 
         const actions = await encodeActions();
@@ -347,16 +367,72 @@ const ProposeSettingWrapper: React.FC<Props> = ({
 
         const ipfsUri = await pluginClient?.methods.pinMetadata(metadata);
 
+        // getting dates
+        let startDateTime =
+          startSwitch === 'now'
+            ? new Date(
+                `${getCanonicalDate()}T${getCanonicalTime({
+                  minutes: 10,
+                })}:00${getCanonicalUtcOffset()}`
+              )
+            : new Date(
+                `${startDate}T${startTime}:00${getCanonicalUtcOffset(startUtc)}`
+              );
+
+        // End date
+        let endDateTime;
+        if (durationSwitch === 'duration') {
+          const [days, hours, minutes] = getValues([
+            'durationDays',
+            'durationHours',
+            'durationMinutes',
+          ]);
+
+          // Calculate the end date using duration
+          const endDateTimeMill =
+            startDateTime.valueOf() + offsetToMills({days, hours, minutes});
+
+          endDateTime = new Date(endDateTimeMill);
+        } else {
+          endDateTime = new Date(
+            `${endDate}T${endTime}:00${getCanonicalUtcOffset(endUtc)}`
+          );
+        }
+
+        if (startSwitch === 'now') {
+          endDateTime = new Date(endDateTime.getTime() + minutesToMills(10));
+        } else {
+          if (startDateTime.valueOf() < new Date().valueOf()) {
+            startDateTime = new Date(
+              `${getCanonicalDate()}T${getCanonicalTime({
+                minutes: 10,
+              })}:00${getCanonicalUtcOffset()}`
+            );
+          }
+
+          const minEndDateTimeMills =
+            startDateTime.valueOf() +
+            daysToMills(minDays || 0) +
+            hoursToMills(minHours || 0) +
+            minutesToMills(minMinutes || 0);
+
+          if (endDateTime.valueOf() < minEndDateTimeMills) {
+            const legacyStartDate = new Date(
+              `${startDate}T${startTime}:00${getCanonicalUtcOffset(startUtc)}`
+            );
+            const endMills =
+              endDateTime.valueOf() +
+              (startDateTime.valueOf() - legacyStartDate.valueOf());
+
+            endDateTime = new Date(endMills);
+          }
+        }
         // Ignore encoding if the proposal had no actions
         return {
           pluginAddress,
           metadataUri: ipfsUri || '',
-          startDate: new Date(
-            `${startDate}T${startTime}:00${getCanonicalUtcOffset(startUtc)}`
-          ),
-          endDate: new Date(
-            `${endDate}T${endTime}:00${getCanonicalUtcOffset(endUtc)}`
-          ),
+          startDate: startDateTime,
+          endDate: endDateTime,
           actions,
         };
       };
@@ -371,6 +447,9 @@ const ProposeSettingWrapper: React.FC<Props> = ({
     creationProcessState,
     showTxModal,
     getValues,
+    minDays,
+    minHours,
+    minMinutes,
     dao,
     pluginAddress,
     pluginClient,
@@ -520,6 +599,7 @@ const ProposeSettingWrapper: React.FC<Props> = ({
         pendingTokenBasedProposalsVar(newCache);
       } else if (isMultisigVotingSettings(pluginSettings)) {
         proposalData.minApprovals = pluginSettings.minApprovals;
+        proposalData.onlyListed = pluginSettings.onlyListed;
         cacheKey = PENDING_MULTISIG_PROPOSALS_KEY;
         proposalToCache = mapToCacheProposal(proposalData);
         newCache = {

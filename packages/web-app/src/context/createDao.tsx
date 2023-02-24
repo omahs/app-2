@@ -150,21 +150,34 @@ const CreateDaoProvider: React.FC = ({children}) => {
     }
   };
 
-  const getMultisigPluginInstallParams =
-    useCallback((): MultisigPluginInstallParams => {
-      const {multisigWallets, multisigMinimumApprovals, eligibilityType} =
-        getValues();
-      return {
+  const getMultisigPluginInstallParams = useCallback((): [
+    MultisigPluginInstallParams,
+    'goerli' | 'mainnet'
+  ] => {
+    const {
+      blockchain,
+      multisigWallets,
+      multisigMinimumApprovals,
+      eligibilityType,
+    } = getValues();
+    return [
+      {
         members: multisigWallets.map(wallet => wallet.address),
         votingSettings: {
           minApprovals: multisigMinimumApprovals,
           onlyListed: eligibilityType === 'multisig',
         },
-      };
-    }, [getValues]);
+      },
+      blockchain.network === 'test' ? 'goerli' : 'mainnet',
+    ];
+  }, [getValues]);
 
-  const getVoteSettings = useCallback((): VotingSettings => {
+  const getVoteSettings = useCallback((): [
+    VotingSettings,
+    'goerli' | 'mainnet'
+  ] => {
     const {
+      blockchain,
       minimumApproval,
       minimumParticipation,
       durationDays,
@@ -184,20 +197,23 @@ const CreateDaoProvider: React.FC = ({children}) => {
     else if (earlyExecution) votingMode = VotingMode.EARLY_EXECUTION;
     else votingMode = VotingMode.STANDARD;
 
-    return {
-      minDuration: getSecondsFromDHM(
-        parseInt(durationDays),
-        parseInt(durationHours),
-        parseInt(durationMinutes)
-      ),
-      minParticipation: parseInt(minimumParticipation) / 100,
-      supportThreshold: parseInt(minimumApproval) / 100,
-      minProposerVotingPower:
-        eligibilityType === 'token'
-          ? parseUnits(eligibilityTokenAmount.toString(), 18).toBigInt()
-          : BigInt(0),
-      votingMode,
-    };
+    return [
+      {
+        minDuration: getSecondsFromDHM(
+          parseInt(durationDays),
+          parseInt(durationHours),
+          parseInt(durationMinutes)
+        ),
+        minParticipation: parseInt(minimumParticipation) / 100,
+        supportThreshold: parseInt(minimumApproval) / 100,
+        minProposerVotingPower:
+          eligibilityType === 'token'
+            ? parseUnits(eligibilityTokenAmount.toString(), 18).toBigInt()
+            : BigInt(0),
+        votingMode,
+      },
+      blockchain.network === 'test' ? 'goerli' : 'mainnet',
+    ];
   }, [getValues]);
 
   const getErc20PluginParams =
@@ -222,19 +238,24 @@ const CreateDaoProvider: React.FC = ({children}) => {
     const plugins: IPluginInstallItem[] = [];
     switch (membership) {
       case 'multisig': {
-        const params = getMultisigPluginInstallParams();
-        const multisigPlugin =
-          MultisigClient.encoding.getPluginInstallItem(params);
+        const [params, network] = getMultisigPluginInstallParams();
+        const multisigPlugin = MultisigClient.encoding.getPluginInstallItem(
+          params,
+          network
+        );
         plugins.push(multisigPlugin);
         break;
       }
       case 'token': {
-        const votingSettings = getVoteSettings();
+        const [votingSettings, network] = getVoteSettings();
         const tokenVotingPlugin =
-          TokenVotingClient.encoding.getPluginInstallItem({
-            votingSettings: votingSettings,
-            newToken: getErc20PluginParams(),
-          });
+          TokenVotingClient.encoding.getPluginInstallItem(
+            {
+              votingSettings: votingSettings,
+              newToken: getErc20PluginParams(),
+            },
+            network
+          );
 
         plugins.push(tokenVotingPlugin);
         break;

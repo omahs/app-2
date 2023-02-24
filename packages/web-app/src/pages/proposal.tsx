@@ -488,6 +488,19 @@ const Proposal: React.FC = () => {
     voted,
   ]);
 
+  // handler for execution
+  const handleExecuteNowClicked = () => {
+    if (!address) {
+      open('wallet');
+      statusRef.current.wasNotLoggedIn = true;
+    } else if (isOnWrongNetwork) {
+      // don't allow execution on wrong network
+      open('network');
+    } else {
+      handleExecuteProposal();
+    }
+  };
+
   // alert message, only shown when not eligible to vote
   const alertMessage = useMemo(() => {
     if (
@@ -524,8 +537,10 @@ const Proposal: React.FC = () => {
           ? NumberFormatter.format(proposal.creationBlockNumber)
           : '',
         executionFailed,
-        NumberFormatter.format(proposal.executionBlockNumber),
-        proposal.executionDate
+        proposal.executionBlockNumber
+          ? NumberFormatter.format(proposal.executionBlockNumber!)
+          : '',
+        proposal.executionDate || undefined
       );
     } else return [];
   }, [proposal, executionFailed, t]);
@@ -626,8 +641,8 @@ const Proposal: React.FC = () => {
           <ExecutionWidget
             actions={decodedActions}
             status={executionStatus}
-            onExecuteClicked={handleExecuteProposal}
-            txhash={transactionHash || proposal?.executionTxHash}
+            onExecuteClicked={handleExecuteNowClicked}
+            txhash={transactionHash || proposal?.executionTxHash || undefined}
           />
         </ProposalContainer>
         <AdditionalInfoContainer>
