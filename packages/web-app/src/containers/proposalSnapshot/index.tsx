@@ -1,10 +1,11 @@
 import {
   ButtonText,
-  CardProposal,
+  // CardProposal,
   IconChevronRight,
   IconGovernance,
   ListItemHeader,
 } from '@aragon/ui-components';
+import {CardProposal} from '@aragon/ui-components/src/components/cards/cardProposal';
 import React, {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {generatePath, useNavigate} from 'react-router-dom';
@@ -18,6 +19,7 @@ import {PluginTypes} from 'hooks/usePluginClient';
 import {htmlIn} from 'utils/htmlIn';
 import {Governance, NewProposal} from 'utils/paths';
 import {ProposalListItem} from 'utils/types';
+import {useWallet} from 'hooks/useWallet';
 
 type Props = {
   dao: string;
@@ -34,6 +36,7 @@ const ProposalSnapshot: React.FC<Props> = ({
 }) => {
   const {t} = useTranslation();
   const navigate = useNavigate();
+  const {address} = useWallet();
   const {network} = useNetwork();
 
   const {data: members, isLoading: areMembersLoading} = useDaoMembers(
@@ -44,9 +47,15 @@ const ProposalSnapshot: React.FC<Props> = ({
   const mappedProposals = useMemo(
     () =>
       proposals.map(p =>
-        proposal2CardProps(p, members.members.length, network, navigate)
+        proposal2CardProps(
+          p,
+          members.members.length,
+          network,
+          navigate,
+          address
+        )
       ),
-    [proposals, network, navigate, members.members]
+    [proposals, members.members.length, network, navigate, address]
   );
 
   if (proposals.length === 0 || areMembersLoading) {

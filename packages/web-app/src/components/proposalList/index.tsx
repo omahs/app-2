@@ -1,7 +1,12 @@
-import {CardProposal, CardProposalProps, Spinner} from '@aragon/ui-components';
+import {
+  // CardProposal,
+  CardProposalProps,
+  Spinner,
+} from '@aragon/ui-components';
 import React, {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {generatePath, NavigateFunction, useNavigate} from 'react-router-dom';
+import {CardProposal} from '@aragon/ui-components/src/components/cards/cardProposal';
 
 import {MultisigProposalListItem} from '@aragon/sdk-client';
 import {useNetwork} from 'context/network';
@@ -16,10 +21,14 @@ import {
 import {translateProposalDate} from 'utils/date';
 import {formatUnits} from 'utils/library';
 import {Proposal} from 'utils/paths';
-import {isErc20VotingProposal} from 'utils/proposals';
+import {
+  isErc20VotingProposal,
+  stripPlgnAdrFromProposalId,
+} from 'utils/proposals';
 import {abbreviateTokenAmount} from 'utils/tokens';
 import {ProposalListItem} from 'utils/types';
 import {i18n} from '../../../i18n.config';
+import {useWallet} from 'hooks/useWallet';
 
 type ProposalListProps = {
   proposals: Array<ProposalListItem>;
@@ -43,6 +52,7 @@ const ProposalList: React.FC<ProposalListProps> = ({
 }) => {
   const {t} = useTranslation();
   const {network} = useNetwork();
+  const {address} = useWallet();
   const navigate = useNavigate();
 
   const {data: members, isLoading: areMembersLoading} = useDaoMembers(
@@ -53,9 +63,15 @@ const ProposalList: React.FC<ProposalListProps> = ({
   const mappedProposals: ({id: string} & CardProposalProps)[] = useMemo(
     () =>
       proposals.map(p =>
-        proposal2CardProps(p, members.members.length, network, navigate)
+        proposal2CardProps(
+          p,
+          members.members.length,
+          network,
+          navigate,
+          address
+        )
       ),
-    [proposals, network, navigate, members.members]
+    [proposals, members.members.length, network, navigate, address]
   );
 
   if (isLoading || areMembersLoading) {
@@ -104,7 +120,8 @@ export function proposal2CardProps(
   proposal: ProposalListItem,
   membersCount: number,
   network: SupportedNetworks,
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  address: string | null
 ): {id: string} & CardProposalProps {
   const props = {
     id: proposal.id,
@@ -146,13 +163,13 @@ export function proposal2CardProps(
       ),
     };
     if (proposal.status.toLowerCase() === 'active') {
+      console.log(proposal);
       const activeProps = {
         voteProgress: relativeVoteCount(
           Number(proposal.result.yes) || 0,
           totalVoteCount
         ),
         voteLabel: i18n.t('labels.yes'),
-
         tokenSymbol: proposal.token.symbol,
         tokenAmount: abbreviateTokenAmount(
           parseFloat(
@@ -161,6 +178,11 @@ export function proposal2CardProps(
             ).toFixed(2)
           ).toString()
         ),
+        votedAlertLabel: proposal.votes?.some(
+          v => v.address.toLowerCase() === address?.toLowerCase()
+        )
+          ? i18n.t('You have already voted!')
+          : undefined,
       };
       return {...props, ...specificProps, ...activeProps};
     } else {
@@ -177,12 +199,20 @@ export function proposal2CardProps(
       ),
     };
     if (proposal.status.toLowerCase() === 'active') {
+      console.log(proposal);
       const activeProps = {
         voteProgress: relativeVoteCount(
           proposal.approvals.length,
           membersCount
         ),
         voteLabel: i18n.t('votingTerminal.approvedBy'),
+        votedAlertLabel: proposal.approvals?.some(
+          v =>
+            stripPlgnAdrFromProposalId(v).toLowerCase() ===
+            address?.toLowerCase()
+        )
+          ? i18n.t('You have already voted!')
+          : undefined,
       };
       return {...props, ...specificProps, ...activeProps};
     } else {
