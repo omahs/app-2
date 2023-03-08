@@ -48,6 +48,8 @@ export type CardProposalProps = {
   voteProgress?: number | string;
   /** Vote label that appears at bottom of the progress bar */
   voteLabel?: string;
+  /** Label indicating that current user has voted */
+  votedAlertLabel?: string;
   /** Proposal token amount */
   tokenAmount?: string;
   /** Proposal token symbol */
@@ -76,6 +78,7 @@ export const CardProposal: React.FC<CardProposalProps> = ({
   voteTitle,
   voteProgress,
   voteLabel,
+  votedAlertLabel,
   tokenAmount,
   tokenSymbol,
   publishLabel,
@@ -88,7 +91,7 @@ export const CardProposal: React.FC<CardProposalProps> = ({
   daoName,
   onClick,
 }: CardProposalProps) => {
-  const adressExploreUrl = `${explorer}address/${publisherAddress}`;
+  const addressExploreUrl = `${explorer}address/${publisherAddress}`;
 
   return (
     <Card data-testid="cardProposal" onClick={onClick}>
@@ -112,7 +115,7 @@ export const CardProposal: React.FC<CardProposalProps> = ({
 
           <Link
             external
-            href={adressExploreUrl}
+            href={addressExploreUrl}
             label={shortenAddress(
               (isExploreProposal(type) ? daoName : publisherAddress) || ''
             )}
@@ -121,19 +124,26 @@ export const CardProposal: React.FC<CardProposalProps> = ({
         </Publisher>
       </TextContent>
       {process === 'active' && (
-        <LoadingContent>
-          <ProgressInfoWrapper>
-            <ProgressTitle>{voteTitle}</ProgressTitle>
-            <TokenAmount>
-              {tokenAmount} {tokenSymbol}
-            </TokenAmount>
-          </ProgressInfoWrapper>
-          <LinearProgress max={100} value={voteProgress} />
-          <ProgressInfoWrapper>
-            <Vote>{voteLabel}</Vote>
-            <Percentage>{voteProgress}%</Percentage>
-          </ProgressInfoWrapper>
-        </LoadingContent>
+        <>
+          <LoadingContent>
+            <ProgressInfoWrapper>
+              <ProgressTitle>{voteTitle}</ProgressTitle>
+              <TokenAmount>
+                {tokenAmount} {tokenSymbol}
+              </TokenAmount>
+            </ProgressInfoWrapper>
+            <LinearProgress max={100} value={voteProgress} />
+            <ProgressInfoWrapper>
+              <Vote>{voteLabel}</Vote>
+              <Percentage>{voteProgress}%</Percentage>
+            </ProgressInfoWrapper>
+          </LoadingContent>
+          {votedAlertLabel && (
+            <VotedAlertWrapper>
+              <AlertInline mode="success" label={votedAlertLabel} />
+            </VotedAlertWrapper>
+          )}
+        </>
       )}
     </Card>
   );
@@ -196,7 +206,7 @@ const HeaderOptions: React.VFC<HeaderOptionProps> = ({
 
 const Card = styled.button.attrs({
   className:
-    'w-full bg-white rounded-xl p-2 space-y-3 box-border ' +
+    'w-full bg-white rounded-xl p-2 desktop:p-3 space-y-3 box-border ' +
     'hover:border hover:border-ui-100 ' +
     'active:border active:border-ui-200 ' +
     'focus:outline-none focus:ring-2 focus:ring-primary-500',
@@ -252,3 +262,7 @@ const Percentage = styled.span.attrs({
 })``;
 
 const PublisherLabel = styled.p.attrs({className: '-mr-0.5'})``;
+
+const VotedAlertWrapper = styled.div.attrs({
+  className: 'flex justify-center desktop:justify-start',
+})``;
