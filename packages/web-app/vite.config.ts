@@ -4,6 +4,10 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import {defineConfig, loadEnv} from 'vite';
 import {resolve} from 'path';
 
+//vite.config.js
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+const production = process.env.NODE_ENV === 'production';
+
 // https://vitejs.dev/config/
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, 'env');
@@ -27,13 +31,29 @@ export default defineConfig(({mode}) => {
       reactRefresh(),
       tsconfigPaths(),
       typescript({tsconfig: './tsconfig.json'}),
+      // ↓ Needed for development mode
+      !production &&
+        nodePolyfills({
+          include: [
+            'node_modules/**/*.js',
+            new RegExp('node_modules/.vite/.*js'),
+          ],
+        }),
     ],
     build: {
       rollupOptions: {
+        plugins: [
+          // ↓ Needed for build
+          nodePolyfills(),
+        ],
         input: {
           main: resolve(__dirname, 'index.html'),
           nested: resolve(__dirname, 'ipfs-404.html'),
         },
+      },
+      // ↓ Needed for build if using WalletConnect and other providers
+      commonjsOptions: {
+        transformMixedEsModules: true,
       },
     },
   };

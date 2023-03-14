@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import {useMatch, useNavigate} from 'react-router-dom';
-import {useAccount, useNetwork as useWagmiNetwork} from 'wagmi';
+// import {useAccount, useNetwork as useWagmiNetwork} from 'wagmi';
 
 import {
   CHAIN_METADATA,
@@ -42,7 +42,7 @@ type NetworkProviderProps = {
 const determineNetwork = (
   networkUrlSegment: string | undefined,
   chainId: number,
-  status: 'disconnected' | 'connecting' | 'connected'
+  status: 'connecting' | 'reconnecting' | 'connected' | 'disconnected'
 ): SupportedNetworks | 'unsupported' => {
   if (networkUrlSegment) {
     console.log(`*NETWORK from url = ${networkUrlSegment}`);
@@ -80,17 +80,14 @@ export function NetworkProvider({children}: NetworkProviderProps) {
   const navigate = useNavigate();
   const urlNetwork = useMatch('daos/:network/*');
   const networkUrlSegment = urlNetwork?.params?.network;
-  const {chain} = useWagmiNetwork();
-  const chainId = chain?.id || 0;
-  const {status: wagmiStatus} = useAccount();
-  const status = wagmiStatus === 'reconnecting' ? 'connecting' : wagmiStatus;
+  // const {chainId, status} = useWallet();
   const [networkState, setNetworkState] = useState<
     SupportedNetworks | 'unsupported'
-  >(determineNetwork(networkUrlSegment, chainId, status));
+  >(determineNetwork(networkUrlSegment, 5, 'disconnected'));
 
   useEffect(() => {
-    setNetworkState(determineNetwork(networkUrlSegment, chainId, status));
-  }, [chainId, networkUrlSegment, status]);
+    setNetworkState(determineNetwork(networkUrlSegment, 5, 'disconnected'));
+  }, [networkUrlSegment]);
 
   const changeNetwork = useCallback(
     (network: SupportedNetworks) => {

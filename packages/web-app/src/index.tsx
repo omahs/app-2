@@ -15,46 +15,32 @@ import {TransactionDetailProvider} from 'context/transactionDetail';
 import {WalletMenuProvider} from 'context/walletMenu';
 import {UseCacheProvider} from 'hooks/useCache';
 import {UseClientProvider} from 'hooks/useClient';
-import {infuraApiKey, walletConnectProjectID} from 'utils/constants';
+// import {infuraApiKey, walletConnectProjectID} from 'utils/constants';
+// import {WalletConnectLegacyConnector} from 'wagmi/connectors/walletConnectLegacy';
 
-import {
-  EthereumClient,
-  modalConnectors,
-  walletConnectProvider,
-} from '@web3modal/ethereum';
-import {Web3Modal} from '@web3modal/react';
-import {configureChains, createClient, mainnet, WagmiConfig} from 'wagmi';
-import {goerli} from 'wagmi/chains';
-import {LedgerConnector} from '@wagmi/connectors/ledger';
-import {infuraProvider} from 'wagmi/providers/infura';
+// import Web3Modal from 'web3modal';
+// import WalletConnectProvider from '@walletconnect/web3-provider';
+// import {configureChains, createClient, mainnet, WagmiConfig} from 'wagmi';
+// import {goerli} from 'wagmi/chains';
+// import {LedgerConnector} from '@wagmi/connectors/ledger';
+// import {infuraProvider} from 'wagmi/providers/infura';
 
 import App from './app';
+import {ethers} from 'ethers';
 
-const chains = [mainnet, goerli];
+// // Wagmi client
+// const {provider} = configureChains(chains, [
+//   walletConnectProvider({projectId: walletConnectProjectID}),
+//   infuraProvider({apiKey: infuraApiKey}),
+// ]);
 
-// Wagmi client
-const {provider} = configureChains(chains, [
-  walletConnectProvider({projectId: walletConnectProjectID}),
-  infuraProvider({apiKey: infuraApiKey}),
-]);
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: [
-    ...modalConnectors({
-      projectId: walletConnectProjectID,
-      version: '2',
-      appName: 'Aragon',
-      chains,
-    }),
-    new LedgerConnector({
-      chains: [mainnet],
-    }),
-  ],
-  provider,
-});
+// const wagmiClient = createClient({
+//   autoConnect: true,
+//   provider,
+// });
 
-// Web3Modal Ethereum Client
-const ethereumClient = new EthereumClient(wagmiClient, chains);
+// // Web3Modal Ethereum Client
+// const ethereumClient = new EthereumClient(wagmiClient, chains);
 
 const CACHE_VERSION = 1;
 const onLoad = () => {
@@ -80,39 +66,34 @@ ReactDOM.render(
         <APMProvider>
           <Router>
             <AlertProvider>
-              <WagmiConfig client={wagmiClient}>
-                <NetworkProvider>
-                  <UseClientProvider>
-                    <UseCacheProvider>
-                      <ProvidersProvider>
-                        <TransactionDetailProvider>
-                          <WalletMenuProvider>
-                            <GlobalModalsProvider>
-                              {/* By default, goerli client is chosen, each useQuery needs to pass the network client it needs as argument
+              {/* <WagmiConfig client={wagmiClient}> */}
+              <NetworkProvider>
+                <UseClientProvider>
+                  <UseCacheProvider>
+                    <ProvidersProvider>
+                      <TransactionDetailProvider>
+                        <WalletMenuProvider>
+                          <GlobalModalsProvider>
+                            {/* By default, goerli client is chosen, each useQuery needs to pass the network client it needs as argument
                       For REST queries using apollo, there's no need to pass a different client to useQuery  */}
-                              <ApolloProvider
-                                client={client['goerli'] || goerliClient} //TODO remove fallback when all clients are defined
-                              >
-                                <App />
-                              </ApolloProvider>
-                            </GlobalModalsProvider>
-                          </WalletMenuProvider>
-                        </TransactionDetailProvider>
-                      </ProvidersProvider>
-                    </UseCacheProvider>
-                  </UseClientProvider>
-                </NetworkProvider>
-              </WagmiConfig>
+                            <ApolloProvider
+                              client={client['goerli'] || goerliClient} //TODO remove fallback when all clients are defined
+                            >
+                              <App />
+                            </ApolloProvider>
+                          </GlobalModalsProvider>
+                        </WalletMenuProvider>
+                      </TransactionDetailProvider>
+                    </ProvidersProvider>
+                  </UseCacheProvider>
+                </UseClientProvider>
+              </NetworkProvider>
+              {/* </WagmiConfig> */}
             </AlertProvider>
           </Router>
         </APMProvider>
       </PrivacyContextProvider>
     </React.StrictMode>
-    <Web3Modal
-      projectId={walletConnectProjectID}
-      ethereumClient={ethereumClient}
-      themeMode="light"
-    />
   </>,
   document.getElementById('root')
 );
