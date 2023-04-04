@@ -10,7 +10,7 @@ export const SUBGRAPH_API_URL: SubgraphNetworkUrl = {
   ethereum:
     'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-mainnet/api',
   goerli:
-    'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-goerli/version/v1.0.0/api',
+    'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-goerli/api',
   polygon:
     'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-polygon/api',
   mumbai:
