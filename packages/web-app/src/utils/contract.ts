@@ -1,124 +1,3 @@
-import {assert} from 'console';
-
-export interface BlockNatspec {
-  [tag: string]: string | Record<string, string>;
-}
-export interface Natspec {
-  [key: string]: BlockNatspec;
-}
-
-export function extractNatspec(sourceCode: string): Natspec {
-  const multilineNatspecPattern =
-    /\/\*\*\s*\n(?:\s*\*(?:\s*@(\w+)(?:\s+([^*\n]+))?)?\s*\n)+\s*\*\//g;
-  const singleLineNatspecPattern = /\/\/\/\s*@(\w+)(?:\s+([^/\n]+))?\s*\n/g;
-  const contractFunctionPattern =
-    /\s*(contract|function|error|event|constructor)\s+([A-Za-z0-9_]+)/;
-  const natspecTags: Natspec = {};
-
-  const isInComment = (sourceCodeBefore: string) => {
-    const prevNewlinePos = sourceCodeBefore.lastIndexOf('\n');
-    const prevLineComment = sourceCodeBefore.lastIndexOf('///');
-    const prevBodyCommentStart = sourceCodeBefore.lastIndexOf('/*');
-    const prevBodyCommentEnd = sourceCodeBefore.lastIndexOf('*/');
-    const isInLineComment = prevLineComment > prevNewlinePos;
-    const isInBodyComment = prevBodyCommentEnd < prevBodyCommentStart;
-    console.log(
-      `inLine ${isInLineComment} inBody ${isInBodyComment} text:${sourceCodeBefore}`
-    );
-    return isInLineComment || isInBodyComment;
-  };
-
-  const processNatspecComment = (
-    natspecComment: string,
-    sourceCodeAfterComment: string
-  ) => {
-    let contractFunctionMatch = contractFunctionPattern.exec(
-      sourceCodeAfterComment
-    );
-
-    // rematch if the contract/function match was in a comment
-    for (;;) {
-      if (!contractFunctionMatch) {
-        return;
-      }
-
-      const keywordPos = contractFunctionMatch[0].indexOf(
-        contractFunctionMatch[1]
-      );
-
-      if (
-        !isInComment(
-          sourceCodeAfterComment.slice(
-            0,
-            contractFunctionMatch.index + keywordPos
-          )
-        )
-      ) {
-        break;
-      }
-
-      sourceCodeAfterComment = sourceCodeAfterComment.slice(
-        contractFunctionMatch.index + contractFunctionMatch[0].length
-      );
-      contractFunctionMatch = contractFunctionPattern.exec(
-        sourceCodeAfterComment
-      );
-    }
-
-    if (!contractFunctionMatch) {
-      return;
-    }
-
-    const contractFunctionName = contractFunctionMatch[2];
-    if (!natspecTags[contractFunctionName]) {
-      natspecTags[contractFunctionName] = {};
-    }
-
-    const tagPattern = /(?:\*|\s*\/\/\/)?\s*@(\w+)(?:\s+([^*\n]+))?\s*\n/g;
-    let tagMatch: RegExpExecArray | null;
-
-    while ((tagMatch = tagPattern.exec(natspecComment)) !== null) {
-      const tagName = tagMatch[1];
-      let tagValue = (tagMatch[2] || '').trim();
-      if (tagName === 'param') {
-        const tagParam = tagValue.split(' ')[0];
-        tagValue = tagValue.substring(tagParam.length + 1).trim();
-
-        const existingParam = natspecTags[contractFunctionName][tagName];
-        if (existingParam) {
-          if (typeof existingParam === 'object') {
-            existingParam[tagParam] = tagValue;
-          }
-        } else {
-          natspecTags[contractFunctionName][tagName] = {[tagParam]: tagValue};
-        }
-      } else {
-        natspecTags[contractFunctionName][tagName] = tagValue;
-      }
-    }
-  };
-
-  let natspecMatch: RegExpExecArray | null;
-
-  while ((natspecMatch = multilineNatspecPattern.exec(sourceCode)) !== null) {
-    const natspecComment = natspecMatch[0];
-    const sourceCodeAfterComment = sourceCode.slice(
-      natspecMatch.index + natspecComment.length
-    );
-    processNatspecComment(natspecComment, sourceCodeAfterComment);
-  }
-
-  while ((natspecMatch = singleLineNatspecPattern.exec(sourceCode)) !== null) {
-    const natspecComment = natspecMatch[0];
-    const sourceCodeAfterComment = sourceCode.slice(
-      natspecMatch.index + natspecComment.length
-    );
-    processNatspecComment(natspecComment, sourceCodeAfterComment);
-  }
-
-  return natspecTags;
-}
-
 export interface NatspecDetails {
   keyword: string;
   name: string;
@@ -222,10 +101,11 @@ export function scanNatspecBlock(
   return [pos, details];
 }
 
-export function extractNatspec2(source: string) {
+export function extractNatspec(source: string) {
   let pos = 0,
     posEnd = 0;
   let match = '';
+  let currentContract = '';
   const natspec = {} as Record<string, NatspecDetails>;
   let natspecDetails: NatspecDetails = {
     keyword: '',
@@ -238,11 +118,12 @@ export function extractNatspec2(source: string) {
     [match, pos] = scanFirst(source, pos, [
       '/*',
       '//',
-      'contract',
-      'function',
-      'error',
-      'event',
-      'constructor',
+      'contract ',
+      'function ',
+      'error ',
+      'event ',
+      'constructor(',
+      'constructor ',
     ]);
 
     if (pos < 0) break;
@@ -266,10 +147,16 @@ export function extractNatspec2(source: string) {
         break;
       default: {
         pos = skipWhitespace(source, pos);
+        if (match.slice(-1) === '(') pos--;
         [, posEnd] = scanFirst(source, pos, [' ', '(']);
         if (pos < 0) break;
         natspecDetails.name = source.substring(pos, posEnd - 1);
-        natspecDetails.keyword = match;
+        natspecDetails.keyword = match.slice(0, -1);
+        if (natspecDetails.keyword === 'contract') {
+          currentContract = natspecDetails.name;
+        } else if (natspecDetails.keyword === 'constructor') {
+          natspecDetails.name = `constructor for ${currentContract}`;
+        }
         natspec[natspecDetails.name] = natspecDetails;
         natspecDetails = {
           keyword: '',
@@ -318,35 +205,6 @@ export const scanFirst = (
     }
   }
   return ['', -1];
-};
-
-type QuoteChars = "'" | '"' | '`';
-
-const scanCloseJsString = (str: string, start: number, quote: QuoteChars) => {
-  const escaped = '\\' + quote;
-  let [match, pos] = [escaped, start];
-  while (match === escaped) {
-    [match, pos] = scanFirst(str, pos, [escaped, quote]);
-  }
-  return pos;
-};
-
-export const scanCloseJsBracket = (
-  str: string,
-  start: number,
-  brackets: string
-) => {
-  let [match, pos] = ['', start];
-  const quotes = '\'"`';
-  while (match !== brackets[1] && pos > 0) {
-    [match, pos] = scanFirst(str, pos, [brackets[0], brackets[1], ...quotes]);
-    if (quotes.includes(match) && pos > 0) {
-      pos = scanCloseJsString(str, pos, match as QuoteChars);
-    } else if (match === brackets[0]) {
-      pos = scanCloseJsBracket(str, pos, brackets);
-    }
-  }
-  return pos;
 };
 
 export const skipWhitespace = (str: string, start: number) => {

@@ -1,8 +1,4 @@
-import {
-  NatspecDetails,
-  extractNatspec2,
-  scanNatspecBlock,
-} from 'utils/contract';
+import {NatspecDetails, extractNatspec, scanNatspecBlock} from 'utils/contract';
 
 describe('Natspec Block', () => {
   test('empty', () => {
@@ -114,7 +110,7 @@ describe('Extract Natspec', () => {
       }
     }
     `;
-    const natspec = extractNatspec2(source);
+    const natspec = extractNatspec(source);
     expect(natspec['MyContract'].tags['title']).toBe('MyContractTitle');
     expect(natspec['increment'].tags['notice']).toBe('Increments the counter');
   });
@@ -130,7 +126,7 @@ describe('Extract Natspec', () => {
       }
     }
     `;
-    const natspec = extractNatspec2(source);
+    const natspec = extractNatspec(source);
     expect(natspec['MyContract'].tags['title']).toBe('MyContractTitle');
     expect(natspec['increment'].tags['notice']).toBe('Increments the counter');
   });
@@ -495,7 +491,235 @@ contract DAO is
     uint256[47] private __gap;
 }
     `;
-    const nspec = extractNatspec2(source);
-    console.log(JSON.stringify(nspec, undefined, 2));
+    const nspec = extractNatspec(source);
+    expect(nspec).toStrictEqual({
+      DAO: {
+        keyword: 'contract',
+        name: 'DAO',
+        tags: {
+          title: 'DAO',
+          author: 'Aragon Association - 2021-2023',
+          notice:
+            'This contract is the entry point to the Aragon DAO framework and provides our users a simple and easy to use public interface.',
+          dev: 'Public API of the Aragon DAO framework.',
+        },
+      },
+      TooManyActions: {
+        keyword: 'error',
+        name: 'TooManyActions',
+        tags: {
+          notice:
+            "Thrown if the action array length is larger than 'MAX_ACTIONS'.",
+        },
+      },
+      ActionFailed: {
+        keyword: 'error',
+        name: 'ActionFailed',
+        tags: {
+          notice: 'Thrown if action execution has failed.',
+          param: {
+            index: 'The index of the action in the action array that failed.',
+          },
+        },
+      },
+      InsufficientGas: {
+        keyword: 'error',
+        name: 'InsufficientGas',
+        tags: {
+          notice: 'Thrown if an action has insufficent gas left.',
+        },
+      },
+      ZeroAmount: {
+        keyword: 'error',
+        name: 'ZeroAmount',
+        tags: {
+          notice: 'Thrown if the deposit amount is zero.',
+        },
+      },
+      NativeTokenDepositAmountMismatch: {
+        keyword: 'error',
+        name: 'NativeTokenDepositAmountMismatch',
+        tags: {
+          notice:
+            'Thrown if there is a mismatch between the expected and actually deposited amount of native tokens.',
+          param: {
+            expected: 'The expected native token amount.',
+            actual: 'The actual native token amount deposited.',
+          },
+        },
+      },
+      NewURI: {
+        keyword: 'event',
+        name: 'NewURI',
+        tags: {
+          notice: 'Emitted when a new DAO uri is set.',
+          param: {
+            daoURI: 'The new uri.',
+          },
+        },
+      },
+      'constructor for DAO': {
+        keyword: 'constructor',
+        name: 'constructor for DAO',
+        tags: {
+          notice:
+            'Disables the initializers on the implementation contract to prevent it from being left uninitialized.',
+        },
+      },
+      initialize: {
+        keyword: 'function',
+        name: 'initialize',
+        tags: {
+          notice:
+            "Initializes the DAO by\n- registering the [ERC-165](https://eips.ethereum.org/EIPS/eip-165) interface ID\n- setting the trusted forwarder for meta transactions\n- giving the 'ROOT_PERMISSION_ID' permission to the initial owner (that should be revoked and transferred to the DAO after setup).",
+          dev: 'This method is required to support [ERC-1822](https://eips.ethereum.org/EIPS/eip-1822).',
+          param: {
+            _metadata:
+              'IPFS hash that points to all the metadata (logo, description, tags, etc.) of a DAO.',
+            _initialOwner:
+              "The initial owner of the DAO having the 'ROOT_PERMISSION_ID' permission.",
+            _trustedForwarder:
+              'The trusted forwarder responsible for verifying meta transactions.',
+          },
+        },
+      },
+      isPermissionRestrictedForAnyAddr: {
+        keyword: 'function',
+        name: 'isPermissionRestrictedForAnyAddr',
+        tags: {
+          inheritdoc: 'PermissionManager',
+        },
+      },
+      _authorizeUpgrade: {
+        keyword: 'function',
+        name: '_authorizeUpgrade',
+        tags: {
+          notice:
+            'Internal method authorizing the upgrade of the contract via the [upgradeabilty mechanism for UUPS proxies](https://docs.openzeppelin.com/contracts/4.x/api/proxy#UUPSUpgradeable) (see [ERC-1822](https://eips.ethereum.org/EIPS/eip-1822)).',
+          dev: "The caller must have the 'UPGRADE_DAO_PERMISSION_ID' permission.",
+        },
+      },
+      setTrustedForwarder: {
+        keyword: 'function',
+        name: 'setTrustedForwarder',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      getTrustedForwarder: {
+        keyword: 'function',
+        name: 'getTrustedForwarder',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      hasPermission: {
+        keyword: 'function',
+        name: 'hasPermission',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      setMetadata: {
+        keyword: 'function',
+        name: 'setMetadata',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      execute: {
+        keyword: 'function',
+        name: 'execute',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      deposit: {
+        keyword: 'function',
+        name: 'deposit',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      setSignatureValidator: {
+        keyword: 'function',
+        name: 'setSignatureValidator',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      isValidSignature: {
+        keyword: 'function',
+        name: 'isValidSignature',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      _setMetadata: {
+        keyword: 'function',
+        name: '_setMetadata',
+        tags: {
+          notice: 'Emits the MetadataSet event if new metadata is set.',
+          dev: "This call is bound by the gas limitations for 'send'/'transfer' calls introduced by EIP-2929.\nGas cost increases in future hard forks might break this function. As an alternative, EIP-2930-type transactions using access lists can be employed.",
+          param: {
+            _metadata: 'Hash of the IPFS metadata object.',
+          },
+          return:
+            'The magic number registered for the function selector triggering the fallback.',
+        },
+      },
+      _setTrustedForwarder: {
+        keyword: 'function',
+        name: '_setTrustedForwarder',
+        tags: {
+          notice:
+            'Sets the trusted forwarder on the DAO and emits the associated event.',
+          param: {
+            _trustedForwarder: 'The trusted forwarder address.',
+          },
+        },
+      },
+      _registerTokenInterfaces: {
+        keyword: 'function',
+        name: '_registerTokenInterfaces',
+        tags: {
+          notice: 'Registers the ERC721/ERC1155 interfaces and callbacks.',
+        },
+      },
+      registerStandardCallback: {
+        keyword: 'function',
+        name: 'registerStandardCallback',
+        tags: {
+          inheritdoc: 'IDAO',
+        },
+      },
+      daoURI: {
+        keyword: 'function',
+        name: 'daoURI',
+        tags: {
+          inheritdoc: 'IEIP4824',
+        },
+      },
+      setDaoURI: {
+        keyword: 'function',
+        name: 'setDaoURI',
+        tags: {
+          notice: 'Updates the set DAO uri to a new value.',
+          param: {
+            newDaoURI: 'The new DAO uri to be set.',
+          },
+        },
+      },
+      _setDaoURI: {
+        keyword: 'function',
+        name: '_setDaoURI',
+        tags: {
+          notice: 'Sets the new DAO uri and emits the associated event.',
+          param: {
+            daoURI_: 'The new DAO uri.',
+          },
+        },
+      },
+    });
   });
 });
