@@ -277,13 +277,15 @@ const pendingMultisigProposalsVar = makeVar<PendingMultisigProposals>(
 /*************************************************
  *                   PENDING DAOs                *
  *************************************************/
-type PendingDaoCreation = {
+export type PendingDao = CreateDaoParams & {
+  metadata: DaoMetadata;
+  creationDate: Date;
+};
+
+export type PendingDaoCreation = {
   [key in SupportedNetworks]?: {
     // This key is the id of the newly created DAO
-    [key: string]: {
-      daoCreationParams: CreateDaoParams;
-      daoMetadata: DaoMetadata;
-    };
+    [key: string]: PendingDao;
   };
 };
 const pendingDaoCreation = JSON.parse(
