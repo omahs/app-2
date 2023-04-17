@@ -147,6 +147,7 @@ export function scanNatspecBlock(
 ): [number, NatspecDetails] {
   let match = '';
   const scanMatches = ['\n'];
+  let nextPos = -1;
   let ended = false;
   if (terminator) scanMatches.push(terminator);
   const details = {
@@ -204,9 +205,15 @@ export function scanNatspecBlock(
     }
 
     if (terminator === '') {
-      [match, pos] = scanFirst(source, pos, ['///', '\n']);
-      if (match === '\n' || pos < 0) ended = true;
+      [match, nextPos] = scanFirst(source, pos, ['///', '\n']);
+      if (match === '\n' || nextPos < 0) {
+        ended = true;
+      } else {
+        pos = nextPos;
+      }
     }
+
+    if (ended) break;
 
     prevPos = pos;
     [match, pos] = scanFirst(source, pos, ['@', ...scanMatches]);
@@ -238,6 +245,8 @@ export function extractNatspec2(source: string) {
       'constructor',
     ]);
 
+    if (pos < 0) break;
+
     switch (match) {
       case '/*':
         if (source[pos] === '*') {
@@ -258,7 +267,8 @@ export function extractNatspec2(source: string) {
       default: {
         pos = skipWhitespace(source, pos);
         [, posEnd] = scanFirst(source, pos, [' ', '(']);
-        natspecDetails.name = source.substring(pos, posEnd);
+        if (pos < 0) break;
+        natspecDetails.name = source.substring(pos, posEnd - 1);
         natspecDetails.keyword = match;
         natspec[natspecDetails.name] = natspecDetails;
         natspecDetails = {
