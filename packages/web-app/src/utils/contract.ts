@@ -2,7 +2,7 @@ export interface NatspecDetails {
   keyword: string;
   name: string;
   tags: {
-    [tag: string]: string | Record<string, string>;
+    [tag: string]: string | Record<string, string>; // Record is for @params tag
   };
 }
 
@@ -108,6 +108,12 @@ export function scanNatspecBlock(
   return [pos, details];
 }
 
+/** Extracts the natspec from Solidity source code.
+ * The output data is structured by contract/function/natspec tag and then optionally
+ * for the params tag, a list of the params. Includes multiline natspec tags so the
+ * text may be quite long. Includes superClasses property for a contract to allow
+ * retrieval of natspec data for functions which have the @inheritdoc tag.
+ */
 export function extractNatspec(source: string) {
   let pos = 0,
     posEnd = 0;
