@@ -6,6 +6,13 @@ export interface NatspecDetails {
   };
 }
 
+export interface NatspecContract {
+  name: string;
+  superClasses: string[];
+  tags: Record<string, string>;
+  details: Record<string, NatspecDetails>;
+}
+
 function concatNatspecDetails(det0: NatspecDetails, det1: NatspecDetails) {
   return {
     keyword: det0.keyword || det1.keyword,
@@ -105,8 +112,13 @@ export function extractNatspec(source: string) {
   let pos = 0,
     posEnd = 0;
   let match = '';
-  let currentContract = '';
-  const natspec = {} as Record<string, NatspecDetails>;
+  let currentContract: NatspecContract = {
+    name: '',
+    superClasses: [],
+    tags: {},
+    details: {},
+  };
+  const natspec = {} as Record<string, NatspecContract>;
   let natspecDetails: NatspecDetails = {
     keyword: '',
     name: '',
@@ -145,6 +157,31 @@ export function extractNatspec(source: string) {
           [match, pos] = scanFirst(source, pos, ['\n']);
         }
         break;
+      case 'contract ': {
+        pos = skipWhitespace(source, pos);
+        let name: string;
+        [pos, name] = scanWord(source, pos);
+        [match, pos] = scanFirst(source, pos, ['is', '{']);
+        const superClasses: string[] = [];
+        while (match !== '{') {
+          [match, posEnd] = scanFirst(source, pos, [',', '{']);
+          superClasses.push(source.substring(pos, posEnd - 1).trim());
+          pos = posEnd;
+        }
+        currentContract = {
+          name,
+          superClasses,
+          tags: natspecDetails.tags as Record<string, string>,
+          details: {},
+        };
+        natspec[name] = currentContract;
+        natspecDetails = {
+          keyword: '',
+          name: '',
+          tags: {},
+        };
+        break;
+      }
       default: {
         pos = skipWhitespace(source, pos);
         if (match.slice(-1) === '(') pos--;
@@ -152,12 +189,10 @@ export function extractNatspec(source: string) {
         if (pos < 0) break;
         natspecDetails.name = source.substring(pos, posEnd - 1);
         natspecDetails.keyword = match.slice(0, -1);
-        if (natspecDetails.keyword === 'contract') {
-          currentContract = natspecDetails.name;
-        } else if (natspecDetails.keyword === 'constructor') {
-          natspecDetails.name = `constructor for ${currentContract}`;
+        if (natspecDetails.keyword === 'constructor') {
+          natspecDetails.name = `constructor for ${currentContract.name}`;
         }
-        natspec[natspecDetails.name] = natspecDetails;
+        currentContract.details[natspecDetails.name] = natspecDetails;
         natspecDetails = {
           keyword: '',
           name: '',
