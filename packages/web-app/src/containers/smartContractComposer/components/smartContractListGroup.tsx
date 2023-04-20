@@ -10,6 +10,8 @@ const SmartContractListGroup: React.FC = () => {
   const {t} = useTranslation();
   const {setValue, getValues} = useFormContext<SccFormData>();
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const contracts = getValues('contracts');
 
   return (
@@ -30,7 +32,18 @@ const SmartContractListGroup: React.FC = () => {
           subtitle={`${c.actions.length} Actions`}
           bgWhite
           iconRight={<IconChevronRight />}
-          onClick={() => setValue('selectedSC', c)}
+          onClick={() => {
+            setValue('selectedSC', c);
+            setValue(
+              'selectedAction',
+              c.actions.filter(
+                a =>
+                  a.type === 'function' &&
+                  (a.stateMutability === 'payable' ||
+                    a.stateMutability === 'nonpayable')
+              )[0]
+            );
+          }}
         />
       ))}
     </ListGroup>
