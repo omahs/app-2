@@ -32,6 +32,7 @@ import ModalHeader from './modalHeader';
 
 type Props = {
   isOpen: boolean;
+  onVerificationSuccess: () => void;
   onClose: () => void;
   onBackButtonClicked: () => void;
 };
@@ -210,8 +211,12 @@ const ContractAddressValidation: React.FC<Props> = props => {
         <ButtonText
           label={label[verificationState]}
           onClick={async () => {
-            setVerificationState(TransactionState.LOADING);
-            setContractValid(await validateContract(addressField, network));
+            if (verificationState === TransactionState.SUCCESS) {
+              props.onVerificationSuccess();
+            } else {
+              setVerificationState(TransactionState.LOADING);
+              setContractValid(await validateContract(addressField, network));
+            }
           }}
           iconLeft={
             isTransactionLoading ? (
