@@ -1,4 +1,8 @@
-import {CHAIN_METADATA, SupportedNetworks} from 'utils/constants';
+import {
+  CHAIN_METADATA,
+  SupportedNetworks,
+  TransactionState,
+} from 'utils/constants';
 import {useQuery} from '@tanstack/react-query';
 
 /**
@@ -7,9 +11,10 @@ import {useQuery} from '@tanstack/react-query';
  * @param network network where the smart contract is deployed
  * @returns Etherscan API response containing the smart contract's source code
  */
-export const useVerifyContractEtherscan = (
-  contractAddress: string | undefined,
-  network: SupportedNetworks
+export const useValidateContractEtherscan = (
+  contractAddress: string,
+  network: SupportedNetworks,
+  verificationState: TransactionState
 ) => {
   const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY;
   const url = `${CHAIN_METADATA[network].etherscanApi}?module=contract&action=getsourcecode&address=${contractAddress}&apikey=${apiKey}`;
@@ -19,7 +24,7 @@ export const useVerifyContractEtherscan = (
     queryFn: () => {
       return fetch(url).then(res => res.json());
     },
-    enabled: !!contractAddress && !!network,
+    enabled: verificationState === TransactionState.LOADING && !!network,
   });
 };
 
@@ -29,18 +34,20 @@ export const useVerifyContractEtherscan = (
  * @param network network where the smart contract is deployed
  * @returns Sourcify FullMatch API response containing the smart contract's source code
  */
-export const useVerifyContractFullMatchSourcify = (
-  contractAddress: string | undefined,
-  network: SupportedNetworks
+export const useValidateContractFullMatchSourcify = (
+  contractAddress: string,
+  network: SupportedNetworks,
+  verificationState: TransactionState
 ) => {
-  const url = `https://sourcify.dev/server/check-by-addresses?addresses=${contractAddress}&chainIds=${CHAIN_METADATA[network].id}`;
+  const url = `https://repo.sourcify.dev/contracts/full_match/${CHAIN_METADATA[network].id}/${contractAddress}/metadata.json`;
 
   return useQuery({
     queryKey: ['verifyContractFullSourcify', contractAddress, network],
     queryFn: () => {
       return fetch(url).then(res => res.json());
     },
-    enabled: !!contractAddress && !!network,
+    enabled: verificationState === TransactionState.LOADING && !!network,
+    retry: false,
   });
 };
 
@@ -50,18 +57,20 @@ export const useVerifyContractFullMatchSourcify = (
  * @param network network where the smart contract is deployed
  * @returns Sourcify PartialMatch API response containing the smart contract's source code
  */
-export const useVerifyContractPartialMatchSourcify = (
-  contractAddress: string | undefined,
-  network: SupportedNetworks
+export const useValidateContractPartialMatchSourcify = (
+  contractAddress: string,
+  network: SupportedNetworks,
+  verificationState: TransactionState
 ) => {
-  const url = `https://sourcify.dev/server/check-by-all-addresses?addresses=${contractAddress}&chainIds=${CHAIN_METADATA[network].id}`;
+  const url = `https://repo.sourcify.dev/contracts/partial_match/${CHAIN_METADATA[network].id}/${contractAddress}/metadata.json`;
 
   return useQuery({
     queryKey: ['verifyContractPartialSourcify', contractAddress, network],
     queryFn: () => {
       return fetch(url).then(res => res.json());
     },
-    enabled: !!contractAddress && !!network,
+    enabled: verificationState === TransactionState.LOADING && !!network,
+    retry: false,
   });
 };
 
@@ -71,16 +80,25 @@ export const useVerifyContractPartialMatchSourcify = (
  * @param network network where the smart contract is deployed
  * @returns Etherscan API response containing the smart contract's source code
  */
-export const useVerifyContract = (
-  contractAddress: string | undefined,
-  network: SupportedNetworks
+export const useValidateContract = (
+  contractAddress: string,
+  network: SupportedNetworks,
+  verificationState: TransactionState
 ) => {
   const {data: etherscanVerifyData, isLoading: etherscanLoading} =
-    useVerifyContractEtherscan(contractAddress, network);
+    useValidateContractEtherscan(contractAddress, network, verificationState);
   const {data: fullMatchSourcifyData, isLoading: sourcifyFullLoading} =
-    useVerifyContractFullMatchSourcify(contractAddress, network);
+    useValidateContractFullMatchSourcify(
+      contractAddress,
+      network,
+      verificationState
+    );
   const {data: partialSourcifyData, isLoading: sourcifyPartialLoading} =
-    useVerifyContractPartialMatchSourcify(contractAddress, network);
+    useValidateContractPartialMatchSourcify(
+      contractAddress,
+      network,
+      verificationState
+    );
 
   return {
     sourcifyFullData: fullMatchSourcifyData,
