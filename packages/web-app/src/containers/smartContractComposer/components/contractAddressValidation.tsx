@@ -68,24 +68,16 @@ const ContractAddressValidation: React.FC<Props> = props => {
     sourcifyFullData,
     sourcifyPartialData,
     etherscanData,
-    sourcifyFullLoading,
-    sourcifyPartialLoading,
+    sourcifyLoading,
     etherscanLoading,
   } = useValidateContract(addressField, network, verificationState);
 
   useEffect(() => {
-    if (!sourcifyFullLoading && !sourcifyPartialLoading && !etherscanLoading) {
+    if (!sourcifyLoading && !etherscanLoading) {
       setVerificationState(TransactionState.SUCCESS);
       console.log('viewThis', sourcifyPartialData, etherscanData);
     }
-  }, [
-    etherscanData,
-    etherscanLoading,
-    sourcifyFullData,
-    sourcifyFullLoading,
-    sourcifyPartialData,
-    sourcifyPartialLoading,
-  ]);
+  }, [etherscanData, etherscanLoading, sourcifyLoading, sourcifyPartialData]);
 
   const isTransactionSuccessful =
     verificationState === TransactionState.SUCCESS;
@@ -167,7 +159,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
   );
 
   const sourcifyValidationStatus = useMemo(() => {
-    if (sourcifyFullLoading || sourcifyPartialLoading) {
+    if (sourcifyLoading) {
       return (
         <div className="flex space-x-1">
           <Spinner size={'xs'} className="text-primary-500" />
@@ -206,13 +198,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         );
       }
     }
-  }, [
-    etherscanData?.result,
-    sourcifyFullData,
-    sourcifyFullLoading,
-    sourcifyPartialData,
-    sourcifyPartialLoading,
-  ]);
+  }, [sourcifyFullData, sourcifyLoading, sourcifyPartialData]);
 
   const etherscanValidationStatus = useMemo(() => {
     if (etherscanLoading) {

@@ -3,7 +3,7 @@ import {
   SupportedNetworks,
   TransactionState,
 } from 'utils/constants';
-import {useQuery} from '@tanstack/react-query';
+import {useQueries, useQuery} from '@tanstack/react-query';
 
 /**
  * Verify a smart contract on Etherscan using a custom React hook
@@ -32,45 +32,26 @@ export const useValidateContractEtherscan = (
  * Verify a smart contract on Sourcify using a custom React hook
  * @param contractAddress address of the smart contract to verify
  * @param network network where the smart contract is deployed
- * @returns Sourcify FullMatch API response containing the smart contract's source code
+ * @returns An object with Sourcify FullMatch and PartialMatch API responses containing the smart contract's source code
  */
-export const useValidateContractFullMatchSourcify = (
+export const useValidateContractSourcify = (
   contractAddress: string,
   network: SupportedNetworks,
   verificationState: TransactionState
 ) => {
-  const url = `https://repo.sourcify.dev/contracts/full_match/${CHAIN_METADATA[network].id}/${contractAddress}/metadata.json`;
-
-  return useQuery({
-    queryKey: ['verifyContractFullSourcify', contractAddress, network],
-    queryFn: () => {
-      return fetch(url).then(res => res.json());
-    },
-    enabled: verificationState === TransactionState.LOADING && !!network,
-    retry: false,
-  });
-};
-
-/**
- * Verify a smart contract on Sourcify using a custom React hook
- * @param contractAddress address of the smart contract to verify
- * @param network network where the smart contract is deployed
- * @returns Sourcify PartialMatch API response containing the smart contract's source code
- */
-export const useValidateContractPartialMatchSourcify = (
-  contractAddress: string,
-  network: SupportedNetworks,
-  verificationState: TransactionState
-) => {
-  const url = `https://repo.sourcify.dev/contracts/partial_match/${CHAIN_METADATA[network].id}/${contractAddress}/metadata.json`;
-
-  return useQuery({
-    queryKey: ['verifyContractPartialSourcify', contractAddress, network],
-    queryFn: () => {
-      return fetch(url).then(res => res.json());
-    },
-    enabled: verificationState === TransactionState.LOADING && !!network,
-    retry: false,
+  return useQueries({
+    queries: ['full_match', 'partial_match'].map(type => {
+      return {
+        queryKey: [`verifyContract${type}Sourcify`, contractAddress, network],
+        queryFn: () => {
+          return fetch(
+            `https://repo.sourcify.dev/contracts/${type}/${CHAIN_METADATA[network].id}/${contractAddress}/metadata.json`
+          ).then(res => res.json());
+        },
+        enabled: verificationState === TransactionState.LOADING && !!network,
+        retry: false,
+      };
+    }),
   });
 };
 
@@ -87,25 +68,17 @@ export const useValidateContract = (
 ) => {
   const {data: etherscanVerifyData, isLoading: etherscanLoading} =
     useValidateContractEtherscan(contractAddress, network, verificationState);
-  const {data: fullMatchSourcifyData, isLoading: sourcifyFullLoading} =
-    useValidateContractFullMatchSourcify(
-      contractAddress,
-      network,
-      verificationState
-    );
-  const {data: partialSourcifyData, isLoading: sourcifyPartialLoading} =
-    useValidateContractPartialMatchSourcify(
-      contractAddress,
-      network,
-      verificationState
-    );
+  const queries = useValidateContractSourcify(
+    contractAddress,
+    network,
+    verificationState
+  );
 
   return {
-    sourcifyFullData: fullMatchSourcifyData,
-    sourcifyPartialData: partialSourcifyData,
+    sourcifyFullData: queries[0].data,
+    sourcifyPartialData: queries[1].data,
     etherscanData: etherscanVerifyData,
-    sourcifyFullLoading,
-    sourcifyPartialLoading,
+    sourcifyLoading: queries[0].isLoading || queries[1].isLoading,
     etherscanLoading,
   };
 };
