@@ -372,6 +372,15 @@ export type EtherscanContractResponse = {
   SourceCode: string;
 };
 
+export type SourcifyContractResponse = {
+  output: {
+    abi: string;
+    devdoc: {
+      title: string;
+    };
+  };
+};
+
 export type SmartContractAction = {
   name: string;
   type: string;
