@@ -102,7 +102,6 @@ const ContractAddressValidation: React.FC<Props> = props => {
         let verifiedContract = {} as SmartContract;
 
         setContractName(value.output.devdoc.title as string);
-        console.log('value', value.output.devdoc.title);
 
         switch (type) {
           case 'sourcifyMatch':
