@@ -4,13 +4,15 @@ import {useFormContext} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 
-import {SccFormData} from 'pages/demoScc';
 import {ListItemContract} from './listItemContract';
+import {SccFormData} from 'containers/smartContractComposer';
 
 const SmartContractListGroup: React.FC = () => {
   const {t} = useTranslation();
   const {setValue, getValues} = useFormContext<SccFormData>();
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const contracts = getValues('contracts');
 
   return (
@@ -30,7 +32,18 @@ const SmartContractListGroup: React.FC = () => {
           logo={c.logo}
           bgWhite
           iconRight={<IconChevronRight />}
-          onClick={() => setValue('selectedSC', c)}
+          onClick={() => {
+            setValue('selectedSC', c);
+            setValue(
+              'selectedAction',
+              c.actions.filter(
+                a =>
+                  a.type === 'function' &&
+                  (a.stateMutability === 'payable' ||
+                    a.stateMutability === 'nonpayable')
+              )[0]
+            );
+          }}
         />
       ))}
     </ListGroup>
