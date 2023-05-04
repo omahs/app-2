@@ -31,6 +31,15 @@ import {handleClipboardActions} from 'utils/library';
 import {EtherscanContractResponse} from 'utils/types';
 import ModalHeader from './modalHeader';
 import {useValidateContract} from 'hooks/useValidateContract';
+import {fetchTokenData} from 'services/prices';
+import {useApolloClient} from '@apollo/client';
+import {getTokenInfo} from 'utils/tokens';
+import {useProviders} from 'context/providers';
+import {getEtherscanVerifiedContract} from 'services/contractVerification';
+
+type AugmentedEtherscanContractResponse = EtherscanContractResponse & {
+  logo?: string;
+};
 
 type Props = {
   isOpen: boolean;
@@ -51,8 +60,11 @@ const icons = {
 const ContractAddressValidation: React.FC<Props> = props => {
   const {t} = useTranslation();
   const {alert} = useAlertContext();
+  const client = useApolloClient();
   const {address} = useWallet();
   const {network} = useNetwork();
+  const {infura: provider} = useProviders();
+
   const {control, resetField, setValue, setError} =
     useFormContext<SccFormData>();
   const {errors} = useFormState({control});
@@ -91,8 +103,8 @@ const ContractAddressValidation: React.FC<Props> = props => {
     [TransactionState.ERROR]: '',
   };
 
-  const setContractValid = useCallback(
-    (value: EtherscanContractResponse) => {
+  const setVerifiedContract = useCallback(
+    (value: AugmentedEtherscanContractResponse) => {
       if (value) {
         setVerificationState(TransactionState.SUCCESS);
 
@@ -100,6 +112,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
           actions: JSON.parse(value.ABI),
           address: addressField,
           name: value.ContractName,
+          logo: value.logo,
         };
 
         setValue('contracts', [...contracts, verifiedContract]);
@@ -120,6 +133,35 @@ const ContractAddressValidation: React.FC<Props> = props => {
     },
     [address, addressField, contracts, network, setError, setValue, t]
   );
+
+  const handleContractValidation = useCallback(async () => {
+    setVerificationState(TransactionState.LOADING);
+
+    // TODO: pick up contract logo from different source;
+    // currently this is getting token logos from Coingecko
+    // only.
+
+    // Getting token info so that Goerli contracts can use the logos
+    // of mainnet ones
+    const [tokenData, validatedContract] = await Promise.all([
+      getTokenInfo(
+        addressField,
+        provider,
+        CHAIN_METADATA[network].nativeCurrency
+      ).then(value => {
+        return fetchTokenData(addressField, client, network, value.symbol);
+      }),
+      getEtherscanVerifiedContract(addressField, network),
+    ]);
+
+    if (validatedContract) {
+      const verifiedContract = {
+        ...validatedContract,
+        logo: tokenData?.imgUrl,
+      };
+      setVerifiedContract(verifiedContract);
+    }
+  }, [addressField, client, network, provider, setVerifiedContract]);
 
   // clear field when there is a value, else paste
   const handleAdornmentClick = useCallback(
