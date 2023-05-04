@@ -75,6 +75,8 @@ const ReviewProposal: React.FC<ReviewProposalProps> = ({
     ],
   });
 
+  console.log(values.actions);
+
   const startDate = useMemo(() => {
     const {startSwitch, startDate, startTime, startUtc} = values;
     if (startSwitch === 'now') {

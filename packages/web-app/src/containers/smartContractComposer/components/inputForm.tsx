@@ -4,10 +4,12 @@ import {
   TextInput,
   WalletInput,
 } from '@aragon/ui-components';
+import {useActionsContext} from 'context/actions';
 import {useAlertContext} from 'context/alert';
 import {t} from 'i18next';
 import React from 'react';
 import {Controller, useFormContext, useWatch} from 'react-hook-form';
+import {useTranslation} from 'react-i18next';
 import {
   getUserFriendlyWalletLabel,
   handleClipboardActions,
@@ -15,14 +17,21 @@ import {
 import {SmartContractAction, Input} from 'utils/types';
 import {validateAddress} from 'utils/validators';
 
-const InputForm: React.FC = () => {
+type InputFormProps = {
+  actionIndex: number;
+  onComposeButtonClicked: () => void;
+};
+
+const InputForm: React.FC<InputFormProps> = ({onComposeButtonClicked}) => {
   const [selectedAction]: [SmartContractAction] = useWatch({
     name: ['selectedAction'],
   });
+  const {t} = useTranslation();
+  const {addAction} = useActionsContext();
 
   return (
     <div className="p-6 min-h-full bg-white">
-      <p className="text-lg font-bold text-ui-800 capitalize">
+      <p className="text-lg font-bold capitalize text-ui-800">
         {selectedAction.name}
       </p>
       <p className="mt-1 text-sm text-ui-600">
@@ -31,10 +40,10 @@ const InputForm: React.FC = () => {
         implementation
       </p>
       {selectedAction.inputs.length > 0 ? (
-        <div className="p-3 mt-5 space-y-2 bg-ui-50 rounded-xl border-ui-100 shadow-100">
+        <div className="p-3 mt-5 space-y-2 rounded-xl bg-ui-50 border-ui-100 shadow-100">
           {selectedAction.inputs.map(input => (
             <div key={input.name}>
-              <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
+              <div className="mb-1.5 text-base font-bold capitalize text-ui-800">
                 {input.name}
                 <span className="ml-0.5 text-sm normal-case">
                   ({input.type})
@@ -49,7 +58,17 @@ const InputForm: React.FC = () => {
           ))}
         </div>
       ) : null}
-      <ButtonText label="Write" className="mt-5" />
+
+      <ButtonText
+        label={t('scc.labels.compose')}
+        className="mt-5"
+        onClick={() => {
+          addAction({
+            name: 'external_contract_action',
+          });
+          onComposeButtonClicked();
+        }}
+      />
     </div>
   );
 };
@@ -72,7 +91,7 @@ const ComponentForType: React.FC<ComponentForTypeProps> = ({
       return (
         <Controller
           defaultValue=""
-          name={`sccActions.${functionName}.${input.name}`}
+          name={`actions.${functionName}.${input.name}`}
           control={control}
           rules={{
             required: t('errors.required.walletAddress') as string,
@@ -111,7 +130,7 @@ const ComponentForType: React.FC<ComponentForTypeProps> = ({
       return (
         <Controller
           defaultValue=""
-          name={`sccActions.${functionName}.${input.name}`}
+          name={`actions.${functionName}.${input.name}`}
           control={control}
           render={({
             field: {name, value, onBlur, onChange},
@@ -133,7 +152,7 @@ const ComponentForType: React.FC<ComponentForTypeProps> = ({
     case 'tuple':
       input.components?.map(component => (
         <div key={component.name}>
-          <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
+          <div className="mb-1.5 text-base font-bold capitalize text-ui-800">
             {input.name}
           </div>
           <ComponentForType
@@ -149,7 +168,7 @@ const ComponentForType: React.FC<ComponentForTypeProps> = ({
       return (
         <Controller
           defaultValue=""
-          name={`sccActions.${functionName}.${input.name}`}
+          name={`actions.${functionName}.${input.name}`}
           control={control}
           render={({
             field: {name, value, onBlur, onChange},

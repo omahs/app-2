@@ -63,6 +63,7 @@ const SCC: React.FC<SCC> = ({actionIndex}) => {
   return (
     <>
       <SmartContractList
+        actionIndex={actionIndex}
         isOpen={contractListIsOpen}
         onConnectNew={() => {
           setContractListIsOpen(false);
@@ -73,6 +74,10 @@ const SCC: React.FC<SCC> = ({actionIndex}) => {
           removeAction(actionIndex);
         }}
         onBackButtonClicked={() => {
+          setContractListIsOpen(false);
+          removeAction(actionIndex);
+        }}
+        onComposeButtonClicked={() => {
           setContractListIsOpen(false);
           removeAction(actionIndex);
         }}
