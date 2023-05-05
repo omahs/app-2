@@ -32,6 +32,7 @@ export const useValidateContractEtherscan = (
  * Verify a smart contract on Sourcify using a custom React hook
  * @param contractAddress address of the smart contract to verify
  * @param network network where the smart contract is deployed
+ * @param verificationState Loading state of verification modal
  * @returns An object with Sourcify FullMatch and PartialMatch API responses containing the smart contract's source code
  */
 export const useValidateContractSourcify = (
@@ -56,10 +57,11 @@ export const useValidateContractSourcify = (
 };
 
 /**
- * Verify a smart contract on Etherscan using a custom React hook
+ * Aggregating hook to verify a smart contract on both Etherscan and Sourcify
  * @param contractAddress address of the smart contract to verify
  * @param network network where the smart contract is deployed
- * @returns Etherscan API response containing the smart contract's source code
+ * @param verificationState Loading state of verification modal
+ * @returns Etherscan & Sourcify API response containing the smart contract's source code
  */
 export const useValidateContract = (
   contractAddress: string,

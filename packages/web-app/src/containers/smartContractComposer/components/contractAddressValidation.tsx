@@ -104,8 +104,6 @@ const ContractAddressValidation: React.FC<Props> = props => {
         setVerificationState(TransactionState.SUCCESS);
         let verifiedContract = {} as SmartContract;
 
-        console.log('called', type);
-
         if (type === 'sourcifyMatch') {
           verifiedContract = {
             actions: value.output?.abi,
@@ -126,7 +124,6 @@ const ContractAddressValidation: React.FC<Props> = props => {
 
         setValue('contracts', [...contracts, verifiedContract]);
 
-        console.log('check', value);
         // add to storage
         addVerifiedSmartContract(
           verifiedContract,
@@ -154,8 +151,9 @@ const ContractAddressValidation: React.FC<Props> = props => {
   );
 
   useEffect(() => {
-    async function fetchData() {
+    async function setData() {
       if (!sourcifyLoading && !etherscanLoading && isTransactionLoading) {
+        // fetch smart contract logo
         const tokenData = await getTokenInfo(
           addressField,
           provider,
@@ -166,6 +164,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
 
         setVerificationState(TransactionState.SUCCESS);
 
+        //prioritize sourcify over etherscan if sourcify data is available
         if (sourcifyFullData || sourcifyPartialData) {
           setVerifiedContract(
             'sourcifyMatch',
@@ -190,7 +189,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
       }
     }
 
-    fetchData();
+    setData();
   }, [
     addressField,
     client,
@@ -414,6 +413,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         {!isTransactionWaiting && (
           <VerificationCard>
             <VerificationTitle>
+              {/* if contract name is not available, show the address */}
               {contractName || shortenAddress(addressField)}
             </VerificationTitle>
             <VerificationWrapper>
