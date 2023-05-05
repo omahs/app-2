@@ -104,31 +104,29 @@ const ContractAddressValidation: React.FC<Props> = props => {
         setVerificationState(TransactionState.SUCCESS);
         let verifiedContract = {} as SmartContract;
 
-        setContractName(value.output.devdoc.title as string);
+        console.log('called', type);
 
-        switch (type) {
-          case 'sourcifyMatch':
-            verifiedContract = {
-              actions: JSON.parse(value.output?.abi || ''),
-              address: addressField,
-              name: value.output.devdoc.title,
-              logo,
-            };
-            setContractName(value.output.devdoc.title as string);
-            break;
-          case 'etherscanMatch':
-            verifiedContract = {
-              actions: JSON.parse(etherscanData?.result[0].ABI || ''),
-              address: addressField,
-              name: etherscanData?.ContractName,
-              logo,
-            };
-            setContractName(etherscanData?.ContractName);
-            break;
+        if (type === 'sourcifyMatch') {
+          verifiedContract = {
+            actions: value.output?.abi,
+            address: addressField,
+            name: value.output.devdoc.title,
+            logo,
+          };
+          setContractName(value.output.devdoc.title as string);
+        } else {
+          verifiedContract = {
+            actions: JSON.parse(etherscanData?.result[0].ABI || ''),
+            address: addressField,
+            name: etherscanData?.result[0].ContractName,
+            logo,
+          };
+          setContractName(etherscanData?.result[0].ContractName);
         }
 
         setValue('contracts', [...contracts, verifiedContract]);
 
+        console.log('check', value);
         // add to storage
         addVerifiedSmartContract(
           verifiedContract,
@@ -147,7 +145,6 @@ const ContractAddressValidation: React.FC<Props> = props => {
       address,
       addressField,
       contracts,
-      etherscanData?.ContractName,
       etherscanData?.result,
       network,
       setError,
