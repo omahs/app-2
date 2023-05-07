@@ -921,15 +921,6 @@
       "description": "Add a smart contract to interact with its actions",
       "primaryBtnLabel": "Connect smart contract"
     },
-    "addressValidation": {
-      "modalTitle": "Connect smart contract",
-      "title": "Smart contract address",
-      "description": "Enter the smart contract address. It's best to copy this address directly from",
-      "actionLabelWaiting": "Validate smart contract",
-      "actionLabelLoading": "Validating smart contract …",
-      "actionLabelSuccess": "Compose actions",
-      "successLabel": "Smart contract validated -> {{contractName}}"
-    },
     "selectionEmptyState": {
       "title": "Select smart contract",
       "description": "Select a smart contract to compose any actions or connect a new smart contract if ..."
@@ -947,7 +938,7 @@
       "etherscanStatusSuccess": "Verified on Etherscan",
       "ctaLabelWaiting": "Validate contract address",
       "ctaLabelSuccess": "Create action",
-      "cancelLabel ": "Cancel validation"
+      "cancelLabel": "Cancel validation"
     }
   },
   "app": {
