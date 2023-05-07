@@ -933,6 +933,21 @@
     "selectionEmptyState": {
       "title": "Select smart contract",
       "description": "Select a smart contract to compose any actions or connect a new smart contract if ..."
+    },
+    "validation": {
+      "modalTitle": "Connect smart contract",
+      "addressInputLabel": "Contract address",
+      "addressInputHelp": "Enter the smart contract address. It's best to copy this address directly from",
+      "sourcifyStatusPending": "Validating on Sourcify …",
+      "sourcifyStatusCritical": "Not verified on Sourcify",
+      "sourcifyStatusWarning": "Partially verified on Sourcify",
+      "sourcifyStatusSuccess": "Verified on Sourcify",
+      "etherscanStatusPending": "Validating on Etherscan …",
+      "etherscanStatusCritical": "Not verified on Etherscan",
+      "etherscanStatusSuccess": "Verified on Etherscan",
+      "ctaLabelWaiting": "Validate contract address",
+      "ctaLabelSuccess": "Create action",
+      "cancelLabel ": "Cancel validation"
     }
   },
   "app": {

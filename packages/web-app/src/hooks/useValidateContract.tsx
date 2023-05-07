@@ -43,7 +43,7 @@ export const useValidateContractSourcify = (
   return useQueries({
     queries: ['full_match', 'partial_match'].map(type => {
       return {
-        queryKey: [`verifyContract${type}Sourcify`, contractAddress, network],
+        queryKey: [`verifycontract${type}Sourcify`, contractAddress, network],
         queryFn: () => {
           return fetch(
             `https://repo.sourcify.dev/contracts/${type}/${CHAIN_METADATA[network].id}/${contractAddress}/metadata.json`

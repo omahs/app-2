@@ -40,6 +40,7 @@ import {fetchTokenData} from 'services/prices';
 import {useApolloClient} from '@apollo/client';
 import {getTokenInfo} from 'utils/tokens';
 import {useProviders} from 'context/providers';
+import {useQueryClient} from '@tanstack/react-query';
 
 type AugmentedEtherscanContractResponse = EtherscanContractResponse &
   SourcifyContractResponse & {
@@ -70,6 +71,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
   const {address} = useWallet();
   const {network} = useNetwork();
   const {infura: provider} = useProviders();
+  const queryClient = useQueryClient();
 
   const {control, resetField, setValue, setError} =
     useFormContext<SccFormData>();
@@ -207,9 +209,9 @@ const ContractAddressValidation: React.FC<Props> = props => {
   ]);
 
   const label = {
-    [TransactionState.WAITING]: t('scc.addressValidation.actionLabelWaiting'),
-    [TransactionState.LOADING]: t('scc.addressValidation.actionLabelLoading'),
-    [TransactionState.SUCCESS]: t('scc.addressValidation.actionLabelSuccess'),
+    [TransactionState.WAITING]: t('scc.validation.ctaLabelWaiting'),
+    [TransactionState.LOADING]: '',
+    [TransactionState.SUCCESS]: t('scc.validation.ctaLabelSuccess'),
     [TransactionState.ERROR]: '',
   };
 
@@ -256,7 +258,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         <div className="flex space-x-1">
           <Spinner size={'xs'} className="text-primary-500" />
           <VerificationStatus colorClassName="text-primary-800">
-            Checking Sourcify …
+            {t('scc.validation.sourcifyStatusPending')}
           </VerificationStatus>
         </div>
       );
@@ -266,7 +268,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
           <div className="flex space-x-1">
             <IconSuccess className="text-success-500" />
             <VerificationStatus colorClassName="text-success-800">
-              Sourcify is verified
+              {t('scc.validation.sourcifyStatusSuccess')}
             </VerificationStatus>
           </div>
         );
@@ -275,7 +277,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
           <div className="flex space-x-1">
             <IconRadioCancel className="text-warning-500" />
             <VerificationStatus colorClassName="text-warning-800">
-              Partial verified on Sourcify
+              {t('scc.validation.sourcifyStatusWarning')}
             </VerificationStatus>
           </div>
         );
@@ -284,13 +286,13 @@ const ContractAddressValidation: React.FC<Props> = props => {
           <div className="flex space-x-1">
             <IconRadioCancel className="text-critical-500" />
             <VerificationStatus colorClassName="text-critical-800">
-              Not verified on Sourcify
+              {t('scc.validation.sourcifyStatusCritical')}
             </VerificationStatus>
           </div>
         );
       }
     }
-  }, [sourcifyFullData, sourcifyLoading, sourcifyPartialData]);
+  }, [sourcifyFullData, sourcifyLoading, sourcifyPartialData, t]);
 
   const etherscanValidationStatus = useMemo(() => {
     if (etherscanLoading) {
@@ -298,7 +300,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         <div className="flex space-x-1">
           <Spinner size={'xs'} className="text-primary-500" />
           <VerificationStatus colorClassName="text-primary-800">
-            Checking Etherscan …
+            {t('scc.validation.etherscanStatusPending')}
           </VerificationStatus>
         </div>
       );
@@ -310,7 +312,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
           <div className="flex space-x-1">
             <IconSuccess className="text-success-500" />
             <VerificationStatus colorClassName="text-success-800">
-              Verified on Etherscan
+              {t('scc.validation.etherscanStatusSuccess')}
             </VerificationStatus>
           </div>
         );
@@ -319,18 +321,18 @@ const ContractAddressValidation: React.FC<Props> = props => {
           <div className="flex space-x-1">
             <IconRadioCancel className="text-critical-500" />
             <VerificationStatus colorClassName="text-critical-800">
-              Not verified on Etherscan
+              {t('scc.validation.etherscanStatusCritical')}
             </VerificationStatus>
           </div>
         );
       }
     }
-  }, [etherscanData?.result, etherscanLoading]);
+  }, [etherscanData?.result, etherscanLoading, t]);
 
   return (
     <ModalBottomSheetSwitcher isOpen={props.isOpen} onClose={props.onClose}>
       <ModalHeader
-        title={t('scc.addressValidation.modalTitle')}
+        title={t('scc.validation.modalTitle')}
         onClose={() => {
           // clear contract address field
           resetField('contractAddress');
@@ -348,9 +350,9 @@ const ContractAddressValidation: React.FC<Props> = props => {
       />
       <Content>
         <DescriptionContainer>
-          <Title>{t('scc.addressValidation.title')}</Title>
+          <Title>{t('scc.validation.addressInputLabel')}</Title>
           <Description>
-            {t('scc.addressValidation.description')}{' '}
+            {t('scc.validation.addressInputHelp')}{' '}
             <Link
               external
               label={t('labels.etherscan')}
@@ -390,26 +392,45 @@ const ContractAddressValidation: React.FC<Props> = props => {
             </>
           )}
         />
-        <ButtonText
-          label={label[verificationState]}
-          onClick={async () => {
-            if (verificationState === TransactionState.SUCCESS) {
-              props.onVerificationSuccess();
-            } else {
-              setVerificationState(TransactionState.LOADING);
+        {isTransactionLoading ? (
+          <ButtonText
+            label={t('scc.validation.cancelLabel') as string}
+            onClick={async () => {
+              queryClient.cancelQueries({
+                queryKey: [
+                  'verifyContractEtherscan',
+                  'verifycontractfull_matchSourcify',
+                  'verifycontractpartial_matchSourcify',
+                ],
+              });
+              setVerificationState(TransactionState.WAITING);
+            }}
+            size="large"
+            className="mt-3 w-full"
+            bgWhite
+          />
+        ) : (
+          <ButtonText
+            label={label[verificationState]}
+            onClick={async () => {
+              if (verificationState === TransactionState.SUCCESS) {
+                props.onVerificationSuccess();
+              } else {
+                setVerificationState(TransactionState.LOADING);
+              }
+            }}
+            iconLeft={
+              isTransactionLoading ? (
+                <Spinner size="xs" color="white" />
+              ) : undefined
             }
-          }}
-          iconLeft={
-            isTransactionLoading ? (
-              <Spinner size="xs" color="white" />
-            ) : undefined
-          }
-          iconRight={icons[verificationState]}
-          isActive={isTransactionLoading}
-          disabled={isButtonDisabled}
-          size="large"
-          className="mt-3 w-full"
-        />
+            iconRight={icons[verificationState]}
+            isActive={isTransactionLoading}
+            disabled={isButtonDisabled}
+            size="large"
+            className="mt-3 w-full"
+          />
+        )}
         {!isTransactionWaiting && (
           <VerificationCard>
             <VerificationTitle>
