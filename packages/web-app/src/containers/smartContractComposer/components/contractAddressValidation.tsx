@@ -4,6 +4,7 @@ import {
   IconChevronRight,
   IconFeedback,
   IconRadioCancel,
+  IconRadioMulti,
   IconReload,
   IconSuccess,
   Link,
@@ -144,12 +145,12 @@ const ContractAddressValidation: React.FC<Props> = props => {
           setContractName(value.output.devdoc.title as string);
         } else {
           verifiedContract = {
-            actions: JSON.parse(etherscanData?.result[0].ABI || ''),
+            actions: JSON.parse(value?.ABI || ''),
             address: addressField,
-            name: etherscanData?.result[0].ContractName,
+            name: value?.ContractName,
             logo,
           };
-          setContractName(etherscanData?.result[0].ContractName);
+          setContractName(value?.ContractName);
         }
 
         setValue('contracts', [...contracts, verifiedContract]);
@@ -168,16 +169,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         });
       }
     },
-    [
-      address,
-      addressField,
-      contracts,
-      etherscanData?.result,
-      network,
-      setError,
-      setValue,
-      t,
-    ]
+    [address, addressField, contracts, network, setError, setValue, t]
   );
 
   useEffect(() => {
@@ -206,7 +198,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         ) {
           setVerifiedContract(
             'etherscanMatch',
-            etherscanData,
+            etherscanData.result[0],
             tokenData?.imgUrl || ''
           );
         } else {
@@ -240,7 +232,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
     [TransactionState.WAITING]: t('scc.validation.ctaLabelWaiting'),
     [TransactionState.LOADING]: '',
     [TransactionState.SUCCESS]: t('scc.validation.ctaLabelSuccess'),
-    [TransactionState.ERROR]: '',
+    [TransactionState.ERROR]: t('scc.validation.ctaLabelWaiting'),
   };
 
   // clear field when there is a value, else paste
@@ -303,7 +295,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
       } else if (sourcifyPartialData) {
         return (
           <div className="flex space-x-1">
-            <IconRadioCancel className="text-warning-500" />
+            <IconRadioMulti className="text-warning-500" />
             <VerificationStatus colorClassName="text-warning-800">
               {t('scc.validation.sourcifyStatusWarning')}
             </VerificationStatus>
@@ -435,7 +427,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
             }}
             size="large"
             className="mt-3 w-full"
-            bgWhite
+            mode="secondary"
           />
         ) : (
           <ButtonText
@@ -443,6 +435,9 @@ const ContractAddressValidation: React.FC<Props> = props => {
             onClick={async () => {
               if (verificationState === TransactionState.SUCCESS) {
                 props.onVerificationSuccess();
+                // clear contract address field
+                resetField('contractAddress');
+                setVerificationState(TransactionState.WAITING);
               } else {
                 setVerificationState(TransactionState.LOADING);
               }
