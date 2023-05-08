@@ -377,6 +377,17 @@ export type SourcifyContractResponse = {
     abi: SmartContractAction[];
     devdoc: {
       title: string;
+      methods: {
+        [key: string]: {
+          details: string;
+          params: {
+            [key: string]: string;
+          };
+          returns: {
+            [key: string]: string;
+          };
+        };
+      };
     };
   };
 };
@@ -386,6 +397,7 @@ export type SmartContractAction = {
   type: string;
   stateMutability: string;
   inputs: Input[];
+  notice?: string;
 };
 
 export interface Input {
@@ -394,6 +406,7 @@ export interface Input {
   indexed?: boolean;
   components?: Input[];
   internalType?: string;
+  notice?: string;
 }
 
 export type SmartContract = {

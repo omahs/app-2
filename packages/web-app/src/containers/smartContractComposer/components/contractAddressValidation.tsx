@@ -2,6 +2,7 @@ import {
   AlertInline,
   ButtonText,
   IconChevronRight,
+  IconFeedback,
   IconRadioCancel,
   IconReload,
   IconSuccess,
@@ -100,6 +101,31 @@ const ContractAddressValidation: React.FC<Props> = props => {
   const isTransactionLoading = verificationState === TransactionState.LOADING;
   const isTransactionWaiting = verificationState === TransactionState.WAITING;
 
+  function attachSourcifyNotice(
+    value: AugmentedEtherscanContractResponse['output']
+  ) {
+    // [['methodName1', 'MethodDescription1'], ['methodName2', 'MethodDescription2'],...]
+    const methods = Object.entries(value?.devdoc.methods);
+
+    return value?.abi.map(action => {
+      if (action.type === 'function' && methods) {
+        const method = methods.find(
+          ([methodName]) =>
+            methodName.substring(0, methodName.indexOf('(')) === action.name
+        );
+
+        if (method) {
+          action.notice = method[1].details;
+          action?.inputs.filter(input => {
+            input.notice = method[1].params[input.name];
+          });
+        }
+      }
+
+      return action;
+    });
+  }
+
   const setVerifiedContract = useCallback(
     (type: string, value: AugmentedEtherscanContractResponse, logo: string) => {
       if (value) {
@@ -107,8 +133,10 @@ const ContractAddressValidation: React.FC<Props> = props => {
         let verifiedContract = {} as SmartContract;
 
         if (type === 'sourcifyMatch') {
+          const actions = attachSourcifyNotice(value.output);
+
           verifiedContract = {
-            actions: value.output?.abi,
+            actions,
             address: addressField,
             name: value.output.devdoc.title,
             logo,
@@ -182,7 +210,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
             tokenData?.imgUrl || ''
           );
         } else {
-          setVerificationState(TransactionState.WAITING);
+          setVerificationState(TransactionState.ERROR);
           setError('contractAddress', {
             type: 'validate',
             message: t('errors.notValidContractAddress'),
@@ -439,9 +467,29 @@ const ContractAddressValidation: React.FC<Props> = props => {
             </VerificationTitle>
             <VerificationWrapper>
               {sourcifyValidationStatus}
+              {!isTransactionLoading && (
+                <Link
+                  external
+                  type="neutral"
+                  iconRight={<IconFeedback height={13} width={13} />}
+                  href={`https://sourcify.dev/#/lookup/${addressField}`}
+                  label={t('scc.validation.explorerLinkLabel')}
+                  className="ft-text-sm"
+                />
+              )}
             </VerificationWrapper>
             <VerificationWrapper>
               {etherscanValidationStatus}
+              {!isTransactionLoading && (
+                <Link
+                  external
+                  type="neutral"
+                  iconRight={<IconFeedback height={13} width={13} />}
+                  href={`${CHAIN_METADATA[network].explorer}address/${addressField}#code`}
+                  label={t('scc.validation.explorerLinkLabel')}
+                  className="ft-text-sm"
+                />
+              )}
             </VerificationWrapper>
           </VerificationCard>
         )}

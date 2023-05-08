@@ -25,20 +25,19 @@ const InputForm: React.FC = () => {
       <p className="text-lg font-bold text-ui-800 capitalize">
         {selectedAction.name}
       </p>
-      <p className="mt-1 text-sm text-ui-600">
-        @notice as help text; This is the description of the method provided by
-        NatSpec Format or if those are our smart contracts, by further
-        implementation
-      </p>
+      <p className="mt-1 text-sm text-ui-600">{selectedAction.notice}</p>
       {selectedAction.inputs.length > 0 ? (
         <div className="p-3 mt-5 space-y-2 bg-ui-50 rounded-xl border-ui-100 shadow-100">
           {selectedAction.inputs.map(input => (
             <div key={input.name}>
-              <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
+              <div className="text-base font-bold text-ui-800 capitalize">
                 {input.name}
                 <span className="ml-0.5 text-sm normal-case">
                   ({input.type})
                 </span>
+              </div>
+              <div className="mt-0.5 mb-1.5">
+                <span className="text-ui-600 ft-text-sm">{input.notice}</span>
               </div>
               <ComponentForType
                 key={input.name}
