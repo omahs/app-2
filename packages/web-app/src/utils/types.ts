@@ -378,12 +378,16 @@ export type SourcifyContractResponse = {
     devdoc: {
       title: string;
       methods: {
+        // contract write method name with its input params
         [key: string]: {
+          // description for each method
           details: string;
           params: {
+            // contract method input params
             [key: string]: string;
           };
           returns: {
+            // contract method output params
             [key: string]: string;
           };
         };

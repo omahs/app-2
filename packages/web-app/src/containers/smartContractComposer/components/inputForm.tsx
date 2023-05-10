@@ -8,6 +8,7 @@ import {useAlertContext} from 'context/alert';
 import {t} from 'i18next';
 import React from 'react';
 import {Controller, useFormContext, useWatch} from 'react-hook-form';
+import styled from 'styled-components';
 import {
   getUserFriendlyWalletLabel,
   handleClipboardActions,
@@ -22,10 +23,8 @@ const InputForm: React.FC = () => {
 
   return (
     <div className="p-6 min-h-full bg-white">
-      <p className="text-lg font-bold text-ui-800 capitalize">
-        {selectedAction.name}
-      </p>
-      <p className="mt-1 text-sm text-ui-600">{selectedAction.notice}</p>
+      <ActionName>{selectedAction.name}</ActionName>
+      <ActionDescription>{selectedAction.notice}</ActionDescription>
       {selectedAction.inputs.length > 0 ? (
         <div className="p-3 mt-5 space-y-2 bg-ui-50 rounded-xl border-ui-100 shadow-100">
           {selectedAction.inputs.map(input => (
@@ -168,5 +167,13 @@ const ComponentForType: React.FC<ComponentForTypeProps> = ({
   }
   return null;
 };
+
+const ActionName = styled.p.attrs({
+  className: 'text-lg font-bold text-ui-800 capitalize',
+})``;
+
+const ActionDescription = styled.p.attrs({
+  className: 'mt-1 text-sm text-ui-600',
+})``;
 
 export default InputForm;

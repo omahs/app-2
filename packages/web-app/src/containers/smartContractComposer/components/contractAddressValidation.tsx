@@ -101,6 +101,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
     verificationState === TransactionState.SUCCESS;
   const isTransactionLoading = verificationState === TransactionState.LOADING;
   const isTransactionWaiting = verificationState === TransactionState.WAITING;
+  const isTransactionError = verificationState === TransactionState.ERROR;
 
   function attachSourcifyNotice(
     value: AugmentedEtherscanContractResponse['output']
@@ -273,7 +274,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
   );
 
   const sourcifyValidationStatus = useMemo(() => {
-    if (sourcifyLoading) {
+    if (sourcifyLoading && !isTransactionError) {
       return (
         <div className="flex space-x-1">
           <Spinner size={'xs'} className="text-primary-500" />
@@ -312,10 +313,16 @@ const ContractAddressValidation: React.FC<Props> = props => {
         );
       }
     }
-  }, [sourcifyFullData, sourcifyLoading, sourcifyPartialData, t]);
+  }, [
+    isTransactionError,
+    sourcifyFullData,
+    sourcifyLoading,
+    sourcifyPartialData,
+    t,
+  ]);
 
   const etherscanValidationStatus = useMemo(() => {
-    if (etherscanLoading) {
+    if (etherscanLoading && !isTransactionError) {
       return (
         <div className="flex space-x-1">
           <Spinner size={'xs'} className="text-primary-500" />
@@ -326,6 +333,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
       );
     } else {
       if (
+        etherscanData &&
         etherscanData?.result[0].ABI !== 'Contract source code not verified'
       ) {
         return (
@@ -347,7 +355,7 @@ const ContractAddressValidation: React.FC<Props> = props => {
         );
       }
     }
-  }, [etherscanData?.result, etherscanLoading, t]);
+  }, [etherscanData, etherscanLoading, isTransactionError, t]);
 
   return (
     <ModalBottomSheetSwitcher isOpen={props.isOpen} onClose={props.onClose}>
@@ -372,11 +380,12 @@ const ContractAddressValidation: React.FC<Props> = props => {
         <DescriptionContainer>
           <Title>{t('scc.validation.addressInputLabel')}</Title>
           <Description>
-            {t('scc.validation.addressInputHelp')}{' '}
+            {t('scc.validation.addressInputHelp')}
             <Link
               external
               label={t('labels.etherscan')}
               href={`${CHAIN_METADATA[network].explorer}`}
+              className="ml-0.5"
             />
           </Description>
         </DescriptionContainer>
