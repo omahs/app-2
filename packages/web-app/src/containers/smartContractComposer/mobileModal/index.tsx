@@ -122,7 +122,6 @@ type CustomHeaderProps = {
 };
 const CustomMobileHeader: React.FC<CustomHeaderProps> = props => {
   const {t} = useTranslation();
-
   const selectedSC: SmartContract = useWatch({name: 'selectedSC'});
 
   return (

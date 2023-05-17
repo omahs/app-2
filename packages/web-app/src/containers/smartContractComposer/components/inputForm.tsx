@@ -1,4 +1,5 @@
 import {
+  AlertInline,
   ButtonText,
   IconSuccess,
   NumberInput,
@@ -7,8 +8,10 @@ import {
 } from '@aragon/ui-components';
 import {useActionsContext} from 'context/actions';
 import {useAlertContext} from 'context/alert';
+import {useNetwork} from 'context/network';
+import {ethers} from 'ethers';
 import {t} from 'i18next';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Controller,
   FormProvider,
@@ -19,6 +22,7 @@ import {
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import {trackEvent} from 'services/analytics';
+import {getEtherscanVerifiedContract} from 'services/etherscanAPI';
 import styled from 'styled-components';
 import {
   getUserFriendlyWalletLabel,
@@ -37,6 +41,7 @@ const InputForm: React.FC<InputFormProps> = ({
   onComposeButtonClicked,
 }) => {
   const {t} = useTranslation();
+  const {network} = useNetwork();
   const [selectedAction, selectedSC, sccActions]: [
     SmartContractAction,
     SmartContract,
@@ -47,6 +52,75 @@ const InputForm: React.FC<InputFormProps> = ({
   const {dao: daoAddressOrEns} = useParams();
   const {addAction, removeAction} = useActionsContext();
   const {setValue, resetField} = useFormContext();
+  const [formError, setFormError] = useState(false);
+
+  const composeAction = useCallback(async () => {
+    const etherscanData = await getEtherscanVerifiedContract(
+      selectedSC.address,
+      network
+    );
+
+    if (
+      etherscanData.status === '1' &&
+      etherscanData.result[0].ABI !== 'Contract source code not verified'
+    ) {
+      const functionParams = selectedAction.inputs?.map(
+        input => sccActions[selectedSC.address][selectedAction.name][input.name]
+      );
+
+      const iface = new ethers.utils.Interface(etherscanData.result[0].ABI);
+
+      try {
+        iface.encodeFunctionData(selectedAction.name, functionParams);
+
+        removeAction(actionIndex);
+        addAction({
+          name: 'external_contract_action',
+        });
+
+        resetField(`actions.${actionIndex}`);
+        setValue(`actions.${actionIndex}.name`, 'external_contract_action');
+        setValue(`actions.${actionIndex}.contractAddress`, selectedSC.address);
+        setValue(`actions.${actionIndex}.contractName`, selectedSC.name);
+        setValue(`actions.${actionIndex}.functionName`, selectedAction.name);
+
+        selectedAction.inputs?.map((input, index) => {
+          setValue(`actions.${actionIndex}.inputs.${index}`, {
+            ...selectedAction.inputs[index],
+            value:
+              sccActions[selectedSC.address][selectedAction.name][input.name],
+          });
+        });
+        resetField('sccActions');
+        onComposeButtonClicked();
+
+        trackEvent('newProposal_composeAction_clicked', {
+          dao_address: daoAddressOrEns,
+          smart_contract_address: selectedSC.address,
+          smart_contract_name: selectedSC.name,
+          method_name: selectedAction.name,
+        });
+      } catch (e) {
+        // Invalid input data being passed to the action
+        setFormError(true);
+        console.error('Error invalidating action inputs', e);
+      }
+    }
+  }, [
+    actionIndex,
+    addAction,
+    daoAddressOrEns,
+    network,
+    onComposeButtonClicked,
+    removeAction,
+    resetField,
+    sccActions,
+    selectedAction.inputs,
+    selectedAction.name,
+    selectedSC.address,
+    selectedSC.name,
+    setValue,
+  ]);
 
   if (!selectedAction) {
     return (
@@ -97,40 +171,13 @@ const InputForm: React.FC<InputFormProps> = ({
 
       <ButtonText
         label={t('scc.detailContract.ctaLabel')}
-        className="mt-5 w-full desktop:w-max"
-        onClick={() => {
-          removeAction(actionIndex);
-          addAction({
-            name: 'external_contract_action',
-          });
-
-          resetField(`actions.${actionIndex}`);
-          setValue(`actions.${actionIndex}.name`, 'external_contract_action');
-          setValue(
-            `actions.${actionIndex}.contractAddress`,
-            selectedSC.address
-          );
-          setValue(`actions.${actionIndex}.contractName`, selectedSC.name);
-          setValue(`actions.${actionIndex}.functionName`, selectedAction.name);
-
-          selectedAction.inputs?.map((input, index) => {
-            setValue(`actions.${actionIndex}.inputs.${index}`, {
-              ...selectedAction.inputs[index],
-              value:
-                sccActions[selectedSC.address][selectedAction.name][input.name],
-            });
-          });
-          resetField('sccActions');
-          onComposeButtonClicked();
-
-          trackEvent('newProposal_composeAction_clicked', {
-            dao_address: daoAddressOrEns,
-            smart_contract_address: selectedSC.address,
-            smart_contract_name: selectedSC.name,
-            method_name: selectedAction.name,
-          });
-        }}
+        className="mt-5 mb-2 w-full desktop:w-max"
+        onClick={composeAction}
       />
+
+      {formError && (
+        <AlertInline label="Error with the inputs" mode="critical" />
+      )}
     </div>
   );
 };
