@@ -444,32 +444,64 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
         </ButtonContainer>
         {!daoTokenLoading && (
           <SummaryContainer>
-            <p className="font-bold text-ui-800">{t('labels.summary')}</p>
+            <p className="font-bold ft-text-lg text-ui-800">
+              {t('labels.summary')}
+            </p>
+
+            <HStack>
+              <Label>
+                <div>{'Current token supply' || t('labels.newTokens')}</div>
+                <LabelDescription>
+                  {'Based on this proposal snapshot' || t('labels.newTokens')}
+                </LabelDescription>
+              </Label>
+              <SummaryValue>
+                {tokenSupply ? `${tokenSupply} ${daoToken?.symbol}` : '...'}
+              </SummaryValue>
+            </HStack>
             <HStack>
               <Label>{t('labels.newTokens')}</Label>
-              <p>
+              <SummaryValue>
                 +{'' + newTokens} {daoToken?.symbol}
-              </p>
+              </SummaryValue>
             </HStack>
+
+            <Divider />
+
+            <HStack>
+              <Label>
+                {'Total new token supply' || t('labels.totalTokens')}
+              </Label>
+              <SummaryValue>
+                {tokenSupply
+                  ? `${newTokens.plus(Big(tokenSupply))} ${daoToken?.symbol}`
+                  : '...'}
+              </SummaryValue>
+            </HStack>
+            <div className="pt-2.5">
+              <HStack>
+                <Label>
+                  <div>{'Current holders' || t('labels.totalHolders')}</div>
+                  <LabelDescription>
+                    {'Based on this proposal snapshot' || t('labels.newTokens')}
+                  </LabelDescription>
+                </Label>
+                <SummaryValue>{members?.length || 0}</SummaryValue>
+              </HStack>
+            </div>
             <HStack>
               <Label>{t('labels.newHolders')}</Label>
-              <p>+{newHoldersCount}</p>
+              <SummaryValue>+{newHoldersCount}</SummaryValue>
             </HStack>
+
+            <Divider />
+
             <HStack>
-              <Label>{t('labels.totalTokens')}</Label>
-              {tokenSupply ? (
-                <p>
-                  {'' + newTokens.plus(Big(tokenSupply))} {daoToken?.symbol}
-                </p>
-              ) : (
-                <p>...</p>
-              )}
+              <Label>{'Total new holders' || t('labels.newHolders')}</Label>
+              <SummaryValue>
+                {newHoldersCount + (members?.length || 0)}
+              </SummaryValue>
             </HStack>
-            <HStack>
-              <Label>{t('labels.totalHolders')}</Label>
-              <p>{newHoldersCount + (members?.length || 0)}</p>
-            </HStack>
-            {/* TODO add total amount of token holders here. */}
           </SummaryContainer>
         )}
       </Container>
@@ -521,6 +553,16 @@ const HStack = styled.div.attrs({
   className: 'flex justify-between',
 })``;
 
-const Label = styled.p.attrs({
-  className: 'font-normal text-ui-500',
+const Label = styled.div.attrs({
+  className: 'font-normal text-ui-600 flex flex-col gap-0.25',
+})``;
+
+const Divider = styled.div.attrs({className: 'h-px bg-ui-100 w-full'})``;
+
+const LabelDescription = styled.div.attrs({
+  className: 'ft-text-sm text-ui-400',
+})``;
+
+const SummaryValue = styled.p.attrs({
+  className: 'font-semibold text-ui-800',
 })``;

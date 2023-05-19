@@ -71,31 +71,63 @@ export const MintTokenCard: React.FC<{
         </div>
 
         <SummaryContainer>
-          <p className="font-bold text-ui-800">{t('labels.summary')}</p>
+          <p className="font-bold ft-text-lg text-ui-800">
+            {t('labels.summary')}
+          </p>
+
+          <HStack>
+            <Label>
+              <div>{'Current token supply' || t('labels.newTokens')}</div>
+              <LabelDescription>
+                {'Based on this proposal snapshot' || t('labels.newTokens')}
+              </LabelDescription>
+            </Label>
+            <SummaryValue>
+              {action.summary.tokenSupply} {action.summary.daoTokenSymbol}
+            </SummaryValue>
+          </HStack>
           <HStack>
             <Label>{t('labels.newTokens')}</Label>
-            <p>
+            <SummaryValue>
               +{action.summary.newTokens} {action.summary.daoTokenSymbol}
-            </p>
+            </SummaryValue>
           </HStack>
+
+          <Divider />
+
+          <HStack>
+            <Label>{'Total new token supply' || t('labels.totalTokens')}</Label>
+            <SummaryValue>
+              {newTotalSupply} {action.summary.daoTokenSymbol}
+            </SummaryValue>
+          </HStack>
+          <div className="pt-2.5">
+            <HStack>
+              <Label>
+                <div>{'Current holders' || t('labels.totalHolders')}</div>
+                <LabelDescription>
+                  {'Based on this proposal snapshot' || t('labels.newTokens')}
+                </LabelDescription>
+              </Label>
+              <SummaryValue>
+                {action.summary.totalMembers || members?.length || 0}
+              </SummaryValue>
+            </HStack>
+          </div>
           <HStack>
             <Label>{t('labels.newHolders')}</Label>
-            <p>+{newHolders?.length}</p>
+            <SummaryValue>+{newHolders?.length || 0}</SummaryValue>
           </HStack>
+
+          <Divider />
+
           <HStack>
-            <Label>{t('labels.totalTokens')}</Label>
-            <p>
-              {newTotalSupply} {action.summary.daoTokenSymbol}
-            </p>
-          </HStack>
-          <HStack>
-            <Label>{t('labels.totalHolders')}</Label>
-            <p>
+            <Label>{'Total new holders' || t('labels.newHolders')}</Label>
+            <SummaryValue>
               {newHolders?.length +
                 (action.summary.totalMembers || members?.length)}{' '}
-            </p>
+            </SummaryValue>
           </HStack>
-          {/* TODO add total amount of token holders here. */}
           <Link
             label={t('labels.seeCommunity')}
             href={`${CHAIN_METADATA[network].explorer}/token/tokenholderchart/${action.summary.daoTokenAddress}`}
@@ -120,6 +152,16 @@ const HStack = styled.div.attrs({
   className: 'flex justify-between',
 })``;
 
-const Label = styled.p.attrs({
-  className: 'font-normal text-ui-500',
+const Label = styled.div.attrs({
+  className: 'font-normal text-ui-600 flex flex-col gap-0.25',
+})``;
+
+const Divider = styled.div.attrs({className: 'h-px bg-ui-100 w-full'})``;
+
+const LabelDescription = styled.div.attrs({
+  className: 'ft-text-sm text-ui-400',
+})``;
+
+const SummaryValue = styled.p.attrs({
+  className: 'font-semibold text-ui-800',
 })``;
