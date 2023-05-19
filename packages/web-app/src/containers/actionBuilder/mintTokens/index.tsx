@@ -29,7 +29,7 @@ import {ActionIndex} from 'utils/types';
 import {AddressAndTokenRow} from './addressTokenRow';
 import MintTokensToTreasuryMenu from 'containers/mintTokensToTreasuryMenu';
 
-type MintTokensProps = ActionIndex;
+type MintTokensProps = ActionIndex & {allowRemove?: boolean};
 
 type MintInfo = {
   address: string;
@@ -41,7 +41,10 @@ type AddressBalance = {
   balance: BigNumber;
 };
 
-const MintTokens: React.FC<MintTokensProps> = ({actionIndex}) => {
+const MintTokens: React.FC<MintTokensProps> = ({
+  actionIndex,
+  allowRemove = true,
+}) => {
   const {t} = useTranslation();
   const {alert} = useAlertContext();
 
@@ -55,21 +58,28 @@ const MintTokens: React.FC<MintTokensProps> = ({actionIndex}) => {
     alert(t('alert.chip.resetAction'));
   };
 
-  const methodActions = [
-    {
-      component: <ListItemAction title={t('labels.resetAction')} bgWhite />,
-      callback: handleReset,
-    },
-    {
-      component: (
-        <ListItemAction title={t('labels.removeEntireAction')} bgWhite />
-      ),
-      callback: () => {
-        removeAction(actionIndex);
-        alert(t('alert.chip.removedAction'));
+  const methodActions = (() => {
+    const result = [
+      {
+        component: <ListItemAction title={t('labels.resetAction')} bgWhite />,
+        callback: handleReset,
       },
-    },
-  ];
+    ];
+
+    if (allowRemove) {
+      result.push({
+        component: (
+          <ListItemAction title={t('labels.removeEntireAction')} bgWhite />
+        ),
+        callback: () => {
+          removeAction(actionIndex);
+          alert(t('alert.chip.removedAction'));
+        },
+      });
+    }
+
+    return result;
+  })();
 
   return (
     <AccordionMethod

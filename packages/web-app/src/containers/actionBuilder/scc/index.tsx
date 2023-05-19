@@ -10,7 +10,10 @@ import {FormItem} from '../addAddresses';
 import {useAlertContext} from 'context/alert';
 import {ComponentForType} from 'containers/smartContractComposer/components/inputForm';
 
-const SCCAction: React.FC<ActionIndex> = ({actionIndex}) => {
+const SCCAction: React.FC<ActionIndex & {allowRemove?: boolean}> = ({
+  actionIndex,
+  allowRemove = true,
+}) => {
   const {t} = useTranslation();
   const {removeAction} = useActionsContext();
   const [actionData] = useWatch({
@@ -18,17 +21,23 @@ const SCCAction: React.FC<ActionIndex> = ({actionIndex}) => {
   });
   const {alert} = useAlertContext();
 
-  const methodActions = [
-    {
-      component: (
-        <ListItemAction title={t('labels.removeEntireAction')} bgWhite />
-      ),
-      callback: () => {
-        removeAction(actionIndex);
-        alert(t('alert.chip.removedAction'));
-      },
-    },
-  ];
+  const methodActions = (() => {
+    const result = [];
+
+    if (allowRemove) {
+      result.push({
+        component: (
+          <ListItemAction title={t('labels.removeEntireAction')} bgWhite />
+        ),
+        callback: () => {
+          removeAction(actionIndex);
+          alert(t('alert.chip.removedAction'));
+        },
+      });
+    }
+
+    return result;
+  })();
 
   return (
     <AccordionMethod
