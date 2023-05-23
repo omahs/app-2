@@ -102,7 +102,7 @@ const Container = styled.button.attrs(
 
     switch (mode) {
       case 'disabled':
-        className += ' text-ui-300 border-ui-200';
+        className += ' text-ui-300';
         className += bgWhite ? ' bg-ui-0' : ' bg-ui-50';
         break;
       case 'selected':
