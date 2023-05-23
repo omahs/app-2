@@ -23,6 +23,7 @@ export const useValidateContractEtherscan = (
 
   return useQuery({
     queryKey: ['verifyContractEtherscan', contractAddress, network],
+    staleTime: 3600000,
     queryFn: () => {
       return fetch(url).then(res => res.json());
     },

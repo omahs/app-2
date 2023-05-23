@@ -54,7 +54,11 @@ const InputForm: React.FC<InputFormProps> = ({
   const {setValue, resetField} = useFormContext();
   const [formError, setFormError] = useState(false);
 
+  useEffect(() => setFormError(false), [selectedAction]);
+
   const composeAction = useCallback(async () => {
+    setFormError(false);
+
     const etherscanData = await getEtherscanVerifiedContract(
       selectedSC.address,
       network
@@ -83,6 +87,7 @@ const InputForm: React.FC<InputFormProps> = ({
         setValue(`actions.${actionIndex}.contractAddress`, selectedSC.address);
         setValue(`actions.${actionIndex}.contractName`, selectedSC.name);
         setValue(`actions.${actionIndex}.functionName`, selectedAction.name);
+        setValue(`actions.${actionIndex}.notice`, selectedAction.notice);
 
         selectedAction.inputs?.map((input, index) => {
           setValue(`actions.${actionIndex}.inputs.${index}`, {
@@ -117,6 +122,7 @@ const InputForm: React.FC<InputFormProps> = ({
     sccActions,
     selectedAction.inputs,
     selectedAction.name,
+    selectedAction.notice,
     selectedSC.address,
     selectedSC.name,
     setValue,
@@ -182,6 +188,12 @@ const InputForm: React.FC<InputFormProps> = ({
   );
 };
 
+const classifyInputType = (inputName: string) => {
+  if (inputName.includes('int') && inputName.includes('[]') === false) {
+    return 'int';
+  } else return inputName;
+};
+
 type ComponentForTypeProps = {
   input: Input;
   functionName: string;
@@ -212,7 +224,7 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
   }, []);
 
   // Check if we need to add "index" kind of variable to the "name"
-  switch (input.type) {
+  switch (classifyInputType(input.type)) {
     case 'address':
       return (
         <Controller
@@ -245,14 +257,12 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
         />
       );
 
-    case 'uint':
     case 'int':
     case 'uint8':
     case 'int8':
     case 'uint32':
     case 'int32':
     case 'uint256':
-    case 'int256':
       return (
         <Controller
           defaultValue=""
@@ -274,22 +284,6 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
           )}
         />
       );
-
-    case 'tuple':
-      input.components?.map(component => (
-        <div key={component.name}>
-          <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
-            {input.name}
-          </div>
-          <ComponentForType
-            key={component.name}
-            input={component}
-            functionName={input.name}
-            disabled={disabled}
-          />
-        </div>
-      ));
-      break;
 
     default:
       return (
@@ -313,7 +307,6 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
         />
       );
   }
-  return null;
 };
 
 export const ComponentForTypeWithFormProvider: React.FC<

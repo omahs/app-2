@@ -1,13 +1,5 @@
-import {QueryClient} from '@tanstack/react-query';
+import {queryClient} from 'index';
 import {CHAIN_METADATA, SupportedNetworks} from 'utils/constants';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 3600000,
-    },
-  },
-});
 
 export const getEtherscanVerifiedContract = (
   contractAddress: string,
@@ -20,6 +12,7 @@ export const getEtherscanVerifiedContract = (
 
   return queryClient.fetchQuery({
     queryKey: ['verifyContractEtherscan', contractAddress, network],
+    staleTime: 3600000,
     queryFn: () => {
       return fetch(url).then(res => res.json());
     },

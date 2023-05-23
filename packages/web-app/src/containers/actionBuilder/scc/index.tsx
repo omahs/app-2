@@ -48,17 +48,22 @@ const SCCAction: React.FC<ActionIndex & {allowRemove?: boolean}> = ({
         smartContractName={actionData.contractName}
         // TODO: How should we add verified badge? (Etherscan/Sourcify verification status)?
         verified
-        // methodDescription={t('AddActionModal.withdrawAssetsActionSubtitle')}
+        methodDescription={actionData.notice}
       >
         <FormItem className="space-y-3 rounded-b-xl">
           {actionData.inputs?.length > 0 ? (
             <div className="space-y-2">
               {(actionData.inputs as Input[]).map((input, index) => (
                 <div key={input.name}>
-                  <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
+                  <div className="text-base font-bold text-ui-800 capitalize">
                     {input.name}
                     <span className="ml-0.5 text-sm normal-case">
                       ({input.type})
+                    </span>
+                  </div>
+                  <div className="mt-0.5 mb-1.5">
+                    <span className="text-ui-600 ft-text-sm">
+                      {input.notice}
                     </span>
                   </div>
                   <ComponentForType
