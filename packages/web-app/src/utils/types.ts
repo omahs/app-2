@@ -313,6 +313,7 @@ export type ActionSCC = {
     type: string;
     notice?: string;
     value: object | string | BigNumber;
+    components?: Input[];
   }>;
 };
 
@@ -427,6 +428,7 @@ export interface Input {
   components?: Input[];
   internalType?: string;
   notice?: string;
+  value?: unknown;
 }
 
 export type SmartContract = {

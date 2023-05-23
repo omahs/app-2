@@ -85,11 +85,27 @@ const InputForm: React.FC<InputFormProps> = ({
         setValue(`actions.${actionIndex}.functionName`, selectedAction.name);
 
         selectedAction.inputs?.map((input, index) => {
-          setValue(`actions.${actionIndex}.inputs.${index}`, {
-            ...selectedAction.inputs[index],
-            value:
-              sccActions[selectedSC.address][selectedAction.name][input.name],
-          });
+          // TODO: Recursively do this process
+          if (input.type === 'tuple') {
+            const data = {...selectedAction.inputs[index]};
+            if (data.components) {
+              data.components.map(
+                (component, index) =>
+                  (data.components![index].value = (
+                    sccActions[selectedSC.address][selectedAction.name][
+                      input.name
+                    ] as Record<string, unknown>
+                  )[component.name])
+              );
+            }
+            setValue(`actions.${actionIndex}.inputs.${index}`, data);
+          } else {
+            setValue(`actions.${actionIndex}.inputs.${index}`, {
+              ...selectedAction.inputs[index],
+              value:
+                sccActions[selectedSC.address][selectedAction.name][input.name],
+            });
+          }
         });
         resetField('sccActions');
         onComposeButtonClicked();
@@ -124,14 +140,14 @@ const InputForm: React.FC<InputFormProps> = ({
 
   if (!selectedAction) {
     return (
-      <div className="desktop:p-6 min-h-full bg-ui-50 desktop:bg-white">
+      <div className="desktop:p-6 min-h-full desktop:bg-white bg-ui-50">
         Sorry, no public Write functions were found for this contract.
       </div>
     );
   }
 
   return (
-    <div className="desktop:p-6 min-h-full bg-ui-50 desktop:bg-white">
+    <div className="desktop:p-6 min-h-full desktop:bg-white bg-ui-50">
       <div className="desktop:flex items-baseline space-x-3">
         <ActionName>{selectedAction.name}</ActionName>
         <div className="hidden desktop:flex items-center space-x-1 text-primary-600">
@@ -147,10 +163,10 @@ const InputForm: React.FC<InputFormProps> = ({
         <IconSuccess />
       </div>
       {selectedAction.inputs.length > 0 ? (
-        <div className="p-3 mt-5 space-y-2 bg-white desktop:bg-ui-50 rounded-xl border border-ui-100 shadow-100">
+        <div className="p-3 mt-5 space-y-2 bg-white rounded-xl border desktop:bg-ui-50 border-ui-100 shadow-100">
           {selectedAction.inputs.map(input => (
             <div key={input.name}>
-              <div className="text-base font-bold text-ui-800 capitalize">
+              <div className="text-base font-bold capitalize text-ui-800">
                 {input.name}
                 <span className="ml-0.5 text-sm normal-case">
                   ({input.type})
@@ -161,6 +177,7 @@ const InputForm: React.FC<InputFormProps> = ({
               </div>
               <ComponentForType
                 key={input.name}
+                context="SCCModal"
                 input={input}
                 functionName={`${selectedSC.address}.${selectedAction.name}`}
               />
@@ -183,14 +200,22 @@ const InputForm: React.FC<InputFormProps> = ({
 };
 
 type ComponentForTypeProps = {
+  context: 'SCCModal' | 'SCCAction' | 'ExecutionWidget';
   input: Input;
-  functionName: string;
+  functionName?: string;
   formHandleName?: string;
   defaultValue?: unknown;
   disabled?: boolean;
 };
 
+const classifyInputType = (inputName: string) => {
+  if (inputName.includes('int') && inputName.includes('[]') === false) {
+    return 'int';
+  } else return inputName;
+};
+
 export const ComponentForType: React.FC<ComponentForTypeProps> = ({
+  context,
   input,
   functionName,
   formHandleName,
@@ -201,7 +226,9 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
   const {setValue} = useFormContext();
 
   const formName = formHandleName
-    ? formHandleName
+    ? context !== 'SCCModal'
+      ? `${formHandleName}.value`
+      : formHandleName
     : `sccActions.${functionName}.${input.name}`;
 
   useEffect(() => {
@@ -212,7 +239,7 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
   }, []);
 
   // Check if we need to add "index" kind of variable to the "name"
-  switch (input.type) {
+  switch (classifyInputType(input.type)) {
     case 'address':
       return (
         <Controller
@@ -245,14 +272,7 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
         />
       );
 
-    case 'uint':
     case 'int':
-    case 'uint8':
-    case 'int8':
-    case 'uint32':
-    case 'int32':
-    case 'uint256':
-    case 'int256':
       return (
         <Controller
           defaultValue=""
@@ -276,20 +296,39 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
       );
 
     case 'tuple':
-      input.components?.map(component => (
-        <div key={component.name}>
-          <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
-            {input.name}
-          </div>
-          <ComponentForType
-            key={component.name}
-            input={component}
-            functionName={input.name}
-            disabled={disabled}
-          />
+      // eslint-disable-next-line no-case-declarations
+      const components =
+        input.components ||
+        Object.entries(input.value)
+          .filter(([key]) => Number.isNaN(Number(key)))
+          .map(([k, v]) => ({name: k, value: v}));
+
+      console.log(components);
+
+      return components ? (
+        <div className="px-2 space-y-2">
+          {components.map((component, index) => (
+            <div key={component.name}>
+              <div className="mb-1.5 text-base font-bold capitalize text-ui-800">
+                {component.name}
+              </div>
+              <ComponentForType
+                key={component.name}
+                context={context}
+                input={component}
+                functionName={`${functionName}.${input.name}`}
+                formHandleName={
+                  context !== 'SCCModal'
+                    ? `${formHandleName}.components.${index}`
+                    : undefined
+                }
+                defaultValue={context === 'ExecutionWidget' && component.value}
+                disabled={disabled}
+              />
+            </div>
+          ))}
         </div>
-      ));
-      break;
+      ) : null;
 
     default:
       return (
@@ -313,7 +352,6 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
         />
       );
   }
-  return null;
 };
 
 export const ComponentForTypeWithFormProvider: React.FC<
@@ -324,6 +362,7 @@ export const ComponentForTypeWithFormProvider: React.FC<
     <FormProvider {...methods}>
       <ComponentForType
         key={input.name}
+        context="ExecutionWidget"
         input={input}
         functionName={functionName}
         disabled={disabled}

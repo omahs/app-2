@@ -55,7 +55,7 @@ const SCCAction: React.FC<ActionIndex & {allowRemove?: boolean}> = ({
             <div className="space-y-2">
               {(actionData.inputs as Input[]).map((input, index) => (
                 <div key={input.name}>
-                  <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
+                  <div className="mb-1.5 text-base font-bold capitalize text-ui-800">
                     {input.name}
                     <span className="ml-0.5 text-sm normal-case">
                       ({input.type})
@@ -63,9 +63,9 @@ const SCCAction: React.FC<ActionIndex & {allowRemove?: boolean}> = ({
                   </div>
                   <ComponentForType
                     key={input.name}
+                    context="SCCAction"
                     input={input}
-                    functionName={actionData.name}
-                    formHandleName={`actions.${actionIndex}.inputs.${index}.value`}
+                    formHandleName={`actions.${actionIndex}.inputs.${index}`}
                   />
                 </div>
               ))}
