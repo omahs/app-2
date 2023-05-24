@@ -111,6 +111,10 @@ const InputForm: React.FC<InputFormProps> = ({
           smart_contract_name: selectedSC.name,
           method_name: selectedAction.name,
         });
+
+        addAction({
+          name: 'external_contract_modal',
+        });
       } catch (e) {
         // Invalid input data being passed to the action
         setFormError(true);
