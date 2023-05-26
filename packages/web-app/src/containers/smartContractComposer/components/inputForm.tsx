@@ -299,11 +299,6 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
       );
 
     case 'int':
-    case 'uint8':
-    case 'int8':
-    case 'uint32':
-    case 'int32':
-    case 'uint256':
       return (
         <Controller
           defaultValue=""
@@ -325,26 +320,6 @@ export const ComponentForType: React.FC<ComponentForTypeProps> = ({
           )}
         />
       );
-
-    case 'tuple':
-      return (
-        <>
-          {input.components?.map(component => (
-            <div key={component.name}>
-              <div className="mb-1.5 text-base font-bold text-ui-800 capitalize">
-                {input.name}
-              </div>
-              <ComponentForType
-                key={component.name}
-                input={component}
-                functionName={input.name}
-                disabled={disabled}
-              />
-            </div>
-          ))}
-        </>
-      );
-      break;
 
     default:
       return (
