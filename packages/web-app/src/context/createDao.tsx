@@ -3,14 +3,14 @@ import {
   CreateDaoParams,
   DaoCreationSteps,
   DaoMetadata,
-  IPluginInstallItem,
-  ITokenVotingPluginInstall,
+  PluginInstallItem,
+  TokenVotingPluginInstall,
   MultisigClient,
   MultisigPluginInstallParams,
   TokenVotingClient,
   VotingMode,
   VotingSettings,
-  SupportedNetworks as sdkSupportedNetworks,
+  SupportedNetwork as sdkSupportedNetworks,
 } from '@aragon/sdk-client';
 import {parseUnits} from 'ethers/lib/utils';
 import React, {createContext, useCallback, useContext, useState} from 'react';
@@ -211,7 +211,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
   }, [getValues]);
 
   const getErc20PluginParams =
-    useCallback((): ITokenVotingPluginInstall['newToken'] => {
+    useCallback((): TokenVotingPluginInstall['newToken'] => {
       const {tokenName, tokenSymbol, wallets} = getValues();
       return {
         name: tokenName,
@@ -229,7 +229,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
   const getDaoSettings = useCallback(async (): Promise<CreateDaoParams> => {
     const {membership, daoName, daoEnsName, daoSummary, daoLogo, links} =
       getValues();
-    const plugins: IPluginInstallItem[] = [];
+    const plugins: PluginInstallItem[] = [];
     switch (membership) {
       case 'multisig': {
         const [params, network] = getMultisigPluginInstallParams();

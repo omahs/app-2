@@ -1,4 +1,4 @@
-import {Erc20TokenDetails} from '@aragon/sdk-client';
+import {Erc20TokenDetails, TokenVotingMember} from '@aragon/sdk-client';
 import {useNetwork} from 'context/network';
 import {useSpecificProvider} from 'context/providers';
 import {useEffect, useState} from 'react';
@@ -54,7 +54,9 @@ export const useDaoMembers = (
   searchTerm?: string
 ): HookData<DaoMembers> => {
   const [data, setData] = useState<BalanceMember[] | MultisigMember[]>([]);
-  const [rawMembers, setRawMembers] = useState<string[]>();
+  const [rawMembers, setRawMembers] = useState<
+    TokenVotingMember[] | string[]
+  >();
   const [filteredData, setFilteredData] = useState<
     BalanceMember[] | MultisigMember[]
   >([]);
@@ -109,14 +111,22 @@ export const useDaoMembers = (
 
       if (isTokenBased && daoToken?.address) {
         const balances = await Promise.all(
-          rawMembers.map(m =>
-            fetchBalance(
-              daoToken?.address,
-              m,
-              provider,
-              CHAIN_METADATA[network].nativeCurrency
-            )
-          )
+          rawMembers.map(m => {
+            if ((m as TokenVotingMember)?.address)
+              return fetchBalance(
+                daoToken?.address,
+                (m as TokenVotingMember)?.address,
+                provider,
+                CHAIN_METADATA[network].nativeCurrency
+              );
+            else
+              return fetchBalance(
+                daoToken?.address,
+                m as string,
+                provider,
+                CHAIN_METADATA[network].nativeCurrency
+              );
+          })
         );
 
         members = rawMembers.map(

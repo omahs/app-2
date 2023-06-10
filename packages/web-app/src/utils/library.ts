@@ -5,11 +5,11 @@ import {
   DaoAction,
   DaoDetails,
   Erc20TokenDetails,
-  IMintTokenParams,
+  MintTokenParams,
   MultisigClient,
   MultisigVotingSettings,
   Context as SdkContext,
-  SupportedNetworks as SdkSupportedNetworks,
+  SupportedNetwork as SdkSupportedNetworks,
   TokenVotingClient,
   VotingMode,
 } from '@aragon/sdk-client';
@@ -210,7 +210,7 @@ export async function decodeMintTokensToAction(
 
     const decoded = data.map(action => {
       // decode action
-      const {amount, address}: IMintTokenParams =
+      const {amount, address}: MintTokenParams =
         client.decoding.mintTokenAction(action);
 
       // update new tokens count
@@ -600,13 +600,13 @@ export function translateToNetworkishName(
 
   switch (appNetwork) {
     case 'polygon':
-      return 'matic';
+      return SdkSupportedNetworks.POLYGON;
     case 'mumbai':
-      return 'maticmum';
+      return SdkSupportedNetworks.MUMBAI;
     case 'ethereum':
-      return 'homestead';
+      return SdkSupportedNetworks.MAINNET;
     case 'goerli':
-      return 'goerli';
+      return SdkSupportedNetworks.GOERLI;
   }
 
   return 'unsupported';
