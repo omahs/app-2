@@ -5,7 +5,7 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 
-import ModalHeader from 'containers/smartContractComposer/components/modalHeader';
+import ModalHeader from 'components/modalHeader';
 import useScreen from 'hooks/useScreen';
 
 type Props = {
