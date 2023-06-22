@@ -35,13 +35,12 @@ const {publicClient} = configureChains(chains, [
 
 const wagmiConfig = createConfig({
   autoConnect: true,
-  connectors: [
-    ...w3mConnectors({
-      projectId: walletConnectProjectID,
-      version: 1,
-      chains,
-    }),
-  ],
+  connectors: w3mConnectors({
+    projectId: walletConnectProjectID,
+    version: 1,
+    chains,
+  }),
+
   publicClient,
 });
 
