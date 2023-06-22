@@ -1,14 +1,25 @@
+import {useMemo} from 'react';
 import {LIVE_CONTRACTS, SupportedNetworks} from '@aragon/sdk-client';
+import {JsonRpcSigner, Web3Provider} from '@ethersproject/providers';
 import {JsonRpcProvider} from '@ethersproject/providers';
-import {SignerValue, useSigner} from 'context/signer';
-import {BigNumber} from '@ethersproject/bignumber';
-import {useEffect, useMemo, useState} from 'react';
+import {
+  useAccount,
+  useDisconnect,
+  useBalance,
+  useEnsName,
+  useEnsAvatar,
+  useNetwork as useWagmiNetwork,
+} from 'wagmi';
+
+import {useWeb3Modal} from '@web3modal/react';
 
 import {useNetwork} from 'context/network';
 import {CHAIN_METADATA} from 'utils/constants';
 import {translateToNetworkishName} from 'utils/library';
+import {useEthersSigner} from './useEthersSigner';
+import {BigNumber} from 'ethers';
 
-export interface IUseWallet extends SignerValue {
+export interface IUseWallet {
   balance: BigNumber | null;
   ensAvatarUrl: string;
   ensName: string;
@@ -20,22 +31,29 @@ export interface IUseWallet extends SignerValue {
    */
   isOnWrongNetwork: boolean;
   network: string;
+  provider: Web3Provider | null;
+  signer: JsonRpcSigner | null;
+  status: 'connecting' | 'reconnecting' | 'connected' | 'disconnected';
+  address: string | null;
+  chainId: number;
+  methods: {
+    selectWallet: (
+      cacheProvider?: boolean,
+      networkId?: string
+    ) => Promise<void>;
+    disconnect: () => Promise<void>;
+  };
 }
 
 export const useWallet = (): IUseWallet => {
   const {network} = useNetwork();
-  const {
-    chainId,
-    methods,
-    signer,
-    provider: signerProvider,
-    address,
-    status,
-  } = useSigner();
-  const [balance, setBalance] = useState<BigNumber | null>(null);
-  const [ensName, setEnsName] = useState<string>('');
-  const [ensAvatarUrl, setEnsAvatarUrl] = useState<string>('');
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+
+  const {chain} = useWagmiNetwork();
+  const {address, status: wagmiStatus, isConnected} = useAccount();
+  const {disconnect} = useDisconnect();
+  const {open: openWeb3Modal} = useWeb3Modal();
+  const chainId = chain?.id || 0;
+  const signer = useEthersSigner(chainId);
 
   const provider = useMemo(() => {
     if (['mumbai', 'polygon'].includes(network)) {
@@ -47,47 +65,52 @@ export const useWallet = (): IUseWallet => {
             translateToNetworkishName(network) as SupportedNetworks
           ].ensRegistry,
       });
-    } else return signerProvider;
-  }, [signerProvider, network]);
+    } else return signer?.provider;
+  }, [network, signer?.provider]);
 
-  // Update balance
-  useEffect(() => {
-    if (address && provider) {
-      provider?.getBalance(address).then((newBalance: BigNumber) => {
-        setBalance(newBalance);
-      });
-    }
-  }, [provider, address]);
+  const {data: wagmiBalance} = useBalance({
+    address,
+  });
 
-  // Update ENS name and avatar
-  useEffect(() => {
-    if (provider && address) {
-      provider?.lookupAddress(address).then((name: string | null) => {
-        name ? setEnsName(name) : setEnsName('');
-      });
-      provider?.getAvatar(address).then((avatarUrl: string | null) => {
-        avatarUrl ? setEnsAvatarUrl(avatarUrl) : setEnsAvatarUrl('');
-      });
-    }
-  }, [address, provider]);
+  const {data: ensName} = useEnsName({
+    address,
+  });
 
-  // update isConnected
-  useEffect(() => {
-    setIsConnected(status === 'connected');
-  }, [status]);
+  const {data: ensAvatarUrl} = useEnsAvatar({
+    name: ensName,
+  });
 
-  const isOnWrongNetwork =
+  const balance: bigint | null = wagmiBalance?.value || null;
+  const isOnWrongNetwork: boolean =
     isConnected && CHAIN_METADATA[network].id !== chainId;
 
+  const methods = {
+    selectWallet: async (cacheProvider?: boolean, networkId?: string) => {
+      await new Promise(resolve => {
+        openWeb3Modal();
+        resolve({
+          networkId,
+          cacheProvider,
+        });
+      });
+    },
+    disconnect: async () => {
+      await new Promise(resolve => {
+        disconnect();
+        resolve(true);
+      });
+    },
+  };
+
   return {
-    provider: signerProvider,
-    signer,
-    status,
-    address,
+    provider: provider as Web3Provider,
+    signer: signer as JsonRpcSigner,
+    status: wagmiStatus,
+    address: address as string,
     chainId,
-    balance,
-    ensAvatarUrl,
-    ensName,
+    balance: BigNumber.from(balance),
+    ensAvatarUrl: ensAvatarUrl as string,
+    ensName: ensName as string,
     isConnected,
     isOnWrongNetwork,
     methods,
