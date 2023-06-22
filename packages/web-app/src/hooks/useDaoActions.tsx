@@ -50,6 +50,12 @@ export function useDaoActions(dao: string): HookData<ActionParameter[]> {
       isReuseable: true,
     },
     {
+      type: 'wallet_connect',
+      title: t('WalletConnect Title'),
+      subtitle: t('WalletConnect Subtitle'),
+      isReuseable: true,
+    },
+    {
       type: 'external_contract_modal',
       title: t('AddActionModal.externalContract'),
       subtitle: t('AddActionModal.externalContractSubtitle'),
