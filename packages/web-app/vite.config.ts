@@ -32,14 +32,20 @@ export default defineConfig(({mode}) => {
       reactRefresh(),
       tsconfigPaths(),
       typescript({tsconfig: './tsconfig.json'}),
-      !production &&
-        nodePolyfills({
-          include: [
-            'node_modules/**/*.js',
-            new RegExp('node_modules/.vite/.*js'),
-          ],
-        }),
     ],
+    optimizeDeps: {
+      // 👈 optimizedeps
+      esbuildOptions: {
+        target: 'esnext',
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis',
+        },
+        supported: {
+          bigint: true,
+        },
+      },
+    },
     build: {
       rollupOptions: {
         input: {
@@ -47,8 +53,6 @@ export default defineConfig(({mode}) => {
           nested: resolve(__dirname, 'ipfs-404.html'),
         },
         plugins: [
-          // ↓ Needed for build
-          nodePolyfills(),
           analyze({
             stdout: true,
             summaryOnly: true,
@@ -67,6 +71,7 @@ export default defineConfig(({mode}) => {
           },
         },
       },
+      target: ['esnext'],
       // minify: false,
       // ↓ Needed for build if using WalletConnect and other providers
       commonjsOptions: {
