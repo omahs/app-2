@@ -63,7 +63,7 @@ export function useDaoActions(dao: string): HookData<ActionParameter[]> {
     },
   ];
 
-  const multisigActions = baseActions.concat([
+  const multisigActions = [
     {
       type: 'add_address',
       title: t('AddActionModal.addAddresses'),
@@ -74,16 +74,16 @@ export function useDaoActions(dao: string): HookData<ActionParameter[]> {
       title: t('AddActionModal.removeAddresses'),
       subtitle: t('AddActionModal.removeAddressesSubtitle'),
     },
-  ]);
+  ].concat(baseActions) as ActionParameter[];
 
   const tokenVotingActions = showMintOption
-    ? baseActions.concat([
+    ? ([
         {
           type: 'mint_tokens',
           title: t('AddActionModal.mintTokens'),
           subtitle: t('AddActionModal.mintTokensSubtitle'),
         },
-      ])
+      ].concat(baseActions) as ActionParameter[])
     : baseActions;
 
   return {
