@@ -51,8 +51,8 @@ export function useDaoActions(dao: string): HookData<ActionParameter[]> {
     },
     {
       type: 'wallet_connect_modal',
-      title: t('WalletConnect Title'),
-      subtitle: t('WalletConnect Subtitle'),
+      title: t('AddActionModal.connectdApps.title'),
+      subtitle: t('AddActionModal.connectdApps.subtitle'),
       isReuseable: true,
     },
     {

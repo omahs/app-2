@@ -7,6 +7,7 @@ import styled from 'styled-components';
 
 import ModalHeader from 'components/modalHeader';
 import useScreen from 'hooks/useScreen';
+import {htmlIn} from 'utils/htmlIn';
 
 type Props = {
   onBackButtonClicked: () => void;
@@ -22,7 +23,7 @@ const EmptyState: React.FC<Props> = props => {
   return (
     <ModalBottomSheetSwitcher isOpen={props.isOpen} onClose={props.onClose}>
       <ModalHeader
-        title={t('WalletConnect Empty State Title')}
+        title={t('wc.emptyState.modalTitle')}
         onClose={props.onClose}
         showBackButton
         onBackButtonClicked={props.onBackButtonClicked}
@@ -34,11 +35,15 @@ const EmptyState: React.FC<Props> = props => {
         </div>
         <ContentWrapper>
           <TextWrapper>
-            <Title>{t('Empty state title')}</Title>
-            <Description>{t('Empty state description')}</Description>
+            <Title>{t('wc.emptyState.title')}</Title>
+            <Description
+              dangerouslySetInnerHTML={{
+                __html: htmlIn(t)('wc.emptyState.desc'),
+              }}
+            />
           </TextWrapper>
           <ButtonText
-            label={t('Empty state cta')}
+            label={t('wc.emptyState.ctaLabel')}
             mode="primary"
             size="large"
             className="w-full"
