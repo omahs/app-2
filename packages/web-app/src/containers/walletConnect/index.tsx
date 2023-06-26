@@ -2,7 +2,7 @@ import React, {useCallback, useState} from 'react';
 import {useFormContext} from 'react-hook-form';
 
 import {useActionsContext} from 'context/actions';
-import WCdAppValidation, {WC_ID_INPUT_NAME} from './dAppValidationModal';
+import WCdAppValidation, {WC_CODE_INPUT_NAME} from './dAppValidationModal';
 import EmptyState from './emptyStateModal';
 
 type WalletConnectProps = {
@@ -33,7 +33,7 @@ const WalletConnect: React.FC<WalletConnectProps> = ({actionIndex}) => {
   /* ******* dApp Validation handlers ******* */
   const handleClosedAppValidation = useCallback(() => {
     removeAction(actionIndex);
-    resetField(WC_ID_INPUT_NAME);
+    resetField(WC_CODE_INPUT_NAME);
     setdAppValidationIsOpen(false);
   }, [actionIndex, removeAction, resetField]);
 

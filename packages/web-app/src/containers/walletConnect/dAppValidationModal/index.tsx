@@ -1,4 +1,5 @@
 import {
+  AlertInline,
   ButtonText,
   IconReload,
   IconSpinner,
@@ -29,7 +30,7 @@ type Props = {
 };
 
 // Wallet connect id input name
-export const WC_ID_INPUT_NAME = 'wcID';
+export const WC_CODE_INPUT_NAME = 'wcID';
 
 const WCdAppValidation: React.FC<Props> = props => {
   const {t} = useTranslation();
@@ -40,16 +41,16 @@ const WCdAppValidation: React.FC<Props> = props => {
 
   const {control} = useFormContext();
   const {errors} = useFormState({control});
-  const [wcId] = useWatch({name: [WC_ID_INPUT_NAME], control});
+  const [wcCode] = useWatch({name: [WC_CODE_INPUT_NAME], control});
 
   const ctaLabel = useMemo(() => {
     switch (connectionStatus) {
       case ConnectionState.LOADING:
         return t('wc.validation.ctaLabel.verifying');
       case ConnectionState.ERROR:
-        return t('Retry');
+        return t('wc.validation.ctaLabel.retry');
       case ConnectionState.SUCCESS:
-        return t('Start adding actions');
+        return t('wc.validation.ctaLabel.startAddingActions');
       case ConnectionState.WAITING:
       default:
         return t('Connect dApp');
@@ -63,12 +64,12 @@ const WCdAppValidation: React.FC<Props> = props => {
     )
       return t('labels.copy');
 
-    if (wcId) return t('labels.clear');
+    if (wcCode) return t('labels.clear');
 
     return t('labels.paste');
-  }, [connectionStatus, t, wcId]);
+  }, [connectionStatus, t, wcCode]);
 
-  const disableCta = !wcId || Boolean(errors[WC_ID_INPUT_NAME]);
+  const disableCta = !wcCode || Boolean(errors[WC_CODE_INPUT_NAME]);
 
   /*************************************************
    *             Callbacks and Handlers            *
@@ -107,8 +108,9 @@ const WCdAppValidation: React.FC<Props> = props => {
             label={t('wc.validation.codeInputLabel')}
             helpText={t('wc.validation.codeInputHelp')}
           />
+          {/* TODO: Please add validation when format of wc Code is known */}
           <Controller
-            name={WC_ID_INPUT_NAME}
+            name={WC_CODE_INPUT_NAME}
             control={control}
             defaultValue=""
             render={({
@@ -122,10 +124,23 @@ const WCdAppValidation: React.FC<Props> = props => {
                   onBlur={onBlur}
                   onChange={onChange}
                   value={value}
-                  placeholder="wc:…"
+                  placeholder={t('wc.validation.codeInputPlaceholder')}
                   adornmentText={adornmentText}
                   onAdornmentClick={() => handleAdornmentClick(value, onChange)}
                 />
+                {error?.message && (
+                  <AlertWrapper>
+                    <AlertInline label={error.message} mode="critical" />
+                  </AlertWrapper>
+                )}
+                {connectionStatus === ConnectionState.SUCCESS && (
+                  <AlertWrapper>
+                    <AlertInline
+                      label={t('wc.validation.codeInput.statusSuccess')}
+                      mode="critical"
+                    />
+                  </AlertWrapper>
+                )}
               </>
             )}
           />
@@ -155,3 +170,5 @@ const Content = styled.div.attrs({
 })``;
 
 const FormGroup = styled.div.attrs({className: 'space-y-1.5'})``;
+
+const AlertWrapper = styled.div.attrs({className: 'mt-1.5'})``;

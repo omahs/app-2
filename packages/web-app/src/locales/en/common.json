@@ -1215,9 +1215,11 @@
       "modalTitle": "Connect dApp",
       "codeInputHelp": "Copy the QR Code to your Clipboard and past it below to connect to your desired dApp.",
       "codeInputLabel": "WalletConnect QR code",
-      "codeInputPlaceholder": "wc:…",
+      "codeInputPlaceholder": "wc: …",
       "ctaLabel": {
-        "verifying": "Connecting dApp ..."
+        "verifying": "Connecting dApp …",
+        "retry": "Retry",
+        "startAddingActions": "Start adding actions"
       },
       "addressInput": {
         "alertCritical": "Failure in connecting the dApp. Try again"
