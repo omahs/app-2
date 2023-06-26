@@ -20,6 +20,7 @@ import {useEthersSigner} from './useEthersSigner';
 import {BigNumber} from 'ethers';
 
 export interface IUseWallet {
+  connectorName: string;
   balance: BigNumber | null;
   ensAvatarUrl: string;
   ensName: string;
@@ -50,7 +51,7 @@ export const useWallet = (): IUseWallet => {
   const {network} = useNetwork();
 
   const {chain} = useWagmiNetwork();
-  const {address, status: wagmiStatus, isConnected} = useAccount();
+  const {address, status: wagmiStatus, isConnected, connector} = useAccount();
   const {disconnect} = useDisconnect();
   const {open: openWeb3Modal, isOpen} = useWeb3Modal();
   const chainId = chain?.id || 0;
@@ -104,6 +105,7 @@ export const useWallet = (): IUseWallet => {
   };
 
   return {
+    connectorName: connector?.name || '',
     provider: provider as Web3Provider,
     signer: signer as JsonRpcSigner,
     status: wagmiStatus,
