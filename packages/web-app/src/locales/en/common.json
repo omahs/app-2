@@ -1198,35 +1198,34 @@
       "descLinkURL": "https://"
     },
     "listdApps": {
-      "ctaLabel": "Connect dApp",
       "pretitle": {
         "searchResults": "{{amount}} dApps results"
       },
       "emptyStateSearch": {
         "title": "No results to show",
-        "desc": "No dApps connected found for this search.",
+        "desc": "No connected dApps found for this search term.",
         "ctaLabel": "Reset search"
       },
       "listTitle": "{{amount}} connected dApps",
       "learnLinkURL": "https://",
-      "learnLinkLabel": "Learn more"
+      "learnLinkLabel": "Learn more",
+      "ctaLabelDefault": "Connect dApp"
     },
     "validation": {
       "modalTitle": "Connect dApp",
       "codeInputHelp": "Copy the QR Code to your Clipboard and past it below to connect to your desired dApp.",
       "codeInputLabel": "WalletConnect QR code",
       "codeInputPlaceholder": "wc: …",
-      "ctaLabel": {
-        "verifying": "Connecting dApp …",
-        "retry": "Retry",
-        "startAddingActions": "Start adding actions"
-      },
+      "ctaLabel": "Connect dApp",
       "addressInput": {
         "alertCritical": "Failure in connecting the dApp. Try again"
       },
       "codeInput": {
         "statusSuccess": "{{dappName}} connected"
-      }
+      },
+      "ctaLabelSuccess": "Start adding actions",
+      "ctaLabelCritical": "Retry",
+      "ctaLabelVerifying": "Connecting dApp …"
     },
     "detaildApp": {
       "spinnerLabel": "Listening for actions...",

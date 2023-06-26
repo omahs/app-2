@@ -46,14 +46,14 @@ const WCdAppValidation: React.FC<Props> = props => {
   const ctaLabel = useMemo(() => {
     switch (connectionStatus) {
       case ConnectionState.LOADING:
-        return t('wc.validation.ctaLabel.verifying');
+        return t('wc.validation.ctaLabelVerifying');
       case ConnectionState.ERROR:
-        return t('wc.validation.ctaLabel.retry');
+        return t('wc.validation.ctaLabelCritical');
       case ConnectionState.SUCCESS:
-        return t('wc.validation.ctaLabel.startAddingActions');
+        return t('wc.validation.ctaLabelSuccess');
       case ConnectionState.WAITING:
       default:
-        return t('Connect dApp');
+        return t('wc.validation.ctaLabel');
     }
   }, [t, connectionStatus]);
 
