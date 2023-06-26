@@ -24,6 +24,7 @@ export interface IUseWallet {
   ensAvatarUrl: string;
   ensName: string;
   isConnected: boolean;
+  isModalOpen: boolean;
   /**
    * Returns true iff the wallet is connected and it is on the wrong network
    * (i.e., the chainId returned by the useSigner context does not agree with
@@ -51,7 +52,7 @@ export const useWallet = (): IUseWallet => {
   const {chain} = useWagmiNetwork();
   const {address, status: wagmiStatus, isConnected} = useAccount();
   const {disconnect} = useDisconnect();
-  const {open: openWeb3Modal} = useWeb3Modal();
+  const {open: openWeb3Modal, isOpen} = useWeb3Modal();
   const chainId = chain?.id || 0;
   const signer = useEthersSigner(chainId);
 
@@ -112,6 +113,7 @@ export const useWallet = (): IUseWallet => {
     ensAvatarUrl: ensAvatarUrl as string,
     ensName: ensName as string,
     isConnected,
+    isModalOpen: isOpen,
     isOnWrongNetwork,
     methods,
     network,
