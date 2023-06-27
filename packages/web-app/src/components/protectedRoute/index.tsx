@@ -20,7 +20,7 @@ import {fetchBalance} from 'utils/tokens';
 const ProtectedRoute: React.FC = () => {
   const navigate = useNavigate();
   const {open, close, isGatingOpen} = useGlobalModalContext();
-  const {address, status, isOnWrongNetwork, isModalOpen} = useWallet();
+  const {address, status, isOnWrongNetwork} = useWallet();
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetailsQuery();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -113,26 +113,23 @@ const ProtectedRoute: React.FC = () => {
     // no lasting consequences considering status will be checked upon proposal creation
     // If we want to keep user logged in (I'm in favor of), remove ref throughout component
     // Fabrice F. - [12/07/2022]
-    if (
-      (!address && isModalOpen === false) ||
-      (!address && userWentThroughLoginFlow.current === false)
-    )
-      open('wallet');
+    if (!address && userWentThroughLoginFlow.current === false)
+      setShowLoginModal(true);
     else {
       if (isOnWrongNetwork) open('network');
       else close('network');
     }
-  }, [address, close, isModalOpen, isOnWrongNetwork, open, status]);
+  }, [address, close, isOnWrongNetwork, open, status]);
 
   // close the wallet modal when the wallet is connected
   useEffect(() => {
     if (
-      ((status === 'connecting' && isModalOpen === true) || address) &&
+      (status === 'connecting' || address) &&
       userWentThroughLoginFlow.current === false
     ) {
       setShowLoginModal(false);
     }
-  }, [address, close, isModalOpen, isOnWrongNetwork, status]);
+  }, [address, close, isOnWrongNetwork, status]);
 
   // wallet connected and on right network, authenticate
   useEffect(() => {
