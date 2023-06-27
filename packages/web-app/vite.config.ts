@@ -3,6 +3,7 @@ import reactRefresh from '@vitejs/plugin-react-refresh';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import {defineConfig, loadEnv} from 'vite';
 import {resolve} from 'path';
+// import nodePolyfills from 'rollup-plugin-polyfill-node';
 import analyze from 'rollup-plugin-analyzer';
 import {uglify} from 'rollup-plugin-uglify';
 
@@ -34,18 +35,14 @@ export default defineConfig(({mode}) => {
     ],
     optimizeDeps: {
       // 👈 optimizedeps
-      esbuildOptions: {
-        target: 'esnext',
-        // Node.js global to browser globalThis
-        define: {
-          global: 'globalThis',
-        },
-        supported: {
-          bigint: true,
+      optimizeDeps: {
+        esbuildOptions: {
+          target: 'es2020',
         },
       },
     },
     build: {
+      target: 'es2020',
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
@@ -70,7 +67,6 @@ export default defineConfig(({mode}) => {
           },
         },
       },
-      target: ['esnext'],
       // minify: false,
       // ↓ Needed for build if using WalletConnect and other providers
       commonjsOptions: {
