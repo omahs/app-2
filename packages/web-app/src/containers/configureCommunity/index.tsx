@@ -135,7 +135,9 @@ const ConfigureCommunity: React.FC = () => {
   );
 
   const percentageInputValidator = (value: string | number) => {
-    return value <= 100 && value >= 0 ? true : t('errors.percentage');
+    return Number(value) <= 100 && Number(value) >= 0
+      ? true
+      : t('errors.percentage');
   };
 
   /*************************************************

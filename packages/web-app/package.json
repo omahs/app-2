@@ -33,6 +33,8 @@
     "@tiptap/react": "^2.0.0-beta.104",
     "@tiptap/starter-kit": "^2.0.0-beta.168",
     "@walletconnect/web3-provider": "^1.8.0",
+    "@web3modal/ethereum": "^2.6.0",
+    "@web3modal/react": "^2.6.0",
     "apollo-link-rest": "^0.9.0-rc.1",
     "apollo3-cache-persist": "^0.14.0",
     "big.js": "^6.2.1",
@@ -55,8 +57,11 @@
     "sanitize-html": "^2.10.0",
     "styled-components": "^5.3.1",
     "tailwindcss-fluid-type": "^1.3.1",
+    "typescript": "^5.1.3",
     "use-react-router-breadcrumbs": "^3.0.1",
     "use-wallet": "^0.13.4",
+    "viem": "^1.1.8",
+    "wagmi": "^1.3.1",
     "web3modal": "1.9.7"
   },
   "devDependencies": {

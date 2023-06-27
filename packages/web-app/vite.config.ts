@@ -40,6 +40,19 @@ export default defineConfig(({mode}) => {
           ],
         }),
     ],
+    optimizeDeps: {
+      // 👈 optimizedeps
+      esbuildOptions: {
+        target: 'esnext',
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis',
+        },
+        supported: {
+          bigint: true,
+        },
+      },
+    },
     build: {
       rollupOptions: {
         input: {
@@ -67,6 +80,7 @@ export default defineConfig(({mode}) => {
           },
         },
       },
+      target: ['esnext'],
       // minify: false,
       // ↓ Needed for build if using WalletConnect and other providers
       commonjsOptions: {
