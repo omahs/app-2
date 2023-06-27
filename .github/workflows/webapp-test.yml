@@ -55,7 +55,7 @@ jobs:
           projectBaseDir: ./packages/web-app/
           args: >
             -Dsonar.organization=aragon
-            -Dsonar.projectKey=aragon_zaragoza
+            -Dsonar.projectKey=aragon_app
             -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
             -Dsonar.sources=src/
         env:
