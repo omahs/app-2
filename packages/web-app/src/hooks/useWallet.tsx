@@ -1,13 +1,17 @@
-import {useMemo} from 'react';
 import {LIVE_CONTRACTS, SupportedNetworks} from '@aragon/sdk-client';
-import {JsonRpcSigner, Web3Provider} from '@ethersproject/providers';
-import {JsonRpcProvider} from '@ethersproject/providers';
+import {
+  JsonRpcProvider,
+  JsonRpcSigner,
+  Web3Provider,
+} from '@ethersproject/providers';
+import {BigNumber} from 'ethers';
+import {useMemo} from 'react';
 import {
   useAccount,
-  useDisconnect,
   useBalance,
-  useEnsName,
+  useDisconnect,
   useEnsAvatar,
+  useEnsName,
   useNetwork as useWagmiNetwork,
 } from 'wagmi';
 
@@ -17,7 +21,6 @@ import {useNetwork} from 'context/network';
 import {CHAIN_METADATA} from 'utils/constants';
 import {translateToNetworkishName} from 'utils/library';
 import {useEthersSigner} from './useEthersSigner';
-import {BigNumber} from 'ethers';
 
 export interface IUseWallet {
   connectorName: string;
