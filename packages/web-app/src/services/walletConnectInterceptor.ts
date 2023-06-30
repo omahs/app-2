@@ -2,9 +2,9 @@
 import {walletConnectProjectID} from 'utils/constants';
 import {Core} from '@walletconnect/core';
 import {buildApprovedNamespaces, getSdkError} from '@walletconnect/utils';
-import {Web3Wallet} from '@walletconnect/web3wallet';
+import Web3Wallet from '@walletconnect/web3wallet';
 
-export type WcClient = any;
+export type WcClient = Web3Wallet;
 
 export interface WcConnectProposalEvent {
   id: number;
@@ -57,7 +57,7 @@ export interface WcDisconnectEvent {
 
 export async function makeClient(): Promise<WcClient> {
   const core = new Core({
-    projectId: 'a312303bfee4d9c1cdbc5e638e8aa438' || walletConnectProjectID,
+    projectId: 'faadcdbb34124f7e43672b0592293d3f' || walletConnectProjectID,
   });
 
   return Web3Wallet.init({
@@ -114,7 +114,7 @@ export function unsubscribeDisconnect(
 }
 
 export async function connect(client: WcClient, uri: string) {
-  return client.core.pairing.pair({uri});
+  return client.core.pairing.pair({uri, activatePairing: true});
 }
 
 export async function approveSession(
