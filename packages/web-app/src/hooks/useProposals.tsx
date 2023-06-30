@@ -224,16 +224,7 @@ export function useProposals(
          * of prioritizing the active state over the successful one
          * when the end date has not yet been reached
          */
-        const proposals = response?.map(proposalEntity => {
-          let proposal = proposalEntity;
-
-          if (isTokenBasedProposal(proposal)) {
-            proposal = {
-              ...proposal,
-              token: proposal.token || daoToken || null,
-            };
-          }
-
+        const proposals = response?.map(proposal => {
           if (proposal.status === ProposalStatus.SUCCEEDED) {
             // prioritize active state over succeeded one if end time has yet
             // to be met
@@ -243,6 +234,13 @@ export function useProposals(
             // for a multisig, make sure a vote has actually been cast
             if (isMultisigProposal(proposal) && proposal.approvals.length === 0)
               return {...proposal, status: ProposalStatus.DEFEATED};
+          }
+
+          if (isTokenBasedProposal(proposal)) {
+            return {
+              ...proposal,
+              token: proposal.token || daoToken || null,
+            };
           }
 
           return proposal;
