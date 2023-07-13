@@ -39,7 +39,7 @@ import {
   EmptyStateContainer,
   EmptyStateHeading,
 } from 'containers/pageEmptyState';
-//import {useGlobalModalContext} from 'context/globalModals';
+import {useGlobalModalContext} from 'context/globalModals';
 
 enum DaoCreationState {
   ASSEMBLING_DAO,
@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const {network} = useNetwork();
   const {dao: urlAddressOrEns} = useParams();
-  // const {open} = useGlobalModalContext();
+  const {open} = useGlobalModalContext();
 
   const [pollInterval, setPollInterval] = useState(0);
   const [daoCreationState, setDaoCreationState] = useState<DaoCreationState>(
