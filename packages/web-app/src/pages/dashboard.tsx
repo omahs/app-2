@@ -93,10 +93,12 @@ const Dashboard: React.FC = () => {
         dao: liveAddressOrEns,
       })
     );
+    /*
     const networkInfo = CHAIN_METADATA[network];
     if (!networkInfo.testnet) {
       open('poapClaim');
     }
+    */
   });
 
   const favoriteDaoMatchPredicate = useCallback(
