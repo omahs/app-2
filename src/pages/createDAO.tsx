@@ -176,9 +176,6 @@ const CreateDAO: React.FC = () => {
       ) {
         return false;
       }
-      if (!['multisig', 'anyone'].includes(eligibilityType)) {
-        return false;
-      }
       return true;
       // if token based dao
     } else {
@@ -227,6 +224,19 @@ const CreateDAO: React.FC = () => {
     tokenTotalSupply,
     tokenType,
   ]);
+
+  const proposalCreationIsValid = useMemo(() => {
+    // required fields not dirty
+    // if multisig
+    if (membership === 'multisig') {
+      if (!['multisig', 'anyone'].includes(eligibilityType)) {
+        return false;
+      }
+      return true;
+    } else {
+      return !errors.eligibilityTokenAmount;
+    }
+  }, [eligibilityType, errors.eligibilityTokenAmount, membership]);
 
   const daoConfigureCommunity = useMemo(() => {
     if (
@@ -330,7 +340,9 @@ const CreateDAO: React.FC = () => {
           <Step
             wizardTitle={t('createDAO.step4.title')}
             wizardDescription={htmlIn(t)('createDAO.step4.description')}
-            isNextButtonDisabled={!daoConfigureCommunity}
+            isNextButtonDisabled={
+              !daoConfigureCommunity && proposalCreationIsValid
+            }
             onNextButtonClicked={next =>
               handleNextButtonTracking(next, '4_configure_governance', {
                 minimum_approval: formMethods.getValues('minimumApproval'),
