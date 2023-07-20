@@ -55,6 +55,7 @@ export type CreateDaoFormData = {
   voteReplacement: boolean;
   multisigWallets: MultisigWalletField[];
   multisigMinimumApprovals: number;
+  votingType: 'onChain' | 'offChain';
 };
 
 const defaultValues = {
@@ -328,6 +329,7 @@ const CreateDAO: React.FC = () => {
             onNextButtonClicked={next =>
               handleNextButtonTracking(next, '3_setup_community', {
                 governance_type: formMethods.getValues('membership'),
+                voting_type: formMethods.getValues('votingType'),
                 token_name: formMethods.getValues('tokenName'),
                 symbol: formMethods.getValues('tokenSymbol'),
                 token_address: formMethods.getValues('tokenAddress.address'),
