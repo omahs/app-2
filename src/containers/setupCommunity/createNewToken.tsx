@@ -101,15 +101,6 @@ const CreateNewToken: React.FC = () => {
         />
         <AddWallets />
       </FormItem>
-      <FormItem>
-        <DescriptionContainer>
-          <Label
-            label={t('labels.proposalCreation')}
-            helpText={t('createDAO.step3.proposalCreationHelpertext')}
-          />
-        </DescriptionContainer>
-        <SelectEligibility />
-      </FormItem>
     </>
   );
 };

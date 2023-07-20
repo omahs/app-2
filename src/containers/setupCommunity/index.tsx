@@ -6,7 +6,6 @@ import styled from 'styled-components';
 
 import CreateNewToken from './createNewToken';
 import {MultisigWallets} from 'components/multisigWallets';
-import {MultisigEligibility} from 'components/multisigEligibility';
 import {FormSection} from 'containers/setupVotingForm';
 import {ToggleCheckList} from 'containers/setupVotingForm/multisig';
 import AddExistingToken from './addExistingToken';
@@ -133,9 +132,6 @@ const SetupCommunityForm: React.FC = () => {
         <>
           <FormItem>
             <MultisigWallets />
-          </FormItem>
-          <FormItem>
-            <MultisigEligibility />
           </FormItem>
         </>
       )}
