@@ -756,7 +756,19 @@
       "descriptionLinkLabel": "read this guide",
       "descriptionLinkURL": "https://aragon.org/how-to/set-up-your-dao-governance-in-8-steps",
       "distributeTokensHelpertextLinkLabel": "read our guide",
-      "distributeTokensHelpertextLinkURL": "https://aragon.org/how-to/distribute-a-dao-governance-token"
+      "distributeTokensHelpertextLinkURL": "https://aragon.org/how-to/distribute-a-dao-governance-token",
+      "votingType": {
+        "title": "Should voting take place on-chain or off-chain",
+        "onChain": {
+          "title": "On-chain",
+          "subtitle": "The voting process and the execution of actions binded to a proposal are both on-chain"
+        },
+        "offChain": {
+          "title": "Off-chain",
+          "subtitle": "The voting process is off-chain, while the proof of all votes and the execution are done by a multisig called \"Guardians\""
+        }
+
+      }
     },
     "step4": {
       "label": "Step 4",
