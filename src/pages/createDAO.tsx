@@ -21,6 +21,7 @@ import {CHAIN_METADATA, getSupportedNetworkByChainId} from 'utils/constants';
 import {htmlIn} from 'utils/htmlIn';
 import {Landing} from 'utils/paths';
 import {TokenType} from 'utils/validators';
+import DefineCommittee from 'containers/defineCommittee';
 
 export type CreateDaoFormData = {
   blockchain: {
@@ -41,6 +42,7 @@ export type CreateDaoFormData = {
   isCustomToken: boolean;
   links: {name: string; url: string}[];
   wallets: TokenVotingWalletField[];
+  committee: MultisigWalletField[];
   tokenAddress: InputValue;
   durationMinutes: string;
   durationHours: string;
