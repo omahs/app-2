@@ -43,6 +43,7 @@ export type CreateDaoFormData = {
   links: {name: string; url: string}[];
   wallets: TokenVotingWalletField[];
   committee: MultisigWalletField[];
+  committeeMinimumApproval: string;
   tokenAddress: InputValue;
   durationMinutes: string;
   durationHours: string;
