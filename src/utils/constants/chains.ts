@@ -2,7 +2,10 @@
 
 import {infuraApiKey} from './api';
 
-export const SUPPORTED_CHAIN_ID = [1, 5, 137, 80001, 42161, 421613] as const;
+export const SUPPORTED_CHAIN_ID = [
+  1, 5, 137, 8453, 80001, 42161, 421613,
+] as const;
+
 export type SupportedChainID = typeof SUPPORTED_CHAIN_ID[number];
 
 export function isSupportedChainId(
@@ -18,11 +21,10 @@ const SUPPORTED_NETWORKS = [
   'goerli',
   'polygon',
   'mumbai',
+  'base',
   'arbitrum',
   'arbitrum-test',
 ] as const;
-
-export type availableNetworks = 'mainnet' | 'goerli' | 'polygon' | 'mumbai';
 
 export type SupportedNetworks =
   | typeof SUPPORTED_NETWORKS[number]
@@ -102,6 +104,26 @@ export const CHAIN_METADATA: ChainList = {
     },
     etherscanApi: 'https://api.arbiscan.io/api',
     alchemyApi: 'https://arb-mainnet.g.alchemy.com/v2',
+    supportsEns: false,
+    ipfs: 'https://prod.ipfs.aragon.network',
+  },
+  base: {
+    id: 8453,
+    name: 'Base',
+    domain: 'L2 Blockchain',
+    logo: 'TBD',
+    explorer: 'https://basescan.org',
+    testnet: false,
+    rpc: ['https://developer-access-mainnet.base.org'],
+    nativeCurrency: {
+      name: 'Base',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    etherscanApi: 'https://api.basescan.org/api',
+    etherscanApiKey: '',
+    covalentApi: '',
+    alchemyApi: '',
     supportsEns: false,
     ipfs: 'https://prod.ipfs.aragon.network',
   },
