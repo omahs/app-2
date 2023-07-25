@@ -3,7 +3,7 @@
 import {infuraApiKey} from './api';
 
 export const SUPPORTED_CHAIN_ID = [
-  1, 5, 137, 8453, 80001, 42161, 421613,
+  1, 5, 137, 8453, 80001, 84531, 42161, 421613,
 ] as const;
 
 export type SupportedChainID = typeof SUPPORTED_CHAIN_ID[number];
@@ -17,13 +17,14 @@ export function isSupportedChainId(
 export const ENS_SUPPORTED_NETWORKS = ['ethereum', 'goerli'];
 
 const SUPPORTED_NETWORKS = [
-  'ethereum',
-  'goerli',
-  'polygon',
-  'mumbai',
-  'base',
   'arbitrum',
   'arbitrum-test',
+  'base',
+  'base-goerli',
+  'ethereum',
+  'goerli',
+  'mumbai',
+  'polygon',
 ] as const;
 
 export type SupportedNetworks =
@@ -117,6 +118,26 @@ export const CHAIN_METADATA: ChainList = {
     rpc: ['https://developer-access-mainnet.base.org'],
     nativeCurrency: {
       name: 'Base',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    etherscanApi: 'https://api.basescan.org/api',
+    etherscanApiKey: '',
+    covalentApi: '',
+    alchemyApi: '',
+    supportsEns: false,
+    ipfs: 'https://prod.ipfs.aragon.network',
+  },
+  'base-goerli': {
+    id: 84531,
+    name: 'Base Goerli',
+    domain: 'L2 Blockchain',
+    logo: 'TBD',
+    explorer: 'https://goerli.basescan.org',
+    testnet: true,
+    rpc: ['https://goerli.base.org'],
+    nativeCurrency: {
+      name: 'Base Goerli',
       symbol: 'ETH',
       decimals: 18,
     },

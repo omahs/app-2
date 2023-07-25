@@ -1,10 +1,22 @@
 import {ApolloProvider} from '@apollo/client';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
+import {EthereumClient, w3mConnectors, w3mProvider} from '@web3modal/ethereum';
+import {Web3Modal} from '@web3modal/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {HashRouter as Router} from 'react-router-dom';
 import 'tailwindcss/tailwind.css';
+import {WagmiConfig, configureChains, createConfig} from 'wagmi';
+import {
+  base,
+  baseGoerli,
+  goerli,
+  mainnet,
+  polygon,
+  polygonMumbai,
+} from 'wagmi/chains';
+import {infuraProvider} from 'wagmi/providers/infura';
 
 import {AlertProvider} from 'context/alert';
 import {client, goerliClient} from 'context/apolloClient';
@@ -20,13 +32,7 @@ import {UseClientProvider} from 'hooks/useClient';
 import {infuraApiKey, walletConnectProjectID} from 'utils/constants';
 import App from './app';
 
-import {EthereumClient, w3mConnectors, w3mProvider} from '@web3modal/ethereum';
-import {Web3Modal} from '@web3modal/react';
-import {WagmiConfig, configureChains, createConfig} from 'wagmi';
-import {base, goerli, mainnet, polygon, polygonMumbai} from 'wagmi/chains';
-import {infuraProvider} from 'wagmi/providers/infura';
-
-const chains = [base, goerli, mainnet, polygon, polygonMumbai];
+const chains = [base, baseGoerli, goerli, mainnet, polygon, polygonMumbai];
 
 const {publicClient} = configureChains(chains, [
   w3mProvider({projectId: walletConnectProjectID}),

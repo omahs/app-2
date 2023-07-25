@@ -129,6 +129,7 @@ const client: Record<
   arbitrum: undefined,
   'arbitrum-test': arbitrumTestClient,
   base: undefined,
+  'base-goerli': undefined,
   unsupported: undefined,
 };
 

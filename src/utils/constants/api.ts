@@ -9,6 +9,7 @@ export const SUBGRAPH_API_URL: SubgraphNetworkUrl = {
   arbitrum: undefined,
   'arbitrum-test': undefined,
   base: undefined, //TODO: add subgraph url when available
+  'base-goerli': undefined, //TODO: add subgraph url when available
   ethereum:
     'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-mainnet/version/v1.2.1/api',
   goerli:
@@ -30,6 +31,7 @@ export const alchemyApiKeys: AlchemyApiKeys = {
   arbitrum: undefined,
   'arbitrum-test': undefined,
   base: undefined,
+  'base-goerli': undefined,
   ethereum: import.meta.env.VITE_ALCHEMY_KEY_MAINNET as string,
   goerli: import.meta.env.VITE_ALCHEMY_KEY_GOERLI as string,
   mumbai: import.meta.env.VITE_ALCHEMY_KEY_POLYGON_MUMBAI as string,
@@ -50,6 +52,7 @@ export const ASSET_PLATFORMS: Record<SupportedNetworks, string | null> = {
   arbitrum: 'arbitrum-one',
   'arbitrum-test': null,
   base: 'base',
+  'base-goerli': null,
   ethereum: 'ethereum',
   goerli: null,
   polygon: 'polygon-pos',

@@ -650,6 +650,8 @@ export const translateToAppNetwork = (
       return 'polygon';
     case 'base': // TODO: get SDK name
       return 'base';
+    case 'base-goerli': // TODO: get SDK name
+      return 'base-goerli';
   }
   return 'unsupported';
 };
@@ -668,6 +670,8 @@ export function translateToNetworkishName(
 
   switch (appNetwork) {
     case 'base':
+      return 'unsupported'; // TODO: get SDK name
+    case 'base-goerli':
       return 'unsupported'; // TODO: get SDK name
     case 'ethereum':
       return SdkSupportedNetworks.MAINNET;
