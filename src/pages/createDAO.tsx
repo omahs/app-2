@@ -59,6 +59,9 @@ export type CreateDaoFormData = {
   multisigWallets: MultisigWalletField[];
   multisigMinimumApprovals: number;
   votingType: 'onChain' | 'offChain';
+  executionExpirationMinutes: string;
+  executionExpirationHours: string;
+  executionExpirationDays: string;
 };
 
 const defaultValues = {
