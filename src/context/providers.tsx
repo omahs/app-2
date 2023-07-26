@@ -49,7 +49,7 @@ export function ProvidersContextProvider({children}: ProvidersContextProps) {
   const {provider} = useWallet();
   const apiProvider = useSpecificProvider(network);
 
-  // given that network should always be supported because of validation,
+  // given that nothing should work on unsupported networks,
   // asserting that apiProvider is always non null.
   const contextValue = useMemo(
     () => ({api: apiProvider!, web3: provider}),
