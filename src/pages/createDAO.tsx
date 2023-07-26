@@ -76,6 +76,7 @@ const defaultValues = {
 
   // Uncomment when DAO Treasury minting is supported
   // wallets: [{address: constants.AddressZero, amount: '0'}],
+  committee: [],
   earlyExecution: true,
   voteReplacement: false,
   membership: 'token',
@@ -107,6 +108,7 @@ const CreateDAO: React.FC = () => {
     daoName,
     daoEnsName,
     eligibilityType,
+    committee,
   ] = useWatch({
     control: formMethods.control,
     name: [
@@ -118,6 +120,8 @@ const CreateDAO: React.FC = () => {
       'daoName',
       'daoEnsName',
       'eligibilityType',
+      'votingType',
+      'committee',
     ],
   });
 
@@ -230,6 +234,26 @@ const CreateDAO: React.FC = () => {
     dirtyFields.tokenAddress,
     tokenTotalSupply,
     tokenType,
+  ]);
+
+  const defineCommitteeIsValid = useMemo(() => {
+    if (
+      !committee.length ||
+      errors.committee ||
+      errors.committeeMinimumApproval ||
+      errors.executionExpirationMinutes ||
+      errors.executionExpirationHours ||
+      errors.executionExpirationDays
+    )
+      return false;
+    return true;
+  }, [
+    committee,
+    errors.committee,
+    errors.committeeMinimumApproval,
+    errors.executionExpirationMinutes,
+    errors.executionExpirationHours,
+    errors.executionExpirationDays,
   ]);
 
   const proposalCreationIsValid = useMemo(() => {
