@@ -211,13 +211,12 @@ function getApiProvider(
 ): AlchemyProvider | InfuraProvider | JsonRpcProvider | null {
   let provider;
 
-  // try to get Alchemy provider
-  provider = getAlchemyProvider(chainIdOrNetwork);
+  provider = getInfuraProvider(chainIdOrNetwork);
   if (provider) {
     return provider;
   }
 
-  provider = getInfuraProvider(chainIdOrNetwork);
+  provider = getAlchemyProvider(chainIdOrNetwork);
   if (provider) {
     return provider;
   }
