@@ -51,13 +51,11 @@ export function toSupportedNetwork(network: string): SupportedNetworks {
  */
 export function getSupportedNetworkByChainId(
   chainId: number
-): SupportedNetworks | null {
+): SupportedNetworks | undefined {
   if (isSupportedChainId(chainId)) {
     return Object.entries(CHAIN_METADATA).find(
       entry => entry[1].id === chainId
     )?.[0] as SupportedNetworks;
-  } else {
-    return null;
   }
 }
 

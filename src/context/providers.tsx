@@ -34,7 +34,7 @@ import {useNetwork} from './network';
 /* CONTEXT PROVIDER ========================================================= */
 
 type Providers = {
-  api: Nullable<JsonRpcProvider | AlchemyProvider | InfuraProvider>;
+  api: JsonRpcProvider | AlchemyProvider | InfuraProvider;
   web3: Nullable<Web3Provider>;
 };
 
@@ -49,8 +49,10 @@ export function ProvidersContextProvider({children}: ProvidersContextProps) {
   const {provider} = useWallet();
   const apiProvider = useSpecificProvider(network);
 
+  // given that network should always be supported because of validation,
+  // asserting that apiProvider is always non null.
   const contextValue = useMemo(
-    () => ({api: apiProvider, web3: provider}),
+    () => ({api: apiProvider!, web3: provider}),
     [apiProvider, provider]
   );
 
@@ -228,7 +230,7 @@ function toNetwork(
   chainIdOrNetwork: SupportedChainID | SupportedNetworks
 ): SupportedNetworks | null {
   if (typeof chainIdOrNetwork === 'number') {
-    return getSupportedNetworkByChainId(chainIdOrNetwork);
+    return getSupportedNetworkByChainId(chainIdOrNetwork) ?? null;
   } else if (typeof chainIdOrNetwork === 'string') {
     return chainIdOrNetwork;
   } else return null;
