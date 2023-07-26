@@ -24,7 +24,7 @@ import {APMProvider} from 'context/elasticAPM';
 import {GlobalModalsProvider} from 'context/globalModals';
 import {NetworkProvider} from 'context/network';
 import {PrivacyContextProvider} from 'context/privacyContext';
-import {ProvidersProvider} from 'context/providers';
+import {ProvidersContextProvider} from 'context/providers';
 import {TransactionDetailProvider} from 'context/transactionDetail';
 import {WalletMenuProvider} from 'context/walletMenu';
 import {UseCacheProvider} from 'hooks/useCache';
@@ -85,7 +85,7 @@ ReactDOM.render(
                   <NetworkProvider>
                     <UseClientProvider>
                       <UseCacheProvider>
-                        <ProvidersProvider>
+                        <ProvidersContextProvider>
                           <TransactionDetailProvider>
                             <WalletMenuProvider>
                               <GlobalModalsProvider>
@@ -100,7 +100,7 @@ ReactDOM.render(
                               </GlobalModalsProvider>
                             </WalletMenuProvider>
                           </TransactionDetailProvider>
-                        </ProvidersProvider>
+                        </ProvidersContextProvider>
                       </UseCacheProvider>
                     </UseClientProvider>
                   </NetworkProvider>

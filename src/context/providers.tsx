@@ -44,7 +44,7 @@ type ProvidersContextProps = {
   children: React.ReactNode;
 };
 
-function ProvidersContextProvider({children}: ProvidersContextProps) {
+export function ProvidersContextProvider({children}: ProvidersContextProps) {
   const {network} = useNetwork();
   const {provider} = useWallet();
   const apiProvider = useSpecificProvider(network);
@@ -60,8 +60,6 @@ function ProvidersContextProvider({children}: ProvidersContextProps) {
     </ProvidersContext.Provider>
   );
 }
-
-export default ProvidersContextProvider;
 
 /* CONTEXT CONSUMER ========================================================= */
 
