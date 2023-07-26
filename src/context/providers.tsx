@@ -29,7 +29,7 @@ const NW_ARB_GOERLI = {chainId: 421613, name: 'arbitrum-goerli'};
 /* CONTEXT PROVIDER ========================================================= */
 
 type Providers = {
-  infura: InfuraProvider | JsonRpcProvider;
+  infura: JsonRpcProvider;
   web3: Nullable<Web3Provider>;
 };
 
@@ -52,18 +52,15 @@ export function ProvidersProvider({children}: ProviderProviderProps) {
   const {provider} = useWallet();
   const {network} = useNetwork();
 
-  const [infuraProvider, setInfuraProvider] = useState<Providers['infura']>(
-    new InfuraProvider(NW_ARB, infuraApiKey)
-  );
-
-  useEffect(() => {
-    setInfuraProvider(getInfuraProvider(network));
-  }, [network]);
+  const specificProvider = useSpecificProvider(CHAIN_METADATA[network].id);
 
   return (
     <ProviderContext.Provider
       // TODO: remove casting once useSigner has updated its version of the ethers library
-      value={{infura: infuraProvider, web3: (provider as Web3Provider) || null}}
+      value={{
+        infura: specificProvider,
+        web3: (provider as Web3Provider) || null,
+      }}
     >
       {children}
     </ProviderContext.Provider>
@@ -82,7 +79,8 @@ function getInfuraProvider(network: SupportedNetworks) {
   } else if (network === 'arbitrum-test') {
     return new InfuraProvider(NW_ARB_GOERLI, infuraApiKey);
   } else if (network === 'base') {
-    throw new Error(`Infura does not support '${network}' network.`);
+    console.warn(`Infura does not support '${network}' network.`);
+    return null;
   } else if (network === 'mumbai' || network === 'polygon') {
     return new JsonRpcProvider(CHAIN_METADATA[network].rpc[0], {
       chainId: CHAIN_METADATA[network].id,
@@ -151,20 +149,20 @@ export function getJsonRpcProvider(
  */
 export function useSpecificProvider(
   chainId: SupportedChainID
-): InfuraProvider | JsonRpcProvider {
+): JsonRpcProvider {
   const network = getSupportedNetworkByChainId(chainId) as SupportedNetworks;
 
   const [provider, setProvider] = useState(() =>
     network === 'base'
       ? (getJsonRpcProvider(network) as JsonRpcProvider)
-      : getInfuraProvider(network)
+      : (getInfuraProvider(network) as JsonRpcProvider)
   );
 
   useEffect(() => {
     setProvider(
       network === 'base'
         ? (getJsonRpcProvider(network) as JsonRpcProvider)
-        : getInfuraProvider(network)
+        : (getInfuraProvider(network) as JsonRpcProvider)
     );
   }, [chainId, network]);
 
