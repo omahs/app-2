@@ -1,9 +1,13 @@
 import {
+  LIVE_CONTRACTS,
+  SupportedNetwork as sdkSupportedNetworks,
+} from '@aragon/sdk-client-common';
+import {
   AlchemyProvider,
   InfuraProvider,
   JsonRpcProvider,
-  Web3Provider,
   Networkish,
+  Web3Provider,
 } from '@ethersproject/providers';
 import React, {
   createContext,
@@ -13,28 +17,24 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  LIVE_CONTRACTS,
-  SupportedNetwork as sdkSupportedNetworks,
-} from '@aragon/sdk-client-common';
 import {useWallet} from 'hooks/useWallet';
 import {
-  alchemyApiKeys,
   CHAIN_METADATA,
   NETWORKS_WITH_CUSTOM_REGISTRY,
-  getSupportedNetworkByChainId,
-  infuraApiKey,
   SupportedChainID,
   SupportedNetworks,
+  alchemyApiKeys,
+  getSupportedNetworkByChainId,
+  infuraApiKey,
 } from 'utils/constants';
+import {translateToNetworkishName} from 'utils/library';
 import {Nullable} from 'utils/types';
 import {useNetwork} from './network';
-import {translateToNetworkishName} from 'utils/library';
 
 /* CONTEXT PROVIDER ========================================================= */
 
 type Providers = {
-  infura: Nullable<JsonRpcProvider | AlchemyProvider | InfuraProvider>;
+  api: Nullable<JsonRpcProvider | AlchemyProvider | InfuraProvider>;
   web3: Nullable<Web3Provider>;
 };
 
@@ -50,7 +50,7 @@ function ProvidersContextProvider({children}: ProvidersContextProps) {
   const apiProvider = useSpecificProvider(network);
 
   const contextValue = useMemo(
-    () => ({infura: apiProvider, web3: provider}),
+    () => ({api: apiProvider, web3: provider}),
     [apiProvider, provider]
   );
 

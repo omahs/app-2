@@ -16,7 +16,7 @@ export function useTokenSupply(
   tokenAddress: string
 ): HookData<TokenSupplyData | undefined> {
   const {network} = useNetwork();
-  const {infura} = useProviders();
+  const {api: infura} = useProviders();
 
   const [data, setData] = useState<TokenSupplyData>();
   const [error, setError] = useState<Error>();
