@@ -15,6 +15,7 @@ export function isSupportedChainId(
 }
 
 export const ENS_SUPPORTED_NETWORKS = ['ethereum', 'goerli'];
+export const NETWORKS_WITH_CUSTOM_REGISTRY = ['mumbai', 'polygon'];
 
 const SUPPORTED_NETWORKS = [
   'arbitrum',
@@ -46,15 +47,17 @@ export function toSupportedNetwork(network: string): SupportedNetworks {
 /**
  * Get the network name with given chain id
  * @param chainId Chain id
- * @returns the name of the supported network or undefined if network is unsupported
+ * @returns the name of the supported network or null if network is unsupported
  */
 export function getSupportedNetworkByChainId(
   chainId: number
-): SupportedNetworks | undefined {
+): SupportedNetworks | null {
   if (isSupportedChainId(chainId)) {
     return Object.entries(CHAIN_METADATA).find(
       entry => entry[1].id === chainId
     )?.[0] as SupportedNetworks;
+  } else {
+    return null;
   }
 }
 
