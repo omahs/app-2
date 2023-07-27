@@ -22,6 +22,7 @@ import {htmlIn} from 'utils/htmlIn';
 import {Landing} from 'utils/paths';
 import {TokenType} from 'utils/validators';
 import DefineCommittee from 'containers/defineCommittee';
+import ConfirmDaoCreation from '../containers/confirmDaoCreation';
 
 export type CreateDaoFormData = {
   blockchain: {
@@ -42,8 +43,6 @@ export type CreateDaoFormData = {
   isCustomToken: boolean;
   links: {name: string; url: string}[];
   wallets: TokenVotingWalletField[];
-  committee: MultisigWalletField[];
-  committeeMinimumApproval: string;
   tokenAddress: InputValue;
   durationMinutes: string;
   durationHours: string;
@@ -59,6 +58,8 @@ export type CreateDaoFormData = {
   multisigWallets: MultisigWalletField[];
   multisigMinimumApprovals: number;
   votingType: 'onChain' | 'offChain';
+  committee: MultisigWalletField[];
+  committeeMinimumApproval: string;
   executionExpirationMinutes: string;
   executionExpirationHours: string;
   executionExpirationDays: string;
@@ -108,6 +109,7 @@ const CreateDAO: React.FC = () => {
     daoName,
     daoEnsName,
     eligibilityType,
+    votingType,
     committee,
   ] = useWatch({
     control: formMethods.control,
@@ -388,6 +390,50 @@ const CreateDAO: React.FC = () => {
           >
             <ConfigureCommunity />
           </Step>
+          {/*Todo(kon): how to create a conditional step?*/}
+          {/*{votingType === 'offChain' ? ( */}
+          <Step
+            wizardTitle={t('createDAO.step5.title')}
+            wizardDescription={htmlIn(t)('createDAO.step5.description')}
+            isNextButtonDisabled={!defineCommitteeIsValid}
+            onNextButtonClicked={next => {
+              handleNextButtonTracking(next, '5_define_executive_committee', {
+                committee: formMethods.getValues('committee'),
+                committeeMinimumApproval: formMethods.getValues(
+                  'committeeMinimumApproval'
+                ),
+                executionExpirationMinutes: formMethods.getValues(
+                  'executionExpirationMinutes'
+                ),
+                executionExpirationHours: formMethods.getValues(
+                  'executionExpirationHours'
+                ),
+                executionExpirationDays: formMethods.getValues(
+                  'executionExpirationDays'
+                ),
+              });
+            }}
+          >
+            <DefineCommittee />
+          </Step>
+          {/*) : (*/}
+          {/*  <></>*/}
+          {/*)}*/}
+          <Step
+            wizardTitle={'dummy'}
+            wizardDescription={'dummy desc'}
+            isNextButtonDisabled={
+              //todo
+              true
+            }
+            onNextButtonClicked={next => {
+              //todo
+              return;
+            }}
+          >
+            <ConfirmDaoCreation />
+          </Step>
+
           <Step
             hideWizard
             fullWidth
