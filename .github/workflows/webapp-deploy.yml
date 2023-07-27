@@ -2,14 +2,9 @@ name: WebApp Deploy
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'packages/web-app/**'
     branches:
       - 'develop'
       - 'main'
-
-env:
-  working-directory: packages/web-app
 
 jobs:
   set-environment:
@@ -32,9 +27,6 @@ jobs:
     needs: [set-environment]
     if: needs.set-environment.outputs.environment != ''
     environment: ${{ needs.set-environment.outputs.environment }}
-    defaults:
-      run:
-        working-directory: ${{env.working-directory}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -43,22 +35,12 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
-      - name: Build ui-components
-        run: |
-          cd ../ui-components
-          yarn install --pure-lockfile
-          yarn build
-          yarn link
       - name: Install depdendencies
         run: yarn install --pure-lockfile
-      - name: Link ui-components
-        run: yarn link @aragon/ui-components
-      # - name: Lint
-      #   run: yarn lint
       - name: Test
         run: yarn test
       - name: Build
-        run: yarn build
+        run: yarn build --mode ${{ needs.set-environment.outputs.environment }}
         env:
           VITE_REACT_APP_DEPLOY_VERSION: ${{ github.sha }}
           VITE_REACT_APP_DEPLOY_ENVIRONMENT: ${{ needs.set-environment.outputs.environment }}
@@ -79,7 +61,7 @@ jobs:
       - name: Activate Fleek
         env:
           FLEEK_FILE: ${{ needs.set-environment.outputs.environment }}
-        run: mv ../../.github/fleek/$FLEEK_FILE.json .fleek.json
+        run: mv ./.github/fleek/$FLEEK_FILE.json .fleek.json
       - name: Deploy through Fleek
         id: deploy
         uses: fleekhq/action-deploy@v1

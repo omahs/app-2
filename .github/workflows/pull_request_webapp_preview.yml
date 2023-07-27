@@ -1,8 +1,6 @@
 name: Pull Request WebApp Preview
 on:
   pull_request:
-    paths:
-      - 'packages/web-app/**'
     types:
       - labeled
       - synchronize
@@ -10,9 +8,6 @@ jobs:
   webapp-preview:
     if: contains(github.event.pull_request.labels.*.name, 'preview')
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/web-app
     steps:
       - name: Find a PR comment
         uses: peter-evans/find-comment@v2
@@ -38,20 +33,12 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
-      - name: Build ui-components
-        run: |
-          cd ../ui-components
-          yarn install --pure-lockfile
-          yarn build
-          yarn link
       - name: Install depdendencies
         run: yarn install --pure-lockfile
-      - name: Link ui-components
-        run: yarn link @aragon/ui-components
-      # - name: Lint
-      #   run: yarn lint
+      - name: Lint
+        run: yarn lint
       - name: Build
-        run: yarn build
+        run: yarn build --mode staging
         env:
           VITE_REACT_APP_DEPLOY_VERSION: ${{ github.sha }}
           VITE_REACT_APP_DEPLOY_ENVIRONMENT: ${{ needs.set-environment.outputs.environment }}
