@@ -56,6 +56,7 @@ import {addABI, decodeMethod} from './abiDecoder';
 import {attachEtherNotice} from './contract';
 import {getTokenInfo} from './tokens';
 import {IFetchTokenParams} from 'services/token/token-service.api';
+import {MultisigWalletField} from '../components/multisigWallets/row';
 
 export function formatUnits(amount: BigNumberish, decimals: number) {
   if (amount.toString().includes('.') || !decimals) {
@@ -1041,3 +1042,20 @@ export function parseWCIconUrl(
 
   return parsedUrl;
 }
+
+/**
+ * Check if a wallet exists on a wallets list
+ *
+ * @param walletsList{MultisigWalletField[]} Wallets list where to look for
+ * @param wallet{Web3Address} The wallet you want to find
+ * @returns {boolean} true if the wallet exists on the wallets list
+ */
+export const walletInWalletList = (
+  wallet: Web3Address,
+  walletsList: MultisigWalletField[]
+) =>
+  walletsList?.some(
+    w =>
+      w.address.toLowerCase() === wallet.address?.toLowerCase() ||
+      w.ensName.toLowerCase() === wallet.ensName?.toLowerCase()
+  );
