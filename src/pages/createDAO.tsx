@@ -77,7 +77,6 @@ const defaultValues = {
 
   // Uncomment when DAO Treasury minting is supported
   // wallets: [{address: constants.AddressZero, amount: '0'}],
-  committee: [],
   earlyExecution: true,
   voteReplacement: false,
   membership: 'token',
@@ -240,6 +239,7 @@ const CreateDAO: React.FC = () => {
 
   const defineCommitteeIsValid = useMemo(() => {
     if (
+      !committee ||
       !committee.length ||
       errors.committee ||
       errors.committeeMinimumApproval ||
