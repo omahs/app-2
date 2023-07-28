@@ -390,9 +390,8 @@ const CreateDAO: React.FC = () => {
           >
             <ConfigureCommunity />
           </Step>
-          {/*Todo(kon): how to create a conditional step?*/}
-          {/*{votingType === 'offChain' ? ( */}
           <Step
+            hideWizard={votingType !== 'offChain'}
             wizardTitle={t('createDAO.step5.title')}
             wizardDescription={htmlIn(t)('createDAO.step5.description')}
             isNextButtonDisabled={!defineCommitteeIsValid}
@@ -416,9 +415,6 @@ const CreateDAO: React.FC = () => {
           >
             <DefineCommittee />
           </Step>
-          {/*) : (*/}
-          {/*  <></>*/}
-          {/*)}*/}
           <Step
             wizardTitle={'dummy'}
             wizardDescription={'dummy desc'}
