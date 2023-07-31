@@ -24,26 +24,27 @@ export const WCActionCard: React.FC<WCActionCardActionCardProps> = ({
 }) => {
   const {t} = useTranslation();
 
-  const showTimeSensitiveWarning = useMemo(() => {
-    // Note: need to check whether the inputs exist because the decoding
-    // and form setting might take a while
-    if (action.inputs) {
-      for (const input of action.inputs) {
-        if (POTENTIALLY_TIME_SENSITIVE_FIELDS.has(input.name.toLowerCase())) {
-          return true;
-        }
+  const isFieldTimeSensitive = (fieldName: string) =>
+    POTENTIALLY_TIME_SENSITIVE_FIELDS.has(fieldName.toLowerCase());
 
-        // for tuples
-        if (input.type === 'tuple' && Array.isArray(input.value)) {
-          // for whatever reason the name is coming as the array index??
-          for (const name in input.value as {}) {
-            if (POTENTIALLY_TIME_SENSITIVE_FIELDS.has(name.toLowerCase())) {
-              return true;
-            }
+  const showTimeSensitiveWarning = useMemo(() => {
+    if (!action.inputs) return false;
+
+    for (const input of action.inputs) {
+      if (isFieldTimeSensitive(input.name)) {
+        return true;
+      }
+
+      // for tuples
+      if (input.type === 'tuple' && Array.isArray(input.value)) {
+        for (const name in input.value) {
+          if (isFieldTimeSensitive(name)) {
+            return true;
           }
         }
       }
     }
+
     return false;
   }, [action.inputs]);
 

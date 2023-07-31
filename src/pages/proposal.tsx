@@ -378,7 +378,7 @@ const Proposal: React.FC = () => {
       // set the very first time
       setVoteStatus(getVoteStatus(proposal, t));
 
-      const interval = setInterval(async () => {
+      const interval = setInterval(() => {
         const v = getVoteStatus(proposal, t);
 
         // remove interval timer once the proposal has started

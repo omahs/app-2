@@ -22,7 +22,7 @@ export const WithdrawCard: React.FC<{
     >
       <Container>
         <CardTransfer
-          to={String(action.to.ensName || action.to.address)}
+          to={(action.to.ensName ?? action.to.address) as string}
           from={daoName}
           toLabel={t('labels.to')}
           fromLabel={t('labels.from')}

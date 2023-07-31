@@ -47,7 +47,7 @@ export function typeToString(input: utils.ParamType): string {
 export function addABI(abiArray: Abi[]) {
   if (Array.isArray(abiArray)) {
     // Iterate new abi to generate method id"s
-    abiArray.map((abi: Abi) => {
+    abiArray.forEach((abi: Abi) => {
       if (abi.name) {
         const signature = keccak256(
           toUtf8Bytes(
@@ -71,7 +71,7 @@ export function addABI(abiArray: Abi[]) {
 export function removeABI(abiArray: Abi[]) {
   if (Array.isArray(abiArray)) {
     // Iterate new abi to generate method id"s
-    abiArray.map((abi: Abi) => {
+    abiArray.forEach((abi: Abi) => {
       if (abi.name) {
         const signature = keccak256(
           toUtf8Bytes(
@@ -174,7 +174,7 @@ export function decodeLogs(logs: Log[]) {
         let topicsIndex = 1;
 
         const dataTypes = [] as string[];
-        method.inputs.map(input => {
+        method.inputs.forEach(input => {
           if (!input.indexed) {
             dataTypes.push(input.type);
           }
@@ -183,7 +183,7 @@ export function decodeLogs(logs: Log[]) {
         const decodedData = abiCoder.decode(dataTypes, '0x' + logData.slice(2));
 
         // Loop topic and data to get the params
-        method.inputs.map(param => {
+        method.inputs.forEach(param => {
           const decodedP = {
             name: param.name,
             type: param.type,

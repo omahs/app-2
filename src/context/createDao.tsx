@@ -76,13 +76,6 @@ const CreateDaoProvider: React.FC = ({children}) => {
   /*************************************************
    *                   Handlers                    *
    *************************************************/
-  const handlePublishDao = async () => {
-    setCreationProcessState(TransactionState.WAITING);
-    setShowModal(true);
-    const creationParams = await getDaoSettings();
-    setDaoCreationData(creationParams);
-  };
-
   // Handler for modal button click
   const handleExecuteCreation = async () => {
     // if DAO has been created, we don't need to do anything do not execute it
@@ -344,6 +337,13 @@ const CreateDaoProvider: React.FC = ({children}) => {
     getValues,
     getVoteSettings,
   ]);
+
+  const handlePublishDao = useCallback(async () => {
+    setCreationProcessState(TransactionState.WAITING);
+    setShowModal(true);
+    const creationParams = await getDaoSettings();
+    setDaoCreationData(creationParams);
+  }, [getDaoSettings]);
 
   // estimate creation fees
   const estimateCreationFees = useCallback(async () => {

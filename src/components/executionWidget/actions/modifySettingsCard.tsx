@@ -20,7 +20,7 @@ export const ModifyMvSettingsCard: React.FC<{
             ${getErc20MinParticipation(
               inputs.minParticipation,
               inputs.totalVotingWeight,
-              inputs.token?.decimals || 18
+              inputs.token?.decimals ?? 18
             )} 
             ${inputs.token?.symbol})`,
     [

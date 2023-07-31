@@ -68,12 +68,12 @@ export const RemoveAddressCard: React.FC<{
     >
       <Container>
         {inputs.memberWallets.map(({address, ensName}, index) => {
-          const label = ensName || addresses[index]?.ensName || address;
+          const label = (ensName || addresses[index]?.ensName) ?? address;
 
           return (
             <ListItemAddress
               label={label}
-              src={addresses[index]?.avatar || address}
+              src={addresses[index]?.avatar ?? address}
               key={address}
               onClick={() => handleAddressClick(label)}
             />

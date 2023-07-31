@@ -392,7 +392,9 @@ export const MintTokenForm: React.FC<MintTokenFormProps> = ({
       ensName: toDisplayEns(daoDetails?.ensDomain),
     });
 
-    setTimeout(() => trigger(treasuryKey), 50);
+    setTimeout(() => {
+      trigger(treasuryKey);
+    }, 50);
     alert(t('modal.mintTokensToTreasury.alertChipCritical'));
   }, [
     alert,

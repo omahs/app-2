@@ -93,11 +93,10 @@ export const MintTokenCard: React.FC<{
           {action.inputs.mintTokensToWallets.map(
             ({web3Address, amount}, index) => {
               const label =
-                web3Address.ensName ||
-                addresses[index]?.ensName ||
+                (web3Address.ensName || addresses[index]?.ensName) ??
                 web3Address.address;
 
-              const avatar = addresses[index]?.avatar || web3Address.address;
+              const avatar = addresses[index]?.avatar ?? web3Address.address;
               const percentage = (Number(amount) / newTotalSupply) * 100;
 
               return web3Address.address ? (
@@ -139,7 +138,7 @@ export const MintTokenCard: React.FC<{
             <Label>{t('labels.totalHolders')}</Label>
             <p>
               {newHolders?.length +
-                (action.summary.totalMembers || members?.length)}{' '}
+                (action.summary.totalMembers ?? members?.length)}{' '}
             </p>
           </HStack>
           {/* TODO add total amount of token holders here. */}
