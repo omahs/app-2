@@ -18,6 +18,7 @@ import {useCreateDaoContext} from 'context/createDao';
 import {useWallet} from 'hooks/useWallet';
 import {useGlobalModalContext} from 'context/globalModals';
 import {trackEvent} from 'services/analytics';
+import Committee from './committee';
 
 export const GoLiveHeader: React.FC = () => {
   const {t} = useTranslation();
@@ -52,6 +53,9 @@ export const GoLiveHeader: React.FC = () => {
 
 const GoLive: React.FC = () => {
   const {t} = useTranslation();
+  const {getValues} = useFormContext();
+
+  const {votingType} = getValues();
 
   return (
     <Container>
@@ -59,6 +63,7 @@ const GoLive: React.FC = () => {
       <DaoMetadata />
       <Community />
       <Governance />
+      {votingType === 'offChain' && <Committee />}
       <AlertCard title={t('createDAO.review.daoUpdates')} />
     </Container>
   );

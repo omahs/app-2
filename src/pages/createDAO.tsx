@@ -22,7 +22,6 @@ import {htmlIn} from 'utils/htmlIn';
 import {Landing} from 'utils/paths';
 import {TokenType} from 'utils/validators';
 import DefineCommittee from 'containers/defineCommittee';
-import ConfirmDaoCreation from '../containers/confirmDaoCreation';
 
 export type CreateDaoFormData = {
   blockchain: {
@@ -415,21 +414,6 @@ const CreateDAO: React.FC = () => {
           >
             <DefineCommittee />
           </Step>
-          <Step
-            wizardTitle={'dummy'}
-            wizardDescription={'dummy desc'}
-            isNextButtonDisabled={
-              //todo
-              true
-            }
-            onNextButtonClicked={next => {
-              //todo
-              return;
-            }}
-          >
-            <ConfirmDaoCreation />
-          </Step>
-
           <Step
             hideWizard
             fullWidth
