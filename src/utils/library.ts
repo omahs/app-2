@@ -406,11 +406,20 @@ export async function decodeToExternalAction(
       network
     );
 
-    // Check if the contract data was fetched successfully and if the contract has a verified source code
+    const isSourceCodeVerified =
+      etherscanData.result[0].ABI !== 'Contract source code not verified';
+
     if (
-      etherscanData.status === '1' &&
-      etherscanData.result[0].ABI !== 'Contract source code not verified'
+      !etherscanData.result[0].ContractName &&
+      !etherscanData.result[0].SourceCode &&
+      !etherscanData.result[0].CompilerVersion &&
+      !isSourceCodeVerified
     ) {
+      return;
+    }
+
+    // Check if the contract data was fetched successfully and if the contract has a verified source code
+    if (etherscanData.status === '1' && isSourceCodeVerified) {
       addABI(JSON.parse(etherscanData.result[0].ABI));
       const decodedData = decodeMethod(bytesToHex(action.data));
 
