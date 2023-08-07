@@ -39,6 +39,8 @@ import {Dashboard} from 'utils/paths';
 import {useGlobalModalContext} from './globalModals';
 import {useNetwork} from './network';
 
+import {useClient as useVocdoniClient} from 'hooks/useVocdoniSdk';
+
 const DEFAULT_TOKEN_DECIMALS = 18;
 
 type CreateDaoContextType = {
@@ -358,6 +360,13 @@ const CreateDaoProvider: React.FC = ({children}) => {
     error: gasEstimationError,
   } = usePollGasFee(estimateCreationFees, shouldPoll);
 
+  const {census3Client} = useVocdoniClient();
+
+  // It creates the vocdoni census3 for a specific DAO
+  const createDAOCensus3 = useCallback(async () => {
+    await census3Client.createToken(daoAddress, 'ERC20');
+  }, [census3Client, daoAddress]);
+
   // run dao creation transaction
   const createDao = async () => {
     setCreationProcessState(TransactionState.LOADING);
@@ -373,7 +382,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
       throw new Error('deposit function is not initialized correctly');
     }
 
-    const {daoName, daoSummary, daoLogo, links} = getValues();
+    const {daoName, daoSummary, daoLogo, links, votingType} = getValues();
     const metadata: DaoMetadata = {
       name: daoName,
       description: daoSummary,
@@ -430,7 +439,15 @@ const CreateDaoProvider: React.FC = ({children}) => {
                     },
                   },
                 }),
-              ]);
+              ]).then(async () => {
+                if (
+                  votingType === 'offChain' &&
+                  !(await census3Client.getToken(step.address.toLowerCase()))
+                ) {
+                  await createDAOCensus3();
+                }
+              });
+              // After everything is
             } catch (error) {
               console.warn(
                 'Error favoriting and adding newly created DAO to cache',
