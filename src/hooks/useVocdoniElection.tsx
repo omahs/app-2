@@ -1,8 +1,14 @@
 import {
+  Account,
   areEqualHexStrings,
+  Census,
   CensusType,
   CspVote,
+  Election,
+  IElectionParameters,
+  PlainCensus,
   PublishedElection,
+  UnpublishedElection,
   VocdoniSDKClient,
   Vote,
 } from '@vocdoni/sdk';
@@ -14,9 +20,14 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useMemo,
 } from 'react';
 import {FieldValues} from 'react-hook-form';
 import {useClient} from './useVocdoniSdk';
+import {CreateMajorityVotingProposalParams} from '@aragon/sdk-client/dist/client-common/types/plugin';
+import {ProposalMetadata} from '@aragon/sdk-client-common';
+import {DaoDetails} from '@aragon/sdk-client';
+import {TransactionState} from '../utils/constants';
 
 export type ElectionProviderProps = {
   id?: string;
@@ -451,6 +462,41 @@ export const ElectionProvider = ({
   );
 };
 ElectionProvider.displayName = 'ElectionProvider';
+
+export type UseCreateElectionProps = Omit<
+  IElectionParameters,
+  | 'header'
+  | 'streamUri'
+  | 'voteType'
+  | 'electionType'
+  | 'questions'
+  | 'maxCensusSize'
+  | 'addSDKVersion'
+> & {
+  question: string;
+};
+
+interface IProposalToElectionProps {
+  metadata: ProposalMetadata;
+  data: CreateMajorityVotingProposalParams;
+  census: Census;
+}
+
+export const proposalToElection = ({
+  metadata,
+  data,
+  census,
+}: IProposalToElectionProps): UseCreateElectionProps => {
+  return {
+    title: metadata.title,
+    description: metadata.description,
+    question: metadata.summary,
+    startDate: data?.startDate ?? new Date(),
+    endDate: data?.endDate ?? new Date(),
+    meta: 'todo',
+    census: census,
+  };
+};
 
 // todo(kon): move this following block somewhere else
 export enum OffchainPluginLocalStorageKeys {
