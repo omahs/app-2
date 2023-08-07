@@ -36,7 +36,9 @@ const CompareSettings: React.FC = () => {
   const [selectedButton, setSelectedButton] = useState<Views>('new');
 
   const daoAddressOrEns =
-    toDisplayEns(daoDetails?.ensDomain) ?? daoDetails?.address;
+    toDisplayEns(daoDetails?.ensDomain) === ''
+      ? daoDetails?.address
+      : toDisplayEns(daoDetails?.ensDomain);
 
   const onButtonGroupChangeHandler = () => {
     setSelectedButton(prev => (prev === 'new' ? 'old' : 'new'));
@@ -66,13 +68,13 @@ const CompareSettings: React.FC = () => {
       {isTokenVotingSettings(pluginSettings) ? (
         <>
           <CompareMvCommunity
-            daoAddressOrEns={daoAddressOrEns}
+            daoAddressOrEns={daoAddressOrEns as string}
             view={selectedButton}
             daoSettings={pluginSettings}
             daoToken={daoToken}
           />
           <CompareMvGovernance
-            daoAddressOrEns={daoAddressOrEns}
+            daoAddressOrEns={daoAddressOrEns as string}
             view={selectedButton}
             daoSettings={pluginSettings}
             daoToken={daoToken}

@@ -4,7 +4,6 @@ import {SessionTypes} from '@walletconnect/types';
 
 import {walletConnectInterceptor} from 'services/walletConnectInterceptor';
 import {CHAIN_METADATA, SUPPORTED_CHAIN_ID} from 'utils/constants';
-import usePrevious from 'hooks/usePrevious';
 import {Web3WalletTypes} from '@walletconnect/web3wallet';
 import {useDaoDetailsQuery} from './useDaoDetails';
 
@@ -27,11 +26,11 @@ export function useWalletConnectInterceptor({
   onActionRequest,
 }: UseWalletConnectInterceptorOptions) {
   const {network} = useNetwork();
-  const prevNetwork = usePrevious(network);
 
   const {data: daoDetails} = useDaoDetailsQuery();
-
-  const [sessions, setSessions] = useState<WcSession[]>([]);
+  const [sessions, setSessions] = useState<WcSession[]>(
+    walletConnectInterceptor.getActiveSessions(daoDetails?.address)
+  );
   const activeSessions = sessions.filter(session => session.acknowledged);
 
   const updateActiveSessions = useCallback(() => {
@@ -41,7 +40,7 @@ export function useWalletConnectInterceptor({
 
     // Update active-sessions for all hook instances
     activeSessionsListeners.forEach(listener => listener(newSessions));
-  }, [daoDetails]);
+  }, [daoDetails?.address]);
 
   const wcConnect = useCallback(async ({onError, uri}: WcConnectOptions) => {
     try {
@@ -75,12 +74,7 @@ export function useWalletConnectInterceptor({
 
       updateActiveSessions();
     },
-    [daoDetails, updateActiveSessions]
-  );
-
-  const handleConnectProposal = useCallback(
-    async (event: Web3WalletTypes.SessionProposal) => handleApprove(event),
-    [handleApprove]
+    [daoDetails?.address, updateActiveSessions]
   );
 
   const handleRequest = useCallback(
@@ -92,59 +86,44 @@ export function useWalletConnectInterceptor({
     [network, onActionRequest]
   );
 
-  const handleDisconnect = useCallback(
-    (event: Web3WalletTypes.SessionDelete) => wcDisconnect(event.topic),
-    [wcDisconnect]
-  );
+  const addListeners = useCallback(() => {
+    if (activeSessionsListeners.size > 0) {
+      return;
+    }
 
+    walletConnectInterceptor.subscribeConnectProposal(handleApprove);
+    walletConnectInterceptor.subscribeDisconnect(updateActiveSessions);
+  }, [handleApprove, updateActiveSessions]);
+
+  const removeListeners = useCallback(() => {
+    if (activeSessionsListeners.size > 0) {
+      return;
+    }
+
+    walletConnectInterceptor.unsubscribeConnectProposal(handleApprove);
+    walletConnectInterceptor.unsubscribeDisconnect(updateActiveSessions);
+  }, [handleApprove, updateActiveSessions]);
+
+  // Listen for active-session changes and subscribe / unsubscribe to client changes
   useEffect(() => {
+    addListeners();
     activeSessionsListeners.add(setSessions);
 
     return () => {
       activeSessionsListeners.delete(setSessions);
+      removeListeners();
     };
-  }, []);
+  }, [addListeners, removeListeners]);
 
-  // Initialize active sessions
-  useEffect(() => {
-    updateActiveSessions();
-  }, [updateActiveSessions]);
-
-  useEffect(() => {
-    walletConnectInterceptor.subscribeConnectProposal(handleConnectProposal);
-
-    return () =>
-      walletConnectInterceptor.unsubscribeConnectProposal(
-        handleConnectProposal
-      );
-  }, [handleConnectProposal]);
-
+  // Always subscribe to the request event as the onActionRequest property might differ
+  // between hook instances
   useEffect(() => {
     walletConnectInterceptor.subscribeRequest(handleRequest);
 
-    return () => walletConnectInterceptor.unsubscribeRequest(handleRequest);
+    return () => {
+      walletConnectInterceptor.unsubscribeRequest(handleRequest);
+    };
   }, [handleRequest]);
-
-  useEffect(() => {
-    walletConnectInterceptor.subscribeDisconnect(handleDisconnect);
-
-    return () =>
-      walletConnectInterceptor.unsubscribeDisconnect(handleDisconnect);
-  }, [handleDisconnect]);
-
-  useEffect(() => {
-    if (prevNetwork === network) {
-      return;
-    }
-
-    activeSessions.forEach(session => {
-      walletConnectInterceptor.changeNetwork(
-        session.topic,
-        session.namespaces['eip155'].accounts,
-        CHAIN_METADATA[network].id
-      );
-    });
-  }, [network, prevNetwork, activeSessions]);
 
   return {wcConnect, wcDisconnect, sessions, activeSessions};
 }

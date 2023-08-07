@@ -29,7 +29,6 @@ import useScreen from 'hooks/useScreen';
 import {Layout} from 'pages/settings';
 import {ProposeNewSettings} from 'utils/paths';
 import {toDisplayEns} from 'utils/library';
-import {useResolveDaoAvatar} from 'hooks/useResolveDaoAvatar';
 
 type EditMsSettingsProps = {
   daoDetails: DaoDetails;
@@ -57,10 +56,6 @@ export const EditMsSettings: React.FC<EditMsSettingsProps> = ({daoDetails}) => {
   const {data: members, isLoading: membersAreLoading} = useDaoMembers(
     daoDetails?.plugins[0].instanceAddress as string,
     daoDetails?.plugins[0].id as PluginTypes
-  );
-
-  const {avatar: daoDetailsAvatar} = useResolveDaoAvatar(
-    daoDetails?.metadata?.avatar
   );
 
   const [
@@ -132,22 +127,34 @@ export const EditMsSettings: React.FC<EditMsSettingsProps> = ({daoDetails}) => {
     resourceLinks,
   ]);
 
-  // metadata setting changes
-  const isMetadataChanged =
-    daoDetails?.metadata.name &&
-    (daoName !== daoDetails.metadata.name ||
+  const isMetadataChanged = useMemo(() => {
+    if (!daoDetails?.metadata.name || !daoName?.trim()) return false;
+    return (
+      daoName !== daoDetails.metadata.name ||
       daoSummary !== daoDetails.metadata.description ||
       daoLogo !== daoDetails.metadata.avatar ||
-      !resourceLinksAreEqual);
+      !resourceLinksAreEqual
+    );
+  }, [
+    daoDetails.metadata.avatar,
+    daoDetails.metadata.description,
+    daoDetails.metadata.name,
+    daoLogo,
+    daoName,
+    daoSummary,
+    resourceLinksAreEqual,
+  ]);
 
-  // TODO: We need to force forms to only use one type, Number or string
-  const isGovernanceChanged =
-    multisigMinimumApprovals !== settings.minApprovals;
+  const isGovernanceChanged = useMemo(() => {
+    if (!multisigMinimumApprovals) return false;
+
+    return multisigMinimumApprovals !== settings.minApprovals;
+  }, [multisigMinimumApprovals, settings.minApprovals]);
 
   const setCurrentMetadata = useCallback(() => {
     setValue('daoName', daoDetails?.metadata.name);
     setValue('daoSummary', daoDetails?.metadata.description);
-    setValue('daoLogo', daoDetailsAvatar);
+    setValue('daoLogo', daoDetails?.metadata?.avatar);
 
     /**
      * FIXME - this is the dumbest workaround: because there is an internal
@@ -167,8 +174,8 @@ export const EditMsSettings: React.FC<EditMsSettingsProps> = ({daoDetails}) => {
     setValue,
     daoDetails.metadata.name,
     daoDetails.metadata.description,
+    daoDetails.metadata?.avatar,
     daoDetails.metadata.links,
-    daoDetailsAvatar,
     replace,
   ]);
 
@@ -193,17 +200,21 @@ export const EditMsSettings: React.FC<EditMsSettingsProps> = ({daoDetails}) => {
 
   useEffect(() => {
     setValue('isMetadataChanged', isMetadataChanged);
-    setValue('areSettingsChanged', isGovernanceChanged);
+    setValue('areSettingsChanged', isMetadataChanged || isGovernanceChanged);
 
     // intentionally using settingsUnchanged because it monitors all
     // the setting changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsUnchanged, setValue]);
+  }, [isGovernanceChanged, isMetadataChanged, setValue]);
 
   useEffect(() => {
-    setCurrentMetadata();
-    setCurrentGovernance();
-  }, [setCurrentGovernance, setCurrentMetadata]);
+    if (!isMetadataChanged) setCurrentMetadata();
+    if (!isGovernanceChanged) setCurrentGovernance();
+  }, [
+    isGovernanceChanged,
+    isMetadataChanged,
+    setCurrentGovernance,
+    setCurrentMetadata,
+  ]);
 
   const metadataAction = [
     {
@@ -275,7 +286,7 @@ export const EditMsSettings: React.FC<EditMsSettingsProps> = ({daoDetails}) => {
                 dropdownItems={governanceAction}
               >
                 <AccordionContent>
-                  <ConfigureCommunity />
+                  <ConfigureCommunity isSettingPage />
                 </AccordionContent>
               </AccordionItem>
             </AccordionMultiple>

@@ -1,5 +1,3 @@
-// Library utils / Ethers for now
-import {ApolloClient} from '@apollo/client';
 import {
   Client,
   DaoDetails,
@@ -10,6 +8,7 @@ import {
   Context as SdkContext,
   TokenVotingClient,
   VotingMode,
+  WithdrawParams,
 } from '@aragon/sdk-client';
 import {fetchEnsAvatar} from '@wagmi/core';
 
@@ -19,20 +18,24 @@ import {
 } from '@aragon/sdk-client-common';
 import {bytesToHex, resolveIpfsCid} from '@aragon/sdk-common';
 import {NavigationDao} from 'context/apolloClient';
-import {BigNumber, BigNumberish, constants, ethers, providers} from 'ethers';
+import {BigNumber, BigNumberish, constants, providers} from 'ethers';
+import {
+  formatUnits as ethersFormatUnits,
+  hexlify,
+  isAddress,
+} from 'ethers/lib/utils';
 import {TFunction} from 'react-i18next';
 
-import {hexlify, isAddress} from 'ethers/lib/utils';
 import {getEtherscanVerifiedContract} from 'services/etherscanAPI';
-import {fetchTokenData} from 'services/prices';
+import {Token} from 'services/token/domain';
 import {
   BIGINT_PATTERN,
   CHAIN_METADATA,
   ETH_TRANSACTION_CALL_LABEL,
   ISO_DATE_PATTERN,
   PERSONAL_SIGN_BYTES,
-  PERSONAL_SIGN_SIGNATURE,
   PERSONAL_SIGN_LABEL,
+  PERSONAL_SIGN_SIGNATURE,
   SupportedNetworks,
 } from 'utils/constants';
 import {
@@ -52,12 +55,13 @@ import {i18n} from '../../i18n.config';
 import {addABI, decodeMethod} from './abiDecoder';
 import {attachEtherNotice} from './contract';
 import {getTokenInfo} from './tokens';
+import {IFetchTokenParams} from 'services/token/token-service.api';
 
 export function formatUnits(amount: BigNumberish, decimals: number) {
   if (amount.toString().includes('.') || !decimals) {
     return amount.toString();
   }
-  return ethers.utils.formatUnits(amount, decimals);
+  return ethersFormatUnits(amount, decimals);
 }
 
 // (Temporary) Should be moved to ui-component perhaps
@@ -119,7 +123,6 @@ export const toHex = (num: number | string) => {
  * DecodeWithdrawToAction
  * @param data Uint8Array action data
  * @param client SDK client, Fetched using useClient
- * @param apolloClient Apollo client, Fetched using useApolloClient
  * @param provider Eth provider
  * @param network network of the dao
  * @returns Return Decoded Withdraw action
@@ -127,18 +130,24 @@ export const toHex = (num: number | string) => {
 export async function decodeWithdrawToAction(
   data: Uint8Array | undefined,
   client: Client | undefined,
-  apolloClient: ApolloClient<object>,
   provider: providers.Provider,
   network: SupportedNetworks,
   to: string,
-  value: bigint
+  value: bigint,
+  fetchToken: (params: IFetchTokenParams) => Promise<Token | null>
 ): Promise<ActionWithdraw | undefined> {
   if (!client || !data) {
     console.error('SDK client is not initialized correctly');
     return;
   }
 
-  const decoded = client.decoding.withdrawAction(to, value, data);
+  // FIXME remove custom type when NFT withdraws are supported
+  type DecodedWithdraw = WithdrawParams & {amount?: bigint};
+  const decoded = client.decoding.withdrawAction(
+    to,
+    value,
+    data
+  ) as DecodedWithdraw;
 
   if (!decoded) {
     console.error('Unable to decode withdraw action');
@@ -162,22 +171,21 @@ export async function decodeWithdrawToAction(
       ),
     ]);
 
-    const apiResponse = await fetchTokenData(
-      tokenAddress,
-      apolloClient,
+    const apiResponse = await fetchToken({
+      address: tokenAddress,
       network,
-      tokenInfo.symbol
-    );
+      symbol: tokenInfo.symbol,
+    });
 
     return {
-      amount: Number(formatUnits(decoded.amount, tokenInfo.decimals)),
+      amount: Number(formatUnits(decoded.amount ?? '0', tokenInfo.decimals)),
       name: 'withdraw_assets',
       to: recipient,
       tokenBalance: 0, // unnecessary?
       tokenAddress: tokenAddress,
-      tokenImgUrl: apiResponse?.imgUrl || '',
+      tokenImgUrl: apiResponse?.imgUrl ?? '',
       tokenName: tokenInfo.name,
-      tokenPrice: apiResponse?.price || 0,
+      tokenPrice: apiResponse?.price ?? 0,
       tokenSymbol: tokenInfo.symbol,
       tokenDecimals: tokenInfo.decimals,
       isCustomToken: false,
@@ -635,17 +643,22 @@ export function sleepFor(time = 600) {
 export const translateToAppNetwork = (
   sdkNetwork: SdkContext['network']
 ): SupportedNetworks => {
-  switch (sdkNetwork.name) {
-    case 'homestead':
+  switch (sdkNetwork.name as SdkSupportedNetworks) {
+    case SdkSupportedNetworks.BASE:
+      return 'base';
+    case SdkSupportedNetworks.BASE_GOERLI:
+      return 'base-goerli';
+    case SdkSupportedNetworks.MAINNET:
       return 'ethereum';
-    case 'goerli':
+    case SdkSupportedNetworks.GOERLI:
       return 'goerli';
-    case 'maticmum':
+    case SdkSupportedNetworks.MUMBAI:
       return 'mumbai';
-    case 'matic':
+    case SdkSupportedNetworks.POLYGON:
       return 'polygon';
+    default:
+      return 'unsupported';
   }
-  return 'unsupported';
 };
 
 /**
@@ -661,14 +674,18 @@ export function translateToNetworkishName(
   }
 
   switch (appNetwork) {
-    case 'polygon':
-      return SdkSupportedNetworks.POLYGON;
-    case 'mumbai':
-      return SdkSupportedNetworks.MUMBAI;
+    case 'base':
+      return SdkSupportedNetworks.BASE;
+    case 'base-goerli':
+      return SdkSupportedNetworks.BASE_GOERLI;
     case 'ethereum':
       return SdkSupportedNetworks.MAINNET;
     case 'goerli':
       return SdkSupportedNetworks.GOERLI;
+    case 'mumbai':
+      return SdkSupportedNetworks.MUMBAI;
+    case 'polygon':
+      return SdkSupportedNetworks.POLYGON;
   }
 
   return 'unsupported';
@@ -833,7 +850,7 @@ export class Web3Address {
 
   // Constructor for the Address class
   constructor(
-    provider?: ethers.providers.Provider,
+    provider?: providers.Provider,
     address?: string,
     ensName?: string
   ) {
@@ -853,7 +870,7 @@ export class Web3Address {
     let ensNameToSet: string | undefined;
     if (typeof addressOrEns === 'string') {
       // If input is a string, treat it as address if it matches address structure, else treat as ENS name
-      if (ethers.utils.isAddress(addressOrEns)) {
+      if (isAddress(addressOrEns)) {
         addressToSet = addressOrEns;
       } else {
         ensNameToSet = addressOrEns;
@@ -916,7 +933,7 @@ export class Web3Address {
     if (!this._address) {
       return false;
     }
-    return ethers.utils.isAddress(this._address);
+    return isAddress(this._address);
   }
 
   // Method to check if the stored ENS name is valid (resolves to an address)
@@ -990,4 +1007,37 @@ export function capitalizeFirstLetter(str: string) {
   }
 
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Parse WalletConnect icon URL
+ *
+ * This function is used to parse the icon URL coming from WalletConnect.
+ * In case of SVG icons (e.g., Gnosis Safe), it extracts the href attribute value.
+ * If the icon path is relative, it prepends it with the dApp URL.
+ *
+ * @export
+ * @param dAppUrl - The URL of the dApp
+ * @param icon - The icon URL or SVG string
+ * @returns the parsed URL of the icon,
+ * or the original icon value if no modifications were necessary.
+ */
+export function parseWCIconUrl(
+  dAppUrl: string,
+  icon: string | undefined
+): string | undefined {
+  let parsedUrl = icon;
+
+  if (icon && icon.startsWith('<')) {
+    const match = icon.match(/<image href="([^"]*)"/);
+    if (match && match[1]) {
+      parsedUrl = match[1];
+    }
+  }
+
+  if (parsedUrl && parsedUrl.startsWith('/')) {
+    parsedUrl = `${dAppUrl}${parsedUrl}`;
+  }
+
+  return parsedUrl;
 }

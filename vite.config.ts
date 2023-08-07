@@ -1,5 +1,4 @@
-import typescript from '@rollup/plugin-typescript';
-import reactRefresh from '@vitejs/plugin-react-refresh';
+import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import {defineConfig, loadEnv} from 'vite';
 import {resolve} from 'path';
@@ -27,18 +26,13 @@ export default defineConfig(({mode}) => {
 
   return {
     base: '',
-    plugins: [
-      htmlEnvPlugin(),
-      reactRefresh(),
-      tsconfigPaths(),
-      typescript({tsconfig: './tsconfig.json'}),
-    ],
+    server: {
+      port: 3000,
+    },
+    plugins: [htmlEnvPlugin(), react(), tsconfigPaths()],
     optimizeDeps: {
-      // 👈 optimizedeps
-      optimizeDeps: {
-        esbuildOptions: {
-          target: 'es2020',
-        },
+      esbuildOptions: {
+        target: 'es2020',
       },
     },
     build: {
@@ -71,9 +65,9 @@ export default defineConfig(({mode}) => {
       commonjsOptions: {
         transformMixedEsModules: true,
       },
-      resolve: {
-        preserveSymlinks: true,
-      },
+    },
+    resolve: {
+      preserveSymlinks: true,
     },
   };
 });

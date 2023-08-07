@@ -6,11 +6,12 @@ import {useCallback, useEffect, useMemo} from 'react';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
 
 import {useNetwork} from 'context/network';
+import {useProviders} from 'context/providers';
+import {CHAIN_METADATA} from 'utils/constants';
 import {toDisplayEns} from 'utils/library';
 import {NotFound} from 'utils/paths';
 import {useClient} from './useClient';
-import {useSpecificProvider} from 'context/providers';
-import {CHAIN_METADATA} from 'utils/constants';
+import {resolveIpfsCid} from '@aragon/sdk-common';
 
 /**
  * Fetches DAO data for a given DAO address or ENS name using a given client.
@@ -39,6 +40,25 @@ async function fetchDaoDetails(
 
   // Note: SDK doesn't support ens names in L2 chains so we need to resolve the address first
   const daoDetails = await client.methods.getDao(daoAddressOrEns.toLowerCase());
+  const avatar = daoDetails?.metadata.avatar;
+  if (avatar)
+    if (typeof avatar !== 'string') {
+      daoDetails.metadata.avatar = URL.createObjectURL(avatar);
+    } else if (/^ipfs/.test(avatar) && client) {
+      try {
+        const cid = resolveIpfsCid(avatar);
+        const ipfsClient = client.ipfs.getClient();
+        const imageBytes = await ipfsClient.cat(cid); // Uint8Array
+        const imageBlob = new Blob([imageBytes] as unknown as BlobPart[]);
+
+        daoDetails.metadata.avatar = URL.createObjectURL(imageBlob);
+      } catch (err) {
+        console.warn('Error resolving DAO avatar IPFS Cid', err);
+      }
+    } else {
+      daoDetails.metadata.avatar = avatar;
+    }
+
   return daoDetails;
 }
 
@@ -51,12 +71,11 @@ export const useDaoQuery = (
   daoAddressOrEns: string | undefined,
   refetchInterval = 0
 ) => {
+  const {api: provider} = useProviders();
   const {network, networkUrlSegment} = useNetwork();
   const {client, network: clientNetwork} = useClient();
   const location = useLocation();
   const navigate = useNavigate();
-  // for custom resolver registry
-  const provider = useSpecificProvider(CHAIN_METADATA[network].id);
 
   // if network is unsupported this will be caught when compared to client
   const queryNetwork = useMemo(

@@ -53,7 +53,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
   ensName: daoEnsName,
 }) => {
   const {t} = useTranslation();
-  const {infura: provider} = useProviders();
+  const {api: provider} = useProviders();
   const {alert} = useAlertContext();
 
   const {control} = useFormContext();
@@ -73,7 +73,7 @@ const AddressField: React.FC<AddressFieldProps> = ({
       // do not open the modal for more than one time for the same address
       if (
         (value.address === daoAddress?.toLowerCase() ||
-          value.ensName === daoEnsName?.toLowerCase()) &&
+          (daoEnsName && value.ensName === daoEnsName.toLowerCase())) &&
         !isModalOpened
       ) {
         onEnterDaoAddress?.(fieldIndex);
