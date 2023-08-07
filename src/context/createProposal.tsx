@@ -72,6 +72,12 @@ import {
 import {useGlobalModalContext} from './globalModals';
 import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
+import {
+  proposalToElection,
+  UseCreateElectionProps,
+} from 'hooks/useVocdoniElection';
+import {useClient as useVocdoniClient} from 'hooks/useVocdoniSdk';
+import {Election, UnpublishedElection} from '@vocdoni/sdk';
 
 type Props = {
   showTxModal: boolean;
@@ -300,146 +306,148 @@ const CreateProposalProvider: React.FC<Props> = ({
   ]);
 
   // Because getValues does NOT get updated on each render, leaving this as
-  // a function to be called when data is needed instead of a memoized value
-  const getProposalCreationParams =
-    useCallback(async (): Promise<CreateMajorityVotingProposalParams> => {
-      const [
-        title,
-        summary,
-        description,
-        resources,
-        startDate,
-        startTime,
-        startUtc,
-        endDate,
-        endTime,
-        endUtc,
-        durationSwitch,
-        startSwitch,
-      ] = getValues([
-        'proposalTitle',
-        'proposalSummary',
-        'proposal',
-        'links',
-        'startDate',
-        'startTime',
-        'startUtc',
-        'endDate',
-        'endTime',
-        'endUtc',
-        'durationSwitch',
-        'startSwitch',
+  // a function to be called when data is needed instead of a memorized value
+  const getProposalCreationParams = useCallback(async (): Promise<{
+    params: CreateMajorityVotingProposalParams;
+    metadata: ProposalMetadata;
+  }> => {
+    const [
+      title,
+      summary,
+      description,
+      resources,
+      startDate,
+      startTime,
+      startUtc,
+      endDate,
+      endTime,
+      endUtc,
+      durationSwitch,
+      startSwitch,
+    ] = getValues([
+      'proposalTitle',
+      'proposalSummary',
+      'proposal',
+      'links',
+      'startDate',
+      'startTime',
+      'startUtc',
+      'endDate',
+      'endTime',
+      'endUtc',
+      'durationSwitch',
+      'startSwitch',
+    ]);
+
+    const actions = await encodeActions();
+
+    const metadata: ProposalMetadata = {
+      title,
+      summary,
+      description,
+      resources: resources.filter((r: ProposalResource) => r.name && r.url),
+    };
+
+    const ipfsUri = await pluginClient?.methods.pinMetadata(metadata);
+
+    // getting dates
+    let startDateTime: Date;
+    const startMinutesDelay = isMultisigVotingSettings(pluginSettings) ? 0 : 10;
+
+    if (startSwitch === 'now') {
+      startDateTime = new Date(
+        `${getCanonicalDate()}T${getCanonicalTime({
+          minutes: startMinutesDelay,
+        })}:00${getCanonicalUtcOffset()}`
+      );
+    } else {
+      startDateTime = new Date(
+        `${startDate}T${startTime}:00${getCanonicalUtcOffset(startUtc)}`
+      );
+    }
+
+    // End date
+    let endDateTime;
+    if (durationSwitch === 'duration') {
+      const [days, hours, minutes] = getValues([
+        'durationDays',
+        'durationHours',
+        'durationMinutes',
       ]);
 
-      const actions = await encodeActions();
+      // Calculate the end date using duration
+      const endDateTimeMill =
+        startDateTime.valueOf() + offsetToMills({days, hours, minutes});
 
-      const metadata: ProposalMetadata = {
-        title,
-        summary,
-        description,
-        resources: resources.filter((r: ProposalResource) => r.name && r.url),
-      };
+      endDateTime = new Date(endDateTimeMill);
+    } else {
+      endDateTime = new Date(
+        `${endDate}T${endTime}:00${getCanonicalUtcOffset(endUtc)}`
+      );
+    }
 
-      const ipfsUri = await pluginClient?.methods.pinMetadata(metadata);
-
-      // getting dates
-      let startDateTime: Date;
-      const startMinutesDelay = isMultisigVotingSettings(pluginSettings)
-        ? 0
-        : 10;
-
-      if (startSwitch === 'now') {
+    if (startSwitch === 'now') {
+      endDateTime = new Date(
+        endDateTime.getTime() + minutesToMills(startMinutesDelay)
+      );
+    } else {
+      if (startDateTime.valueOf() < new Date().valueOf()) {
         startDateTime = new Date(
           `${getCanonicalDate()}T${getCanonicalTime({
             minutes: startMinutesDelay,
           })}:00${getCanonicalUtcOffset()}`
         );
-      } else {
-        startDateTime = new Date(
+      }
+
+      const minEndDateTimeMills =
+        startDateTime.valueOf() +
+        daysToMills(minDays || 0) +
+        hoursToMills(minHours || 0) +
+        minutesToMills(minMinutes || 0);
+
+      if (endDateTime.valueOf() < minEndDateTimeMills) {
+        const legacyStartDate = new Date(
           `${startDate}T${startTime}:00${getCanonicalUtcOffset(startUtc)}`
         );
+        const endMills =
+          endDateTime.valueOf() +
+          (startDateTime.valueOf() - legacyStartDate.valueOf());
+
+        endDateTime = new Date(endMills);
       }
+    }
 
-      // End date
-      let endDateTime;
-      if (durationSwitch === 'duration') {
-        const [days, hours, minutes] = getValues([
-          'durationDays',
-          'durationHours',
-          'durationMinutes',
-        ]);
+    /**
+     * For multisig proposals, in case "now" as start time is selected, we want
+     * to keep startDate undefined, so it's automatically evaluated.
+     * If we just provide "Date.now()", than after user still goes through the flow
+     * it's going to be date from the past. And SC-call evaluation will fail.
+     */
+    const finalStartDate =
+      startSwitch === 'now' && isMultisigVotingSettings(pluginSettings)
+        ? undefined
+        : startDateTime;
 
-        // Calculate the end date using duration
-        const endDateTimeMill =
-          startDateTime.valueOf() + offsetToMills({days, hours, minutes});
-
-        endDateTime = new Date(endDateTimeMill);
-      } else {
-        endDateTime = new Date(
-          `${endDate}T${endTime}:00${getCanonicalUtcOffset(endUtc)}`
-        );
-      }
-
-      if (startSwitch === 'now') {
-        endDateTime = new Date(
-          endDateTime.getTime() + minutesToMills(startMinutesDelay)
-        );
-      } else {
-        if (startDateTime.valueOf() < new Date().valueOf()) {
-          startDateTime = new Date(
-            `${getCanonicalDate()}T${getCanonicalTime({
-              minutes: startMinutesDelay,
-            })}:00${getCanonicalUtcOffset()}`
-          );
-        }
-
-        const minEndDateTimeMills =
-          startDateTime.valueOf() +
-          daysToMills(minDays || 0) +
-          hoursToMills(minHours || 0) +
-          minutesToMills(minMinutes || 0);
-
-        if (endDateTime.valueOf() < minEndDateTimeMills) {
-          const legacyStartDate = new Date(
-            `${startDate}T${startTime}:00${getCanonicalUtcOffset(startUtc)}`
-          );
-          const endMills =
-            endDateTime.valueOf() +
-            (startDateTime.valueOf() - legacyStartDate.valueOf());
-
-          endDateTime = new Date(endMills);
-        }
-      }
-
-      /**
-       * For multisig proposals, in case "now" as start time is selected, we want
-       * to keep startDate undefined, so it's automatically evaluated.
-       * If we just provide "Date.now()", than after user still goes through the flow
-       * it's going to be date from the past. And SC-call evaluation will fail.
-       */
-      const finalStartDate =
-        startSwitch === 'now' && isMultisigVotingSettings(pluginSettings)
-          ? undefined
-          : startDateTime;
-
-      // Ignore encoding if the proposal had no actions
-      return {
-        pluginAddress,
-        metadataUri: ipfsUri || '',
-        startDate: finalStartDate,
-        endDate: endDateTime,
-        actions,
-      };
-    }, [
-      encodeActions,
-      getValues,
-      minDays,
-      minHours,
-      minMinutes,
+    // Ignore encoding if the proposal had no actions
+    const params: CreateMajorityVotingProposalParams = {
       pluginAddress,
-      pluginClient?.methods,
-      pluginSettings,
-    ]);
+      metadataUri: ipfsUri || '',
+      startDate: finalStartDate,
+      endDate: endDateTime,
+      actions,
+    };
+
+    return {params, metadata};
+  }, [
+    encodeActions,
+    getValues,
+    minDays,
+    minHours,
+    minMinutes,
+    pluginAddress,
+    pluginClient?.methods,
+    pluginSettings,
+  ]);
 
   const estimateCreationFees = useCallback(async () => {
     if (!pluginClient) {
@@ -676,15 +684,68 @@ const CreateProposalProvider: React.FC<Props> = ({
     tokenPrice,
   ]);
 
+  const {client: vocdoniClient, census3Client} = useVocdoniClient();
+
+  const createVocdoniElection = useCallback(
+    async (electionData: UseCreateElectionProps) => {
+      const election: UnpublishedElection = Election.from({
+        title: electionData.title,
+        description: electionData.description,
+        endDate: electionData.endDate,
+        startDate: electionData.startDate,
+        census: electionData.census,
+      });
+      election.addQuestion(electionData.question, '', [
+        {title: 'Yes', value: 0},
+        {title: 'No', value: 1},
+        {title: 'Abstain', value: 2},
+      ]);
+      return await vocdoniClient.createElection(election);
+    },
+    [vocdoniClient]
+  );
+
+  const handleOffChainProposal = useCallback(async () => {
+    const {params, metadata} = await getProposalCreationParams();
+
+    if (!pluginClient || !daoToken) {
+      return new Error('ERC20 SDK client is not initialized correctly');
+    }
+
+    // Check if the census is already sync
+    const censusToken = await census3Client.getToken(daoToken?.address);
+    // todo(kon): handle token is not sync
+    if (!censusToken.status.synced) {
+      return new Error('Census token is not already calculated');
+    }
+
+    // todo(kon): Check if the account is already created, if not, create it
+
+    // Create the vocdoni election¡
+    const census = await census3Client.createTokenCensus(censusToken.id);
+    const electionId = await createVocdoniElection(
+      proposalToElection({metadata, data: params, census})
+    );
+
+    // todo(kon) Register election on the DAO
+  }, [
+    census3Client,
+    createVocdoniElection,
+    daoToken,
+    getProposalCreationParams,
+    pluginClient,
+  ]);
+
   /*************************************************
    *                     Effects                   *
    *************************************************/
   useEffect(() => {
     // set proposal creation data
     async function setProposalData() {
-      if (showTxModal && creationProcessState === TransactionState.WAITING)
-        setProposalCreationData(await getProposalCreationParams());
-      else if (!showTxModal) setProposalCreationData(undefined);
+      if (showTxModal && creationProcessState === TransactionState.WAITING) {
+        const {params} = await getProposalCreationParams();
+        setProposalCreationData(params);
+      } else if (!showTxModal) setProposalCreationData(undefined);
     }
 
     setProposalData();
