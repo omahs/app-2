@@ -20,13 +20,13 @@ class WalletConnectInterceptor {
   }
 
   subscribeConnectProposal(
-    cb: (event: Web3WalletTypes.SessionProposal) => void
+    cb: (event: Web3WalletTypes.SessionProposal) => Promise<void>
   ) {
     this.client?.on('session_proposal', cb);
   }
 
   unsubscribeConnectProposal(
-    cb: (event: Web3WalletTypes.SessionProposal) => void
+    cb: (event: Web3WalletTypes.SessionProposal) => Promise<void>
   ): void {
     this.client?.off('session_proposal', cb);
   }

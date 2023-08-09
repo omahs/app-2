@@ -43,7 +43,7 @@ export const DaoExplorer = () => {
   const fetchFavorited = filterValue === 'favorite';
   const favoritedApi = useFavoritedDaosInfiniteQuery(fetchFavorited);
   const daosApi = useDaosInfiniteQuery(fetchFavorited === false, {
-    sortBy: toDaoSortBy(filterValue),
+    sortBy: DaoSortBy.CREATED_AT,
   });
 
   // resulting api response
@@ -168,14 +168,15 @@ export const DaoExplorer = () => {
  * @param filter selected DAO category
  * @returns the equivalent of the SDK enum
  */
-function toDaoSortBy(filter: ExploreFilter) {
-  switch (filter) {
-    case 'newest':
-      return DaoSortBy.CREATED_AT;
-    default:
-      return DaoSortBy.CREATED_AT;
-  }
-}
+// function toDaoSortBy(filter: ExploreFilter) {
+//   return DaoSortBy.CREATED_AT;
+// switch (filter) {
+//   case 'newest':
+//     return DaoSortBy.CREATED_AT;
+//   default:
+//     return DaoSortBy.CREATED_AT;
+// }
+// }
 
 const ButtonGroupContainer = styled.div.attrs({
   className: 'flex',

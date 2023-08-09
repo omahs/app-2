@@ -43,7 +43,7 @@ const DEFAULT_TOKEN_DECIMALS = 18;
 
 type CreateDaoContextType = {
   /** Prepares the creation data and awaits user confirmation to start process */
-  handlePublishDao: () => void;
+  handlePublishDao: () => Promise<void>;
 };
 
 const CreateDaoContext = createContext<CreateDaoContextType | null>(null);

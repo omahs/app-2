@@ -46,7 +46,7 @@ const ExploreNav: React.FC = () => {
           <LeftContent>
             <LogoContainer
               src={Logo}
-              onClick={() => window.open(path, '_blank')}
+              onClick={() => window.open(path, '_blank', 'noopener')}
             />
           </LeftContent>
           <RightContent>
