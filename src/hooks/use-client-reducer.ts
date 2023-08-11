@@ -250,6 +250,7 @@ const clientReducer: Reducer<ClientState, ClientAction> = (
       });
       const census3Client = new VocdoniCensus3Client({
         env: env as EnvOptions,
+        api_url: 'https://optimism.census3.vocdoni.net/api',
       });
       return {
         ...state,
