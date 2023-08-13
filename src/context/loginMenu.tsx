@@ -1,6 +1,8 @@
 import {LoginRequired} from 'containers/walletMenu/LoginRequired';
 import {useWallet} from 'hooks/useWallet';
 import React, {
+  FC,
+  ReactNode,
   createContext,
   useCallback,
   useContext,
@@ -19,15 +21,11 @@ type LoginMenuContextType = {
   showLoginModal: boolean;
   handleCloseLoginModal: () => void;
   handleOpenLoginModal: () => void;
-  userWentThroughLoginFlowRef?: React.MutableRefObject<boolean>;
-  web3ModalWasShownRef?: React.MutableRefObject<boolean>;
+  userWentThroughLoginFlowRef: React.MutableRefObject<boolean>;
+  web3ModalWasShownRef: React.MutableRefObject<boolean>;
 };
 
-type LoginMenuProviderProps = {
-  daoId: string;
-};
-
-const LoginMenuProvider: React.FC<LoginMenuProviderProps> = ({children}) => {
+const LoginMenuProvider: FC<{children: ReactNode}> = ({children}) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const {open, close} = useGlobalModalContext();
 
@@ -88,9 +86,13 @@ const LoginMenuProvider: React.FC<LoginMenuProviderProps> = ({children}) => {
   }, [address, close, isOnWrongNetwork, open]);
 
   // close the LoginRequired modal when web3Modal is shown
+  // update the reference whenever the web3Modal is shown
   useEffect(() => {
-    if (web3ModalIsShown) setShowLoginModal(false);
-  }, [close, web3ModalIsShown]);
+    if (web3ModalIsShown) {
+      web3ModalWasShownRef.current = true;
+      setShowLoginModal(false);
+    }
+  }, [web3ModalIsShown]);
 
   const value = useMemo(
     (): LoginMenuContextType => ({

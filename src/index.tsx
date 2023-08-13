@@ -30,6 +30,7 @@ import {UseCacheProvider} from 'hooks/useCache';
 import {UseClientProvider} from 'hooks/useClient';
 import {infuraApiKey, walletConnectProjectID} from 'utils/constants';
 import App from './app';
+import {LoginMenuProvider} from 'context/loginMenu';
 
 const chains = [base, baseGoerli, goerli, mainnet, polygon, polygonMumbai];
 const ledgerChains = [goerli, mainnet, polygon, polygonMumbai];
@@ -109,8 +110,10 @@ ReactDOM.render(
                           <TransactionDetailProvider>
                             <WalletMenuProvider>
                               <GlobalModalsProvider>
-                                <App />
-                                <ReactQueryDevtools initialIsOpen={false} />
+                                <LoginMenuProvider>
+                                  <App />
+                                  <ReactQueryDevtools initialIsOpen={false} />
+                                </LoginMenuProvider>
                               </GlobalModalsProvider>
                             </WalletMenuProvider>
                           </TransactionDetailProvider>
