@@ -173,15 +173,20 @@ export const Proposal: React.FC = () => {
   const [votingInProcess, setVotingInProcess] = useState(false);
   const [expandedProposal, setExpandedProposal] = useState(false);
 
-  const editor = useEditor({
-    editable: false,
-    extensions: [
-      StarterKit,
-      TipTapLink.configure({
-        openOnClick: false,
-      }),
-    ],
-  });
+  const [content, setContent] = useState('');
+  const editor = useEditor(
+    {
+      editable: false,
+      extensions: [
+        StarterKit,
+        TipTapLink.configure({
+          openOnClick: false,
+        }),
+      ],
+      content,
+    },
+    [content]
+  );
 
   /*************************************************
    *                     Hooks                     *
@@ -189,17 +194,16 @@ export const Proposal: React.FC = () => {
 
   // set editor data
   useEffect(() => {
-    if (proposal && editor) {
-      editor.commands.setContent(
+    if (proposal?.metadata.description) {
+      setContent(
         // Default list of allowed tags and attributes - https://www.npmjs.com/package/sanitize-html#default-options
         sanitizeHtml(proposal.metadata.description, {
           // the disallowedTagsMode displays the disallowed tags to be rendered as a string
           disallowedTagsMode: 'recursiveEscape',
-        }),
-        true
+        })
       );
     }
-  }, [editor, proposal]);
+  }, [proposal?.metadata.description]);
 
   useEffect(() => {
     if (proposal?.status) {
