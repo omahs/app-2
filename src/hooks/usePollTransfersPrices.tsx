@@ -107,9 +107,9 @@ function mapToDaoTransfers(
             tokenAmount: formatUnits(transfer.amount, transfer.token.decimals),
           }
         : {
-            tokenName: transfer.token.name,
+            tokenName: transfer.token.address,
             tokenAddress: transfer.token.address,
-            tokenSymbol: transfer.token.symbol,
+            tokenSymbol: transfer.token.address,
             tokenAmount: '', // TODO work out how to get this value
           }),
     };

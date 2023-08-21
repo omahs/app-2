@@ -16,7 +16,10 @@ export const useTokenMetadata = (
     address:
       asset.type !== TokenType.NATIVE ? asset.address : constants.AddressZero,
     network,
-    symbol: asset.type !== TokenType.NATIVE ? asset.symbol : undefined,
+    symbol:
+      asset.type !== TokenType.NATIVE && asset.type !== TokenType.ERC1155
+        ? asset.symbol
+        : undefined,
   }));
   const tokenResults = useTokenList(tokenListParams);
 
@@ -30,7 +33,10 @@ export const useTokenMetadata = (
     }
 
     const tokensWithMetadata = assets.map((asset, index) => ({
-      balance: asset.type !== TokenType.ERC721 ? asset.balance : BigInt(0),
+      balance:
+        asset.type !== TokenType.ERC721 && asset.type !== TokenType.ERC1155
+          ? asset.balance
+          : BigInt(0),
       metadata: {
         ...(asset.type === TokenType.ERC20
           ? {

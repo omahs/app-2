@@ -104,7 +104,7 @@ export function getAlchemyProvider(
 ): AlchemyProvider | null {
   const network = toNetwork(chainIdOrNetwork);
 
-  if (!network || network === 'unsupported') {
+  if (!network || network === 'unsupported' || network === 'local') {
     return null;
   }
 
@@ -122,7 +122,7 @@ export function getAlchemyProvider(
     networkishOptions.ensAddress =
       LIVE_CONTRACTS[
         networkishOptions.name as sdkSupportedNetworks
-      ].ensRegistry;
+      ].ensRegistryAddress;
   }
 
   return new AlchemyProvider(networkishOptions, apiKey);
@@ -140,7 +140,12 @@ export function getAlchemyProvider(
 export function getInfuraProvider(
   chainIdOrNetwork: SupportedChainID | SupportedNetworks
 ): InfuraProvider | null {
-  const InfuraUnsupportedNetworks = ['base', 'base-goerli', 'unsupported'];
+  const InfuraUnsupportedNetworks = [
+    'base',
+    'base-goerli',
+    'unsupported',
+    'local',
+  ];
   const network = toNetwork(chainIdOrNetwork);
 
   if (!network || InfuraUnsupportedNetworks.includes(network)) {
@@ -156,7 +161,7 @@ export function getInfuraProvider(
     networkishOptions.ensAddress =
       LIVE_CONTRACTS[
         networkishOptions.name as sdkSupportedNetworks
-      ].ensRegistry;
+      ].ensRegistryAddress;
   }
 
   return new InfuraProvider(networkishOptions, infuraApiKey);
@@ -187,7 +192,7 @@ export function getJsonRpcProvider(
     networkishOptions.ensAddress =
       LIVE_CONTRACTS[
         networkishOptions.name as sdkSupportedNetworks
-      ].ensRegistry;
+      ].ensRegistryAddress;
   }
 
   return new JsonRpcProvider(

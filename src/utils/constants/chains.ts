@@ -3,7 +3,7 @@
 import {infuraApiKey} from './api';
 
 export const SUPPORTED_CHAIN_ID = [
-  1, 5, 137, 8453, 80001, 84531, 42161, 421613,
+  1, 5, 137, 1337, 8453, 80001, 84531, 42161, 421613,
 ] as const;
 
 export type SupportedChainID = typeof SUPPORTED_CHAIN_ID[number];
@@ -32,6 +32,7 @@ const SUPPORTED_NETWORKS = [
   'goerli',
   'mumbai',
   'polygon',
+  'local',
 ] as const;
 
 export type SupportedNetworks =
@@ -313,6 +314,25 @@ export const CHAIN_METADATA: ChainList = {
     alchemyApi: 'https://polygon-mumbai.g.alchemy.com/v2',
     supportsEns: false,
     ipfs: 'https://test.ipfs.aragon.network',
+  },
+  local: {
+    id: 1337,
+    name: 'Local',
+    domain: 'L1 Blockchain',
+    logo: '',
+    explorer: '',
+    isTestnet: false,
+    rpc: ['http://127.0.0.1:8545/'],
+    nativeCurrency: {
+      name: 'Hardhat Ether',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    etherscanApi: 'https://api-goerli.etherscan.io/api',
+    etherscanApiKey: etherscanApiKey,
+    alchemyApi: 'https://eth-goerli.g.alchemy.com/v2',
+    supportsEns: false,
+    ipfs: 'http://localhost:5001/',
   },
   unsupported: {
     id: 1,
