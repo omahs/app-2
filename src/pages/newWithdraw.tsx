@@ -1,4 +1,3 @@
-import {withTransaction} from '@elastic/apm-rum-react';
 import React, {useState} from 'react';
 import {FormProvider, useForm} from 'react-hook-form';
 import {Loading} from 'components/temporary';
@@ -8,43 +7,7 @@ import {useDaoDetailsQuery} from 'hooks/useDaoDetails';
 import {PluginTypes} from 'hooks/usePluginClient';
 import {usePluginSettings} from 'hooks/usePluginSettings';
 import WithdrawStepper from 'containers/withdrawStepper';
-import {InputValue} from '@aragon/ods';
-
-export type TokenFormData = {
-  tokenName: string;
-  tokenSymbol: string;
-  tokenImgUrl: string;
-  tokenAddress: string;
-  tokenDecimals: number;
-  tokenBalance: string;
-  tokenPrice?: number;
-  isCustomToken: boolean;
-};
-
-export type WithdrawAction = TokenFormData & {
-  to: InputValue;
-  from: string;
-  amount: string;
-  name: string; // This indicates the type of action; Deposit is NOT an action
-};
-
-type WithdrawFormData = {
-  actions: WithdrawAction[];
-
-  // Proposal data
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  duration: number;
-  startUtc: string;
-  endUtc: string;
-  durationSwitch: string;
-  proposalTitle: string;
-  proposalSummary: string;
-  proposal: unknown;
-  links: unknown;
-};
+import {WithdrawFormData} from 'utils/types';
 
 export const defaultValues = {
   links: [{name: '', url: ''}],
@@ -53,7 +16,7 @@ export const defaultValues = {
   actions: [],
 };
 
-const NewWithdraw: React.FC = () => {
+export const NewWithdraw: React.FC = () => {
   const [showTxModal, setShowTxModal] = useState(false);
 
   const {data: daoDetails, isLoading: detailsLoading} = useDaoDetailsQuery();
@@ -94,5 +57,3 @@ const NewWithdraw: React.FC = () => {
     </>
   );
 };
-
-export default withTransaction('NewWithdraw', 'component')(NewWithdraw);

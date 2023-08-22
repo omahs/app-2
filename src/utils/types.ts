@@ -11,8 +11,52 @@ import {
 } from '@aragon/sdk-client';
 import {BigNumber} from 'ethers';
 
+import {InputValue} from '@aragon/ods';
+import {TokenVotingWalletField} from 'components/addWallets/row';
+import {MultisigWalletField} from 'components/multisigWallets/row';
 import {TimeFilter, TransferTypes} from './constants';
 import {Web3Address} from './library';
+import {TokenType} from './validators';
+
+/*************************************************
+ *                 DAO Creation types            *
+ *************************************************/
+type DAOMembership = 'token' | 'multisig';
+type ProposalCreationEligibility = 'token' | 'anyone' | 'multisig';
+export type CreateDaoFormData = {
+  blockchain: {
+    id: number;
+    label: string;
+    network: string;
+  };
+  daoLogo: Blob;
+  daoName: string;
+  daoEnsName: string;
+  daoSummary: string;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenDecimals: number;
+  tokenTotalSupply: number;
+  tokenTotalHolders: number | undefined;
+  tokenType: TokenType;
+  isCustomToken: boolean;
+  links: {name: string; url: string}[];
+  wallets: TokenVotingWalletField[];
+  tokenAddress: InputValue;
+  durationMinutes: string;
+  durationHours: string;
+  durationDays: string;
+  minimumApproval: string;
+  minimumParticipation: string;
+  eligibilityType: ProposalCreationEligibility;
+  eligibilityTokenAmount: number | string;
+  support: string;
+  membership: DAOMembership;
+  earlyExecution: boolean;
+  voteReplacement: boolean;
+  multisigWallets: MultisigWalletField[];
+  multisigMinimumApprovals: number;
+};
 
 /*************************************************
  *                   Finance types               *
@@ -121,6 +165,13 @@ export type ProposalData = UncategorizedProposalData & {
 };
 
 type Seconds = string;
+
+export type ExecutionStatus =
+  | 'defeated'
+  | 'executed'
+  | 'executable'
+  | 'executable-failed'
+  | 'default';
 
 export type UncategorizedProposalData = {
   id: string;
@@ -508,4 +559,77 @@ export class ProposalId {
   toString() {
     return this.id;
   }
+}
+
+export interface Link {
+  name: string;
+  url: string;
+}
+
+export interface ProposalFormData {
+  actions: Action[];
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  duration: number;
+  startUtc: string;
+  endUtc: string;
+  startSwitch: 'date' | 'now' | string;
+  durationMills: string;
+  durationDays: string;
+  durationHours: string;
+  durationMinutes: string;
+  durationSwitch: 'duration' | string;
+  proposalTitle: string;
+  proposalSummary: string;
+  proposal: string;
+  endTimeWarning: boolean;
+  startTimeWarning: boolean;
+  areSettingsLoading: boolean;
+  links: Link[];
+}
+
+export type ProposalSettingsFormData = ProposalFormData & {
+  areSettingsChanged: boolean;
+  isMetadataChanged: boolean;
+};
+
+export interface ManageMembersFormData extends ProposalFormData {
+  actions: Array<
+    ActionAddAddress | ActionRemoveAddress | ActionUpdateMultisigPluginSettings
+  >;
+}
+
+export interface MintTokensFormData extends ProposalFormData {
+  actions: ActionMintToken[];
+}
+
+export type CreateProposalFormData = ProposalFormData;
+
+export interface TokensWrappingFormData {
+  mode: 'wrap' | 'unwrap';
+  amount: string;
+}
+
+interface TokenFormData {
+  tokenName: string;
+  tokenSymbol: string;
+  tokenImgUrl: string;
+  tokenAddress: string;
+  tokenDecimals: number;
+  tokenBalance: string;
+  tokenPrice?: number;
+  isCustomToken: boolean;
+}
+
+export type WithdrawFormDataAction = TokenFormData & {
+  to: InputValue;
+  from: string;
+  amount: string;
+  name: string; // This indicates the type of action; Deposit is NOT an action
+};
+
+export interface WithdrawFormData extends Omit<ProposalFormData, 'actions'> {
+  actions: WithdrawFormDataAction[];
 }

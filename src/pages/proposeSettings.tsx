@@ -7,7 +7,6 @@ import {
   VotingSettings,
 } from '@aragon/sdk-client';
 import {DaoAction, ProposalMetadata} from '@aragon/sdk-client-common';
-import {withTransaction} from '@elastic/apm-rum-react';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useFormContext, useFormState} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
@@ -29,6 +28,7 @@ import {
 import {useGlobalModalContext} from 'context/globalModals';
 import {useNetwork} from 'context/network';
 import {usePrivacyContext} from 'context/privacyContext';
+import {parseUnits} from 'ethers/lib/utils';
 import {useClient} from 'hooks/useClient';
 import {useDaoDetailsQuery} from 'hooks/useDaoDetails';
 import {useDaoToken} from 'hooks/useDaoToken';
@@ -63,7 +63,7 @@ import {
   offsetToMills,
 } from 'utils/date';
 import {customJSONReplacer, readFile, toDisplayEns} from 'utils/library';
-import {EditSettings, Proposal, Settings} from 'utils/paths';
+import {EditSettings, Proposal} from 'utils/paths';
 import {CacheProposalParams, mapToCacheProposal} from 'utils/proposals';
 import {
   Action,
@@ -72,14 +72,15 @@ import {
   ActionUpdatePluginSettings,
   ProposalId,
   ProposalResource,
+  ProposalSettingsFormData,
 } from 'utils/types';
-import {parseUnits} from 'ethers/lib/utils';
 
-const ProposeSettings: React.FC = () => {
+export const ProposeSettings: React.FC = () => {
   const {t} = useTranslation();
   const {network} = useNetwork();
 
-  const {getValues, setValue, control} = useFormContext();
+  const {getValues, setValue, control} =
+    useFormContext<ProposalSettingsFormData>();
   const [showTxModal, setShowTxModal] = useState(false);
   const {errors, dirtyFields} = useFormState({
     control,
@@ -173,8 +174,6 @@ const ProposeSettings: React.FC = () => {
     </ProposeSettingWrapper>
   );
 };
-
-export default withTransaction('ProposeSettings', 'component')(ProposeSettings);
 
 type Props = {
   showTxModal: boolean;
@@ -285,7 +284,9 @@ const ProposeSettingWrapper: React.FC<Props> = ({
         let daoLogoFile = '';
 
         if (daoDetails && !daoName)
-          navigate(generatePath(Settings, {network, dao: daoDetails?.address}));
+          navigate(
+            generatePath(EditSettings, {network, dao: daoDetails?.address})
+          );
 
         if (daoLogo?.startsWith?.('blob'))
           daoLogoFile = (await fetch(daoLogo).then(r => r.blob())) as string;
@@ -335,7 +336,7 @@ const ProposeSettingWrapper: React.FC<Props> = ({
             name: 'modify_multisig_voting_settings',
             inputs: {
               minApprovals: multisigMinimumApprovals,
-              onlyListed: pluginSettings.onlyListed,
+              onlyListed: eligibilityType === 'multisig',
             },
           };
 

@@ -25,8 +25,14 @@ type ActionsProviderProps = {
   daoId: string;
 };
 
+const updatesMultisigVoting = (action: ActionItem) =>
+  ['remove_address', 'add_address'].includes(action.name);
+
+const hasEditMultisigAction = (actions: ActionItem[]) =>
+  actions.some(action => action.name === 'modify_multisig_voting_settings');
+
 const ActionsProvider: React.FC<ActionsProviderProps> = ({daoId, children}) => {
-  const [actions, setActions] = useState<ActionsContextType['actions']>([]);
+  const [actions, setActions] = useState<ActionItem[]>([]);
   const [selectedActionIndex, setSelectedActionIndex] =
     useState<ActionsContextType['selectedActionIndex']>(0);
 
@@ -34,55 +40,46 @@ const ActionsProvider: React.FC<ActionsProviderProps> = ({daoId, children}) => {
   const {remove} = useFieldArray({control, name: 'actions'});
 
   const addAction = useCallback(newAction => {
-    setActions(oldActions => {
-      if (
-        (newAction.name === 'remove_address' ||
-          newAction.name === 'add_address') &&
-        !oldActions.some(a => a.name === 'modify_multisig_voting_settings')
-      ) {
-        return [
-          ...oldActions,
-          newAction,
-          {name: 'modify_multisig_voting_settings'},
-        ];
-      }
+    setActions(current => {
+      const shouldAddEditMultisigAction =
+        updatesMultisigVoting(newAction) && !hasEditMultisigAction(current);
 
-      return [...oldActions, newAction];
+      const newList = [...current, newAction];
+
+      return shouldAddEditMultisigAction
+        ? newList.concat({name: 'modify_multisig_voting_settings'})
+        : newList;
     });
   }, []);
 
   const removeAction = useCallback(
     (index: number) => {
-      let newActions = actions.filter((_, oldIndex) => oldIndex !== index);
+      setActions(current => {
+        let newActions = current.filter((_, oldIndex) => oldIndex !== index);
 
-      if (
-        // check if there is an update settings with min approval
-        newActions.some(a => a.name === 'modify_multisig_voting_settings') &&
-        // and no add or remove action is present
-        !newActions.some(
-          a => a.name === 'remove_address' || a.name === 'add_address'
-        )
-      ) {
-        const indexOfMinApproval = newActions.findIndex(
-          a => a.name === 'modify_multisig_voting_settings'
-        );
+        if (
+          hasEditMultisigAction(newActions) &&
+          !newActions.some(updatesMultisigVoting)
+        ) {
+          const indexOfMinApproval = newActions.findIndex(
+            a => a.name === 'modify_multisig_voting_settings'
+          );
 
-        // remove from local context
-        newActions = newActions.filter(
-          (_, oldIndex) => oldIndex !== indexOfMinApproval
-        );
+          // remove from local context
+          newActions = newActions.filter(
+            (_, oldIndex) => oldIndex !== indexOfMinApproval
+          );
 
-        // remove from form
-        remove(indexOfMinApproval);
-      }
+          // remove from form
+          remove(indexOfMinApproval);
+        }
 
-      // update local context
-      setActions(newActions);
+        return newActions;
+      });
 
-      // update form actions
       remove(index);
     },
-    [actions, remove]
+    [remove]
   );
 
   const duplicateAction = useCallback((index: number) => {

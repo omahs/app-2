@@ -43,7 +43,7 @@ const ActionListenerModal: React.FC<Props> = ({
   const {network} = useNetwork();
   const {isDesktop} = useScreen();
 
-  const {setValue, resetField} = useFormContext();
+  const {setValue} = useFormContext();
   const {addAction, removeAction} = useActionsContext();
 
   const [actionsReceived, setActionsReceived] = useState<WcActionRequest[]>([]);
@@ -61,7 +61,9 @@ const ActionListenerModal: React.FC<Props> = ({
    *             Callbacks and Handlers            *
    *************************************************/
   const handleAddActions = useCallback(async () => {
-    resetField(`actions.${actionIndex}`);
+    // Make sure that the current modal action has some value set on the form
+    // to delete the correct action when calling deleteAction at the end
+    setValue(`actions.${actionIndex}.name`, 'wallet_connect_modal');
 
     // NOTE: this is slightly inefficient and can be optimized
     // by wrapping the map in a Promise.all, but there might be an
@@ -84,7 +86,7 @@ const ActionListenerModal: React.FC<Props> = ({
       );
 
       // increment the index so multiple actions can be added at once
-      const index = actionIndex + currentIndex;
+      const index = actionIndex + (currentIndex + 1);
 
       // name, raw action and contract address set on every action
       addAction({name: 'wallet_connect_action'});
@@ -176,7 +178,6 @@ const ActionListenerModal: React.FC<Props> = ({
     addAction,
     network,
     removeAction,
-    resetField,
     setValue,
     t,
   ]);

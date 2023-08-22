@@ -1,5 +1,4 @@
 import {MultisigVotingSettings} from '@aragon/sdk-client';
-import {withTransaction} from '@elastic/apm-rum-react';
 import React, {useCallback, useState} from 'react';
 import {
   FieldErrors,
@@ -39,13 +38,10 @@ import {
   ActionAddAddress,
   ActionRemoveAddress,
   ActionUpdateMultisigPluginSettings,
+  ManageMembersFormData,
 } from 'utils/types';
 
-type ManageMemberActionTypes = Array<
-  ActionAddAddress | ActionRemoveAddress | ActionUpdateMultisigPluginSettings
->;
-
-const ManageMembers: React.FC = () => {
+export const ManageMembers: React.FC = () => {
   const {t} = useTranslation();
   const {network} = useNetwork();
 
@@ -62,14 +58,14 @@ const ManageMembers: React.FC = () => {
   );
   const multisigDAOSettings = pluginSettings as MultisigVotingSettings;
 
-  const formMethods = useForm({
+  const formMethods = useForm<ManageMembersFormData>({
     mode: 'onChange',
     defaultValues: {
       links: [{name: '', url: ''}],
       proposalTitle: '',
       startSwitch: 'now',
       durationSwitch: 'duration',
-      actions: [] as ManageMemberActionTypes,
+      actions: [],
     },
   });
   const {errors, dirtyFields} = useFormState({
@@ -90,7 +86,7 @@ const ManageMembers: React.FC = () => {
         removeUnchangedMinimumApprovalAction(
           formActions,
           multisigDAOSettings
-        ) as ManageMemberActionTypes
+        ) as ManageMembersFormData['actions']
       );
       next();
     },
@@ -189,8 +185,6 @@ const ManageMembers: React.FC = () => {
   );
 };
 
-export default withTransaction('ManageMembers', 'component')(ManageMembers);
-
 // Note: Keeping the following helpers here because they are very specific to this flow
 /**
  * Check whether the add/remove actions are valid as a whole
@@ -200,9 +194,7 @@ export default withTransaction('ManageMembers', 'component')(ManageMembers);
  */
 function actionsAreValid(
   errors: FieldErrors,
-  formActions: Array<
-    ActionAddAddress | ActionRemoveAddress | ActionUpdateMultisigPluginSettings
-  >,
+  formActions: ManageMembersFormData['actions'],
   minApprovals: number
 ) {
   if (errors.actions || !formActions) return false;

@@ -1,5 +1,4 @@
 import {AlertInline} from '@aragon/ods';
-import {withTransaction} from '@elastic/apm-rum-react';
 import React, {useState} from 'react';
 import {
   FieldErrors,
@@ -28,10 +27,10 @@ import {useDaoDetailsQuery} from 'hooks/useDaoDetails';
 import {PluginTypes} from 'hooks/usePluginClient';
 import {usePluginSettings} from 'hooks/usePluginSettings';
 import {Community} from 'utils/paths';
-import {ActionMintToken} from 'utils/types';
+import {MintTokensFormData} from 'utils/types';
 import {toDisplayEns} from 'utils/library';
 
-const MintToken: React.FC = () => {
+export const MintToken: React.FC = () => {
   const {data: daoDetails, isLoading} = useDaoDetailsQuery();
   const {data: pluginSettings, isLoading: settingsLoading} = usePluginSettings(
     daoDetails?.plugins[0].instanceAddress as string,
@@ -41,13 +40,13 @@ const MintToken: React.FC = () => {
   const {t} = useTranslation();
   const {network} = useNetwork();
 
-  const formMethods = useForm({
+  const formMethods = useForm<MintTokensFormData>({
     mode: 'onChange',
     defaultValues: {
       links: [{name: '', url: ''}],
       startSwitch: 'now',
       durationSwitch: 'duration',
-      actions: [] as Array<ActionMintToken>,
+      actions: [],
     },
   });
 
@@ -132,8 +131,6 @@ const MintToken: React.FC = () => {
   ) : null;
 };
 
-export default withTransaction('MintToken', 'component')(MintToken);
-
 /**
  * Check whether the mint tokens action is valid
  * @param errors form errors
@@ -142,7 +139,7 @@ export default withTransaction('MintToken', 'component')(MintToken);
  */
 function actionIsValid(
   errors: FieldErrors,
-  formActions: Array<ActionMintToken>
+  formActions: MintTokensFormData['actions']
 ) {
   if (errors.actions || !formActions[0]) return false;
 
