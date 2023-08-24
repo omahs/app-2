@@ -3,7 +3,7 @@
 import {infuraApiKey} from './api';
 
 export const SUPPORTED_CHAIN_ID = [
-  1, 5, 137, 1337, 8453, 80001, 84531, 42161, 421613,
+  1, 5, 137, 31337, 8453, 80001, 84531, 42161, 421613,
 ] as const;
 
 export type SupportedChainID = typeof SUPPORTED_CHAIN_ID[number];
@@ -20,6 +20,7 @@ export const NETWORKS_WITH_CUSTOM_REGISTRY = [
   'base-goerli',
   'mumbai',
   'polygon',
+  'local',
 ];
 export const L2_NETWORKS = NETWORKS_WITH_CUSTOM_REGISTRY;
 
@@ -316,7 +317,7 @@ export const CHAIN_METADATA: ChainList = {
     ipfs: 'https://test.ipfs.aragon.network',
   },
   local: {
-    id: 1337,
+    id: 31337,
     name: 'Local',
     domain: 'L1 Blockchain',
     logo: '',
@@ -332,7 +333,7 @@ export const CHAIN_METADATA: ChainList = {
     etherscanApiKey: etherscanApiKey,
     alchemyApi: 'https://eth-goerli.g.alchemy.com/v2',
     supportsEns: false,
-    ipfs: 'http://localhost:5001/',
+    ipfs: 'http://localhost:5001',
   },
   unsupported: {
     id: 1,

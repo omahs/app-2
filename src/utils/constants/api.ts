@@ -19,7 +19,7 @@ export const SUBGRAPH_API_URL: SubgraphNetworkUrl = {
     'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-mumbai/version/v1.2.2/api',
   polygon:
     'https://subgraph.satsuma-prod.com/qHR2wGfc5RLi6/aragon/osx-polygon/version/v1.2.1/api',
-  local: '',
+  local: 'http://localhost:8000/subgraphs/name/aragon/aragon-core-goerli',
   unsupported: undefined,
 };
 

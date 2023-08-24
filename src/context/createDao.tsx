@@ -324,7 +324,8 @@ const CreateDaoProvider: React.FC = ({children}) => {
     }
 
     try {
-      const ipfsUri = await client?.methods.pinMetadata(metadata);
+      // const ipfsUri = await client?.methods.pinMetadata(metadata);
+      const ipfsUri = 'ipfs://QmbViZMmwNxUQrDDcxxXpmfQtUzhzDFi83J95UdSXqk48B';
       return {
         metadataUri: ipfsUri || '',
         // TODO: We're using dao name without spaces for ens, We need to add alert
@@ -337,7 +338,6 @@ const CreateDaoProvider: React.FC = ({children}) => {
     }
   }, [
     client?.ipfs,
-    client?.methods,
     getErc20PluginParams,
     getMultisigPluginInstallParams,
     getNewErc20PluginParams,
@@ -366,7 +366,9 @@ const CreateDaoProvider: React.FC = ({children}) => {
     if (!client || !daoCreationData) {
       throw new Error('SDK client is not initialized correctly');
     }
+    console.log('daoCreationData', daoCreationData);
     const createDaoIterator = client?.methods.createDao(daoCreationData);
+    console.log('createDaoIterator', createDaoIterator);
 
     // Check if createDaoIterator function is initialized
     if (!createDaoIterator) {
@@ -380,6 +382,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
       avatar: daoLogo ? URL.createObjectURL(daoLogo as Blob) : undefined,
       links: links.filter(r => r.name && r.url),
     };
+    console.log('metadata', metadata);
 
     try {
       for await (const step of createDaoIterator) {

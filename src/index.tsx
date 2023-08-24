@@ -14,6 +14,7 @@ import {
   mainnet,
   polygon,
   polygonMumbai,
+  hardhat,
 } from 'wagmi/chains';
 import {infuraProvider} from 'wagmi/providers/infura';
 import {LedgerConnector} from 'wagmi/connectors/ledger';
@@ -29,7 +30,15 @@ import {UseClientProvider} from 'hooks/useClient';
 import {infuraApiKey, walletConnectProjectID} from 'utils/constants';
 import {App} from './app';
 
-const chains = [base, baseGoerli, goerli, mainnet, polygon, polygonMumbai];
+const chains = [
+  base,
+  baseGoerli,
+  goerli,
+  mainnet,
+  polygon,
+  polygonMumbai,
+  hardhat,
+];
 const ledgerChains = [goerli, mainnet, polygon, polygonMumbai];
 
 const {publicClient} = configureChains(chains, [

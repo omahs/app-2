@@ -56,9 +56,9 @@ export const UseClientProvider: React.FC = ({children}) => {
     const ipfsNodes = [
       {
         url: `${CHAIN_METADATA[network].ipfs}/api/v0`,
-        headers: {
-          'X-API-KEY': (import.meta.env.VITE_IPFS_API_KEY as string) || '',
-        },
+        // headers: {
+        //   'X-API-KEY': (import.meta.env.VITE_IPFS_API_KEY as string) || '',
+        // },
       },
     ];
 
@@ -86,6 +86,8 @@ export const UseClientProvider: React.FC = ({children}) => {
         ensRegistryAddress: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
       }),
     };
+
+    console.log('contextParams', contextParams);
 
     const sdkContext = new SdkContext(contextParams);
 
