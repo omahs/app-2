@@ -22,6 +22,7 @@ type GlobalModalsContextType = {
   isGatingOpen: boolean;
   isDepositOpen: boolean;
   isPoapClaimOpen: boolean;
+  isCommitteeMembersOpen: boolean;
   open: (arg?: MenuTypes) => void;
   close: (arg?: MenuTypes) => void;
 };
@@ -34,13 +35,13 @@ export type MenuTypes =
   | 'default'
   | 'addresses'
   | 'wallet'
-  | 'network'
   | 'mobileMenu'
   | 'network'
   | 'manageWallet'
   | 'gating'
   | 'deposit'
-  | 'poapClaim';
+  | 'poapClaim'
+  | 'committeeMembers';
 
 type Props = Record<'children', ReactNode>;
 
@@ -75,6 +76,8 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
     useState<GlobalModalsContextType['isDepositOpen']>(false);
   const [isPoapClaimOpen, setIsPoapClaimOpen] =
     useState<GlobalModalsContextType['isPoapClaimOpen']>(false);
+  const [isCommitteeMembersOpen, setIsCommitteeMembersOpen] =
+    useState<GlobalModalsContextType['isCommitteeMembersOpen']>(false);
 
   const open = (type?: MenuTypes) => {
     switch (type) {
@@ -113,6 +116,9 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
         break;
       case 'poapClaim':
         setIsPoapClaimOpen(true);
+        break;
+      case 'committeeMembers':
+        setIsCommitteeMembersOpen(true);
         break;
       default:
         setIsTransferOpen(true);
@@ -158,6 +164,9 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
       case 'poapClaim':
         setIsPoapClaimOpen(false);
         break;
+      case 'committeeMembers':
+        setIsCommitteeMembersOpen(false);
+        break;
       default:
         setIsTransferOpen(false);
         break;
@@ -188,6 +197,7 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
       isGatingOpen,
       isDepositOpen,
       isPoapClaimOpen,
+      isCommitteeMembersOpen,
       open,
       close,
     }),
@@ -205,6 +215,7 @@ const GlobalModalsProvider: React.FC<Props> = ({children}) => {
       isTransferOpen,
       isUtcOpen,
       isWalletOpen,
+      isCommitteeMembersOpen,
     ]
   );
 

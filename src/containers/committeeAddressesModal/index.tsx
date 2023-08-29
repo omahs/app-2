@@ -5,30 +5,23 @@ import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
 import {useGlobalModalContext} from 'context/globalModals';
 import {FilteredAddressList} from '../../components/filteredAddressList';
 
-const CommunityAddressesModal: React.FC = () => {
+const CommitteeAddressesModal: React.FC = () => {
   const {getValues} = useFormContext();
-  const {isAddressesOpen, close} = useGlobalModalContext();
-  const [wallets, tokenSymbol, multisigWallets] = getValues([
-    'wallets',
-    'tokenSymbol',
-    'multisigWallets',
-  ]);
+  const {isCommitteeMembersOpen, close} = useGlobalModalContext();
+  const [committee] = getValues(['committee']);
 
   /*************************************************
    *                    Render                     *
    *************************************************/
   return (
     <ModalBottomSheetSwitcher
-      isOpen={isAddressesOpen}
-      onClose={() => close('addresses')}
+      isOpen={isCommitteeMembersOpen}
+      onClose={() => close('committeeMembers')}
       data-testid="communityModal"
     >
-      <FilteredAddressList
-        wallets={tokenSymbol ? wallets : multisigWallets}
-        tokenSymbol={tokenSymbol}
-      />
+      <FilteredAddressList wallets={committee} />
     </ModalBottomSheetSwitcher>
   );
 };
 
-export default CommunityAddressesModal;
+export default CommitteeAddressesModal;
