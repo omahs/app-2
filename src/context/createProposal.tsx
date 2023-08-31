@@ -72,18 +72,10 @@ import {
 import {useGlobalModalContext} from './globalModals';
 import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
-import {
-  proposalToElection,
-  UseCreateElectionProps,
-} from 'hooks/useVocdoniElection';
-import {useClient as useVocdoniClient} from 'hooks/useVocdoniSdk';
-import {
-  AccountData,
-  Election,
-  ErrAccountNotFound,
-  ErrAPI,
-  UnpublishedElection,
-} from '@vocdoni/sdk';
+import {StepStatus, useCreateOffchainProposal} from './createOffchainProposal';
+import OffchainProposalProgress from '../components/OffchainProposalProgress';
+import styled from 'styled-components';
+import OffchainProposalModal from '../containers/transactionModals/offchainProposalModal';
 
 type Props = {
   showTxModal: boolean;
@@ -690,97 +682,24 @@ const CreateProposalProvider: React.FC<Props> = ({
     tokenPrice,
   ]);
 
-  const {client: vocdoniClient, census3Client} = useVocdoniClient();
-
-  const createVocdoniElection = useCallback(
-    async (electionData: UseCreateElectionProps) => {
-      const election: UnpublishedElection = Election.from({
-        title: electionData.title,
-        description: electionData.description,
-        endDate: electionData.endDate,
-        startDate: electionData.startDate,
-        census: electionData.census,
-      });
-      election.addQuestion(electionData.question, '', [
-        {title: 'Yes', value: 0},
-        {title: 'No', value: 1},
-        {title: 'Abstain', value: 2},
-      ]);
-      return await vocdoniClient.createElection(election);
-    },
-    [vocdoniClient]
-  );
+  const {
+    steps: offchainProposalSteps,
+    globalState: offchainGlobalState,
+    createProposal,
+  } = useCreateOffchainProposal({
+    daoToken,
+  });
 
   const handleOffChainProposal = useCallback(async () => {
     console.log('DEBUG', 'handleOffChainProposal');
-    const {params, metadata} = await getProposalCreationParams();
-
     if (!pluginClient || !daoToken) {
       return new Error('ERC20 SDK client is not initialized correctly');
     }
-
     console.log('DEBUG', 'ERC20 initialized', daoToken);
+    const {params, metadata} = await getProposalCreationParams();
 
-    // Check if the census is already sync
-    try {
-      await census3Client.createToken(daoToken?.address, 'erc20');
-    } catch (e) {
-      // todo(kon): replace error handling when the api return code error is fixed. Now is a generic 500
-      if (
-        e instanceof ErrAPI &&
-        e.message.includes('error creating token with address')
-      ) {
-        console.log('DEBUG', 'Token already created');
-      } else {
-        throw e;
-      }
-    }
-
-    const blah = await census3Client.createTokenCensus(daoToken?.address);
-    console.log('DEBUG', 'census3 created', blah);
-
-    const censusToken = await census3Client.getToken(daoToken?.address);
-
-    console.log('DEBUG', 'Census', censusToken);
-    // todo(kon): handle token is not sync
-    if (!censusToken.status.synced) {
-      return new Error('Census token is not already calculated');
-    }
-
-    // Check if the account is already created, if not, create it
-    let account: AccountData | null = null;
-    try {
-      console.log('DEBUG', 'get  account info');
-      account = await vocdoniClient.fetchAccountInfo();
-    } catch (e) {
-      // todo(kon): replace error handling when the api return code error is fixed. Now is a generic 500
-      if (e instanceof ErrAccountNotFound) {
-        console.log('DEBUG', 'Account not found, creating it');
-        account = await vocdoniClient.createAccount();
-      }
-    }
-
-    if (!account) {
-      throw Error('Error creating a Vocdoni account');
-    }
-
-    // Create the vocdoni election¡
-    console.log('DEBUG', 'Creating vocdoni election');
-    const census = await census3Client.createTokenCensus(censusToken.id);
-    const electionId = await createVocdoniElection(
-      proposalToElection({metadata, data: params, census})
-    );
-
-    console.log('DEBUG', 'Election created', electionId);
-
-    // todo(kon) Register election on the DAO
-  }, [
-    census3Client,
-    createVocdoniElection,
-    daoToken,
-    getProposalCreationParams,
-    pluginClient,
-  ]);
+    await createProposal(metadata, params);
+  }, [daoToken, getProposalCreationParams, pluginClient]);
 
   /*************************************************
    *                     Effects                   *
@@ -805,26 +724,56 @@ const CreateProposalProvider: React.FC<Props> = ({
     return <Loading />;
   }
 
+  // todo(kon): modify this before merge
+  const offchain = true;
+
   return (
     <>
       {children}
-      <PublishModal
-        state={creationProcessState || TransactionState.WAITING}
-        isOpen={showTxModal}
-        onClose={handleCloseModal}
-        callback={handleOffChainProposal}
-        closeOnDrag={creationProcessState !== TransactionState.LOADING}
-        maxFee={maxFee}
-        averageFee={averageFee}
-        gasEstimationError={gasEstimationError}
-        tokenPrice={tokenPrice}
-        title={t('TransactionModal.createProposal')}
-        buttonLabel={t('TransactionModal.createProposal')}
-        buttonLabelSuccess={t('TransactionModal.goToProposal')}
-        disabledCallback={disableActionButton}
-      />
+      {offchain ? (
+        <OffchainProposalModal
+          steps={offchainProposalSteps}
+          globalState={offchainGlobalState}
+          isOpen={showTxModal}
+          onClose={handleCloseModal}
+          callback={handleOffChainProposal}
+          closeOnDrag={offchainGlobalState !== StepStatus.LOADING}
+          maxFee={maxFee}
+          averageFee={averageFee}
+          gasEstimationError={gasEstimationError}
+          tokenPrice={tokenPrice}
+          title={t('TransactionModal.createProposal')}
+          // buttonLabel={t('TransactionModal.createProposal')}
+          // buttonLabelSuccess={t('TransactionModal.goToProposal')}
+          // disabledCallback={disableActionButton}
+        />
+      ) : (
+        <PublishModal
+          state={creationProcessState || TransactionState.WAITING}
+          isOpen={showTxModal}
+          onClose={handleCloseModal}
+          callback={handlePublishProposal}
+          closeOnDrag={creationProcessState !== TransactionState.LOADING}
+          maxFee={maxFee}
+          averageFee={averageFee}
+          gasEstimationError={gasEstimationError}
+          tokenPrice={tokenPrice}
+          title={t('TransactionModal.createProposal')}
+          buttonLabel={t('TransactionModal.createProposal')}
+          buttonLabelSuccess={t('TransactionModal.goToProposal')}
+          disabledCallback={disableActionButton}
+        />
+      )}
     </>
   );
 };
+
+const ProposalContainer = styled.div.attrs({
+  className: 'space-y-3 tablet:w-3/5',
+})``;
+
+const ContentContainer = styled.div.attrs({
+  className: 'mt-3 tablet:flex tablet:space-x-3 space-y-3 tablet:space-y-0',
+})``;
 
 export {CreateProposalProvider};

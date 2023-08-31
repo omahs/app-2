@@ -1279,5 +1279,30 @@
   "tokenAmount": {
     "InputLabel": "Tokens",
     "inputDesc": "Select the token and the amount that you would like to withdraw"
+  },
+  "offChainProposalCreation": {
+    "createVocdoniAccount": {
+      "title": "Create offchain vote ID",
+      "helper": "Sign message"
+    },
+    "createVocdoniElection": {
+      "title": "Register proposal offchain",
+      "helper": "Sign message"
+    },
+    "createOnChainProposal": {
+      "title": "Register proposal onchain",
+      "helper": "Transaction"
+    },
+    "proposalReady": {
+      "title": "Your proposal is ready"
+    },
+    "stepError": {
+      "helper": "Details"
+    },
+    "processWarning": "Don't close this page while in progress.",
+    "confirmationFailed": "No confirmation received …",
+    "publishProposal": "Publish your proposal",
+    "tryAgain": "Try Again",
+    "gotoProposal": "Open your proposal"
   }
 }
