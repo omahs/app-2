@@ -163,15 +163,17 @@ export const VotingTerminal: React.FC<VotingTerminalProps> = ({
             }
           />
           {displayedVoters.length !== 0 ? (
-            <VotersTable
-              voters={displayedVoters}
-              showOption
-              page={page}
-              showVotingPower={token !== undefined}
-              showAmount={token !== undefined}
-              onLoadMore={() => setPage(prev => prev + 1)}
-            />
+            // todo(kon): will be fixed on rebase from develop. Disabled for developing purposes
+            <>Disabled for developing purposes</>
           ) : (
+            // <VotersTable
+            //   voters={displayedVoters}
+            //   showOption
+            //   page={page}
+            //   showVotingPower={token !== undefined}
+            //   showAmount={token !== undefined}
+            //   onLoadMore={() => setPage(prev => prev + 1)}
+            // />
             <StateEmpty
               type="Object"
               mode="inline"

@@ -44,6 +44,11 @@ import {
 import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
 import {useProviders} from './providers';
+import useOffchainVoting from '../hooks/useOffchainVoting';
+import {
+  OffchainPluginLocalStorageKeys,
+  OffchainPluginLocalStorageTypes,
+} from '../hooks/useVocdoniElection';
 
 //TODO: currently a context, but considering there might only ever be one child,
 // might need to turn it into a wrapper that passes props to proposal page
@@ -334,6 +339,10 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
     ]
   );
 
+  // todo(kon): modify this
+  const offchainVoting = true;
+  const {submitVote} = useOffchainVoting();
+
   // handles vote submission/execution
   const handleVoteExecution = useCallback(async () => {
     if (voteProcessState === TransactionState.SUCCESS) {
@@ -361,6 +370,21 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
         tryExecution: false,
       });
     } else {
+      // todo(kon): simple way of voting, use providers better
+      // It retrieves from local storage the vocdoni election id. Won't be this on the final implementation
+      if (offchainVoting) {
+        const proposalIds = localStorage.getItem(
+          OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION
+        ) as
+          | OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION]
+          | null;
+        if (proposalIds !== null && voteParams.proposalId in proposalIds) {
+          await submitVote(
+            proposalIds[voteParams.proposalId].electionId,
+            voteParams
+          );
+        }
+      }
       voteSteps = (pluginClient as TokenVotingClient)?.methods.voteProposal({
         ...voteParams,
         proposalId: voteParams.proposalId,
