@@ -21,6 +21,8 @@ import {CHAIN_METADATA, getSupportedNetworkByChainId} from 'utils/constants';
 import {htmlIn} from 'utils/htmlIn';
 import {Landing} from 'utils/paths';
 import {TokenType} from 'utils/validators';
+import DefineCommittee from 'containers/defineCommittee';
+import {el} from 'date-fns/locale';
 
 export type CreateDaoFormData = {
   blockchain: {
@@ -55,6 +57,12 @@ export type CreateDaoFormData = {
   voteReplacement: boolean;
   multisigWallets: MultisigWalletField[];
   multisigMinimumApprovals: number;
+  votingType: 'onChain' | 'offChain';
+  committee: MultisigWalletField[];
+  committeeMinimumApproval: string;
+  executionExpirationMinutes: string;
+  executionExpirationHours: string;
+  executionExpirationDays: string;
 };
 
 const defaultValues = {
@@ -100,6 +108,8 @@ const CreateDAO: React.FC = () => {
     daoName,
     daoEnsName,
     eligibilityType,
+    votingType,
+    committee,
   ] = useWatch({
     control: formMethods.control,
     name: [
@@ -111,6 +121,8 @@ const CreateDAO: React.FC = () => {
       'daoName',
       'daoEnsName',
       'eligibilityType',
+      'votingType',
+      'committee',
     ],
   });
 
@@ -176,9 +188,6 @@ const CreateDAO: React.FC = () => {
       ) {
         return false;
       }
-      if (!['multisig', 'anyone'].includes(eligibilityType)) {
-        return false;
-      }
       return true;
       // if token based dao
     } else {
@@ -227,6 +236,40 @@ const CreateDAO: React.FC = () => {
     tokenTotalSupply,
     tokenType,
   ]);
+
+  const defineCommitteeIsValid = useMemo(() => {
+    if (
+      !committee ||
+      !committee.length ||
+      errors.committee ||
+      errors.committeeMinimumApproval ||
+      errors.executionExpirationMinutes ||
+      errors.executionExpirationHours ||
+      errors.executionExpirationDays
+    )
+      return false;
+    return true;
+  }, [
+    committee,
+    errors.committee,
+    errors.committeeMinimumApproval,
+    errors.executionExpirationMinutes,
+    errors.executionExpirationHours,
+    errors.executionExpirationDays,
+  ]);
+
+  const proposalCreationIsValid = useMemo(() => {
+    // required fields not dirty
+    // if multisig
+    if (membership === 'multisig') {
+      if (!['multisig', 'anyone'].includes(eligibilityType)) {
+        return false;
+      }
+      return true;
+    } else {
+      return !errors.eligibilityTokenAmount;
+    }
+  }, [eligibilityType, errors.eligibilityTokenAmount, membership]);
 
   const daoConfigureCommunity = useMemo(() => {
     if (
@@ -318,6 +361,7 @@ const CreateDAO: React.FC = () => {
             onNextButtonClicked={next =>
               handleNextButtonTracking(next, '3_setup_community', {
                 governance_type: formMethods.getValues('membership'),
+                voting_type: formMethods.getValues('votingType'),
                 token_name: formMethods.getValues('tokenName'),
                 symbol: formMethods.getValues('tokenSymbol'),
                 token_address: formMethods.getValues('tokenAddress.address'),
@@ -330,7 +374,9 @@ const CreateDAO: React.FC = () => {
           <Step
             wizardTitle={t('createDAO.step4.title')}
             wizardDescription={htmlIn(t)('createDAO.step4.description')}
-            isNextButtonDisabled={!daoConfigureCommunity}
+            isNextButtonDisabled={
+              !daoConfigureCommunity && proposalCreationIsValid
+            }
             onNextButtonClicked={next =>
               handleNextButtonTracking(next, '4_configure_governance', {
                 minimum_approval: formMethods.getValues('minimumApproval'),
@@ -343,6 +389,31 @@ const CreateDAO: React.FC = () => {
             }
           >
             <ConfigureCommunity />
+          </Step>
+          <Step
+            hideWizard={membership !== 'token' || votingType !== 'offChain'}
+            wizardTitle={t('createDAO.step5.title')}
+            wizardDescription={htmlIn(t)('createDAO.step5.description')}
+            isNextButtonDisabled={!defineCommitteeIsValid}
+            onNextButtonClicked={next => {
+              handleNextButtonTracking(next, '5_define_executive_committee', {
+                committee: formMethods.getValues('committee'),
+                committeeMinimumApproval: formMethods.getValues(
+                  'committeeMinimumApproval'
+                ),
+                executionExpirationMinutes: formMethods.getValues(
+                  'executionExpirationMinutes'
+                ),
+                executionExpirationHours: formMethods.getValues(
+                  'executionExpirationHours'
+                ),
+                executionExpirationDays: formMethods.getValues(
+                  'executionExpirationDays'
+                ),
+              });
+            }}
+          >
+            <DefineCommittee />
           </Step>
           <Step
             hideWizard

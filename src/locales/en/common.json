@@ -114,6 +114,7 @@
     "minimumApproval": "Minimum approval",
     "minimumParticipation": "Minimum participation",
     "minimumDuration": "Minimum duration",
+    "executionExpirationTime": "Execution expiration time",
     "voteReplacement": "Vote change",
     "support": "Support",
     "duration": "Duration",
@@ -144,6 +145,7 @@
     "changeableVote": "Changeable with a vote",
     "changeable": "Changeable",
     "etherscan": "Etherscan",
+    "executiveCommitteeMembers": "Executive committee members",
     "whitelistWallets": {
       "address": "Address",
       "addresses": "{{count}} addresses",
@@ -166,14 +168,15 @@
       "governance": "Governance",
       "network": "Network",
       "eligibleVoters": "Eligible voters",
-      "distribution": "Distribution",
+      "members": "Members",
+      "eligableMembers": "Eligable members",
       "distributionLink": "See all {{walletCount}} addresses",
       "minimumParticipation": "{{walletCount}} wallets",
       "proposalThreshold": "Proposal threshold",
       "tokenHoldersWithTkns": "Token holders with ≥ {{tokenAmount}} {{tokenSymbol}}",
       "earlyExecution": "Early execution",
       "voteReplacement": "Vote change",
-      "multisigMinimumApprovals": "of {{count}} authorized addresses",
+      "multisigMinimumApprovals": "{{count}} of {{total}} authorized addresses",
       "existingTokens": {
         "currentHolders": "Current Holders"
       },
@@ -389,6 +392,7 @@
     "distributionDays": "Days can't be negative",
     "emptyDistributionDays": "Days can't be empty",
     "percentage": "Percentage amount should be between 0 and 100",
+    "minimumApprovalCommittee": "Minimum approval should be between 1 and {{max}}",
     "totalSupplyZero": "Total token supply can not be 0",
     "requiredTokenAddressZero": "Required token amount can not be 0",
     "onlyAlphaNumeric": "{{field}} can only contain alphanumeric characters",
@@ -399,6 +403,7 @@
     "notValidContractAddress": "Smart contract address not valid",
     "duplicateContractAddress": "Smart contract has already been added",
     "biggerThanTotalSupply": "Minimum tokens must be less than total supply",
+    "addressNotElegible": "The address is not on the DAO community",
     "required": {
       "tokenAddress": "Token address is required",
       "tokenName": "Token name is required",
@@ -446,9 +451,14 @@
       "accepTableProposalDuration": "It’s recommended to have an expiration time of five days, so you have a clean proposal list.",
       "dateTimeMinDuration": "Duration cannot be less than one hour."
     },
+    "committee": {
+      "automaticallyAdded": "Your connected Wallet got automatically added to the list.",
+      "minimumDuration": "The minimum duration of {{days}} is defined by DAO Governance Settings."
+    },
     "durationAlert": "Set this to a duration that is long enough for your members to have sufficient time to vote. It’s recommended to set this to at least 1 day.",
     "maxDurationAlert": "The maximum duration is 365 days.",
     "minDurationAlert": "The minimum duration is one hour.",
+    "executionDurationAlert": "Set this to a duration that your executive committee can approve the results. It’s recommended to set this to at least 1 day.",
     "startDateInPastAlert": "Start time can’t be in the past. ",
     "wrongWalletNetwork": "Wrong wallet network",
     "wrongNetwork": {
@@ -756,7 +766,19 @@
       "descriptionLinkLabel": "read this guide",
       "descriptionLinkURL": "https://aragon.org/how-to/set-up-your-dao-governance-in-8-steps",
       "distributeTokensHelpertextLinkLabel": "read our guide",
-      "distributeTokensHelpertextLinkURL": "https://aragon.org/how-to/distribute-a-dao-governance-token"
+      "distributeTokensHelpertextLinkURL": "https://aragon.org/how-to/distribute-a-dao-governance-token",
+      "votingType": {
+        "title": "Should voting take place on-chain or off-chain",
+        "onChain": {
+          "title": "On-chain",
+          "subtitle": "The voting process and the execution of actions binded to a proposal are both on-chain"
+        },
+        "offChain": {
+          "title": "Off-chain",
+          "subtitle": "The voting process is off-chain, while the proof of all votes and the execution are done by a multisig called \"Guardians\""
+        }
+
+      }
     },
     "step4": {
       "label": "Step 4",
@@ -796,9 +818,25 @@
       "wrappedReferenceValueLabel": "{{tokenSymbol}}",
       "wrappedReferenceParticipationValueLabel": "{{gTokenSymbol}} *"
     },
+    "step5": {
+      "label": "Step 5",
+      "title": "Define your executive committee",
+      "description": "To bring the offchain results onchain, a executive committee is needed to validate the results and perform the optional actions of a proposal. Learn more about the council and its tasks {{ link }}.",
+      "descriptionLinkLabel": "in our guide",
+      "descriptionLinkURL": "https://aragon.org/how-to/governance-ii-setting-dao-governance-thresholds",
+      "executiveCommitteeMembersSubtitle" : "Add as many addresses as you like to the DAO. These are authorised to create proposals, transactions or suggest changes to the DAO settings after its creation. Upload a CSV with {{link}} if you want.",
+      "executiveCommitteeMembersSubtitleLinkLabel" : "this template",
+      "executiveCommitteeMembersSubtitleLinkURL" : "https://aragon.org/how-to/governance-ii-setting-dao-governance-thresholds",
+      "minimumAprovalDescritpion": "Participation is the amount of addresses in the authorised list that approve on a proposal. The minimum is how many have to approve for the result to be valid.",
+      "alerts": {
+        "ofAddresses": "of {{count}} Addresses"
+      },
+      "executionTimeSubtitle": "Define how long the voting should last in days or exact date and time."
+    },
     "review": {
       "title": "Deploy your DAO",
       "description": "Double-check that everything is correct before launching your organization.",
+      "executiveCommittee": "Executive Committee",
       "network": "{{network}} net",
       "distributionLink": "See {{count}} addresses",
       "days": "{{days}} days",

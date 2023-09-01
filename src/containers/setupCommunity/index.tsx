@@ -6,7 +6,6 @@ import styled from 'styled-components';
 
 import CreateNewToken from './createNewToken';
 import {MultisigWallets} from 'components/multisigWallets';
-import {MultisigEligibility} from 'components/multisigEligibility';
 import {FormSection} from 'containers/setupVotingForm';
 import {ToggleCheckList} from 'containers/setupVotingForm/multisig';
 import AddExistingToken from './addExistingToken';
@@ -96,13 +95,45 @@ const SetupCommunityForm: React.FC = () => {
         />
       </FormItem>
 
+      {membership === 'token' && (
+        <FormSection>
+          <Label label={t('createDAO.step3.votingType.title')} />
+          <Controller
+            name="votingType"
+            rules={{required: 'Validate'}}
+            control={control}
+            defaultValue="onChain"
+            render={({field: {onChange, value}}) => (
+              <>
+                <CheckboxListItem
+                  label={t('createDAO.step3.votingType.onChain.title')}
+                  helptext={t('createDAO.step3.votingType.onChain.subtitle')}
+                  multiSelect={false}
+                  onClick={() => {
+                    onChange('onChain');
+                  }}
+                  {...(value === 'onChain' ? {type: 'active'} : {})}
+                />
+
+                <CheckboxListItem
+                  label={t('createDAO.step3.votingType.offChain.title')}
+                  helptext={t('createDAO.step3.votingType.offChain.subtitle')}
+                  onClick={() => {
+                    onChange('offChain');
+                  }}
+                  multiSelect={false}
+                  {...(value === 'offChain' ? {type: 'active'} : {})}
+                />
+              </>
+            )}
+          />
+        </FormSection>
+      )}
+
       {membership === 'multisig' && (
         <>
           <FormItem>
             <MultisigWallets />
-          </FormItem>
-          <FormItem>
-            <MultisigEligibility />
           </FormItem>
         </>
       )}
