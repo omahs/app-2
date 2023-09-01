@@ -94,7 +94,7 @@ const ProtectedRoute: React.FC = () => {
         Number(balance) < minProposalThreshold &&
         Number(votingPower) < minProposalThreshold
       ) {
-        // open('gating');
+        open('gating');
       } else close();
     }
   }, [
@@ -105,7 +105,7 @@ const ProtectedRoute: React.FC = () => {
     daoToken,
     filteredMembers.length,
     network,
-    // open,
+    open,
     provider,
   ]);
 
@@ -118,7 +118,7 @@ const ProtectedRoute: React.FC = () => {
       ) &&
       !membersAreLoading
     ) {
-      // open('gating');
+      open('gating');
     } else {
       close();
     }
@@ -126,7 +126,7 @@ const ProtectedRoute: React.FC = () => {
     membersAreLoading,
     close,
     votingSettings,
-    // open,
+    open,
     address,
     filteredMembers,
   ]);
