@@ -317,43 +317,43 @@ const CreateDAO: React.FC = () => {
           returnPath={Landing}
           processType="DaoCreation"
         >
-          {/*<Step*/}
-          {/*  fullWidth*/}
-          {/*  hideWizard*/}
-          {/*  customHeader={*/}
-          {/*    <OverviewDAOHeader*/}
-          {/*      navLabel={t('createDAO.title')}*/}
-          {/*      returnPath={Landing}*/}
-          {/*    />*/}
-          {/*  }*/}
-          {/*  customFooter={<></>}*/}
-          {/*>*/}
-          {/*  <OverviewDAOStep />*/}
-          {/*</Step>*/}
-          {/*<Step*/}
-          {/*  wizardTitle={t('createDAO.step1.title')}*/}
-          {/*  wizardDescription={htmlIn(t)('createDAO.step1.description')}*/}
-          {/*  onNextButtonClicked={next =>*/}
-          {/*    handleNextButtonTracking(next, '1_select_blockchain', {*/}
-          {/*      network: formMethods.getValues('blockchain')?.network,*/}
-          {/*    })*/}
-          {/*  }*/}
-          {/*>*/}
-          {/*  <SelectChain />*/}
-          {/*</Step>*/}
-          {/*<Step*/}
-          {/*  wizardTitle={t('createDAO.step2.title')}*/}
-          {/*  wizardDescription={htmlIn(t)('createDAO.step2.description')}*/}
-          {/*  isNextButtonDisabled={!daoMetadataIsValid}*/}
-          {/*  onNextButtonClicked={next =>*/}
-          {/*    handleNextButtonTracking(next, '2_define_metadata', {*/}
-          {/*      dao_name: formMethods.getValues('daoName'),*/}
-          {/*      links: formMethods.getValues('links'),*/}
-          {/*    })*/}
-          {/*  }*/}
-          {/*>*/}
-          {/*  <DefineMetadata />*/}
-          {/*</Step>*/}
+          <Step
+            fullWidth
+            hideWizard
+            customHeader={
+              <OverviewDAOHeader
+                navLabel={t('createDAO.title')}
+                returnPath={Landing}
+              />
+            }
+            customFooter={<></>}
+          >
+            <OverviewDAOStep />
+          </Step>
+          <Step
+            wizardTitle={t('createDAO.step1.title')}
+            wizardDescription={htmlIn(t)('createDAO.step1.description')}
+            onNextButtonClicked={next =>
+              handleNextButtonTracking(next, '1_select_blockchain', {
+                network: formMethods.getValues('blockchain')?.network,
+              })
+            }
+          >
+            <SelectChain />
+          </Step>
+          <Step
+            wizardTitle={t('createDAO.step2.title')}
+            wizardDescription={htmlIn(t)('createDAO.step2.description')}
+            isNextButtonDisabled={!daoMetadataIsValid}
+            onNextButtonClicked={next =>
+              handleNextButtonTracking(next, '2_define_metadata', {
+                dao_name: formMethods.getValues('daoName'),
+                links: formMethods.getValues('links'),
+              })
+            }
+          >
+            <DefineMetadata />
+          </Step>
           <Step
             wizardTitle={t('createDAO.step3.title')}
             wizardDescription={htmlIn(t)('createDAO.step3.description')}
