@@ -19,7 +19,8 @@ import {
   ErrAPI,
   UnpublishedElection,
 } from '@vocdoni/sdk';
-import {VoteValues} from '@aragon/sdk-client/dist/client-common/types/plugin';
+
+import {VoteValues} from '@aragon/sdk-client';
 
 // todo(kon): move this types somewhere else
 export enum OffchainProposalStepId {
