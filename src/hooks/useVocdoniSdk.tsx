@@ -210,7 +210,7 @@ export const ClientProvider = ({
 export const UseVocdoniClientProvider: React.FC = ({children}) => {
   const {signer} = useWallet();
   return (
-    <ClientProvider env="stg" signer={signer as Signer}>
+    <ClientProvider env="dev" signer={signer as Signer}>
       {children}
     </ClientProvider>
   );
