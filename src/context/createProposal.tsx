@@ -150,6 +150,7 @@ const CreateProposalProvider: React.FC<Props> = ({
     globalState: offchainGlobalState,
     createProposal,
     electionId,
+    cacheProposal: cacheOffchainProposal,
   } = useCreateOffchainProposal({
     daoToken,
   });
@@ -488,34 +489,6 @@ const CreateProposalProvider: React.FC<Props> = ({
       case TransactionState.LOADING:
         break;
       case TransactionState.SUCCESS:
-        // todo(kon): here we are storing the key value from te proposal to the vocdoni election.
-        // This is for developing purposes only, should be replaced for the selected system
-        // Also this code could be optimized
-        if (offchain) {
-          if (electionId) {
-            const proposal = {
-              proposalId: {
-                electionId: electionId,
-              },
-            } as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION];
-            const proposalsIds = localStorage.getItem(
-              OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION
-            );
-            if (proposalsIds !== null) {
-              const parsed = JSON.parse(
-                proposalsIds
-              ) as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION];
-              localStorage.setItem(
-                OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION,
-                JSON.stringify({
-                  ...parsed,
-                  ...proposal,
-                } as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION])
-              );
-            }
-          }
-        }
-
         navigate(
           generatePath(Proposal, {
             network,
@@ -630,103 +603,116 @@ const CreateProposalProvider: React.FC<Props> = ({
     ]
   );
 
-  const handlePublishProposal = useCallback(async () => {
-    if (!pluginClient) {
-      return new Error('ERC20 SDK client is not initialized correctly');
-    }
+  const handlePublishProposal = useCallback(
+    // todo(kon): this is a quickfix to update the internal cache with updated data. Delete this attribute when minSDK is ready
+    async (electionId?: string) => {
+      if (!pluginClient) {
+        return new Error('ERC20 SDK client is not initialized correctly');
+      }
 
-    // if no creation data is set, or transaction already running, do nothing.
-    if (
-      !proposalCreationData ||
-      creationProcessState === TransactionState.LOADING
-    ) {
-      console.log('Transaction is running');
-      return;
-    }
+      // if no creation data is set, or transaction already running, do nothing.
+      if (
+        !proposalCreationData ||
+        creationProcessState === TransactionState.LOADING
+      ) {
+        console.log('Transaction is running');
+        return;
+      }
 
-    trackEvent('newProposal_createNowBtn_clicked', {
-      dao_address: daoDetails?.address,
-      estimated_gwei_fee: averageFee,
-      total_usd_cost: averageFee ? tokenPrice * Number(averageFee) : 0,
-    });
+      trackEvent('newProposal_createNowBtn_clicked', {
+        dao_address: daoDetails?.address,
+        estimated_gwei_fee: averageFee,
+        total_usd_cost: averageFee ? tokenPrice * Number(averageFee) : 0,
+      });
 
-    const proposalIterator =
-      pluginClient.methods.createProposal(proposalCreationData);
+      const proposalIterator =
+        pluginClient.methods.createProposal(proposalCreationData);
 
-    if (creationProcessState === TransactionState.SUCCESS) {
-      handleCloseModal();
-      return;
-    }
+      if (creationProcessState === TransactionState.SUCCESS) {
+        handleCloseModal();
+        return;
+      }
 
-    if (isOnWrongNetwork) {
-      open('network');
-      handleCloseModal();
-      return;
-    }
+      if (isOnWrongNetwork) {
+        open('network');
+        handleCloseModal();
+        return;
+      }
 
-    setCreationProcessState(TransactionState.LOADING);
+      setCreationProcessState(TransactionState.LOADING);
 
-    // NOTE: quite weird, I've had to wrap the entirety of the generator
-    // in a try-catch because when the user rejects the transaction,
-    // the try-catch block inside the for loop would not catch the error
-    // FF - 11/21/2020
-    try {
-      for await (const step of proposalIterator) {
-        switch (step.key) {
-          case ProposalCreationSteps.CREATING:
-            console.log(step.txHash);
-            trackEvent('newProposal_transaction_signed', {
-              dao_address: daoDetails?.address,
-              network: network,
-              wallet_provider: provider?.connection.url,
-            });
-            break;
-          case ProposalCreationSteps.DONE: {
-            //TODO: replace with step.proposal id when SDK returns proper format
-            const prefixedId = new ProposalId(
-              step.proposalId
-            ).makeGloballyUnique(pluginAddress);
+      // NOTE: quite weird, I've had to wrap the entirety of the generator
+      // in a try-catch because when the user rejects the transaction,
+      // the try-catch block inside the for loop would not catch the error
+      // FF - 11/21/2020
+      try {
+        for await (const step of proposalIterator) {
+          switch (step.key) {
+            case ProposalCreationSteps.CREATING:
+              console.log(step.txHash);
+              trackEvent('newProposal_transaction_signed', {
+                dao_address: daoDetails?.address,
+                network: network,
+                wallet_provider: provider?.connection.url,
+              });
+              break;
+            case ProposalCreationSteps.DONE: {
+              //TODO: replace with step.proposal id when SDK returns proper format
+              const prefixedId = new ProposalId(
+                step.proposalId
+              ).makeGloballyUnique(pluginAddress);
 
-            setProposalId(prefixedId);
-            setCreationProcessState(TransactionState.SUCCESS);
-            trackEvent('newProposal_transaction_success', {
-              dao_address: daoDetails?.address,
-              network: network,
-              wallet_provider: provider?.connection.url,
-              proposalId: prefixedId,
-            });
+              setProposalId(prefixedId);
+              setCreationProcessState(TransactionState.SUCCESS);
+              trackEvent('newProposal_transaction_success', {
+                dao_address: daoDetails?.address,
+                network: network,
+                wallet_provider: provider?.connection.url,
+                proposalId: prefixedId,
+              });
 
-            // cache proposal
-            handleCacheProposal(prefixedId);
-            break;
+              // cache proposal
+              handleCacheProposal(prefixedId);
+
+              // todo(kon): here we are storing the key value from te proposal to the vocdoni election.
+              // This is for developing purposes only, should be replaced for the selected system
+              // Also this code could be optimized
+              if (offchain && electionId) {
+                cacheOffchainProposal(prefixedId, electionId);
+              }
+              break;
+            }
           }
         }
+      } catch (error) {
+        console.error(error);
+        setCreationProcessState(TransactionState.ERROR);
+        trackEvent('newProposal_transaction_failed', {
+          dao_address: daoDetails?.address,
+          network: network,
+          wallet_provider: provider?.connection.url,
+          error,
+        });
       }
-    } catch (error) {
-      console.error(error);
-      setCreationProcessState(TransactionState.ERROR);
-      trackEvent('newProposal_transaction_failed', {
-        dao_address: daoDetails?.address,
-        network: network,
-        wallet_provider: provider?.connection.url,
-        error,
-      });
-    }
-  }, [
-    averageFee,
-    creationProcessState,
-    daoDetails?.address,
-    handleCacheProposal,
-    handleCloseModal,
-    isOnWrongNetwork,
-    network,
-    open,
-    pluginAddress,
-    pluginClient,
-    proposalCreationData,
-    provider?.connection.url,
-    tokenPrice,
-  ]);
+    },
+    [
+      averageFee,
+      cacheOffchainProposal,
+      creationProcessState,
+      daoDetails?.address,
+      handleCacheProposal,
+      handleCloseModal,
+      isOnWrongNetwork,
+      network,
+      offchain,
+      open,
+      pluginAddress,
+      pluginClient,
+      proposalCreationData,
+      provider?.connection.url,
+      tokenPrice,
+    ]
+  );
 
   const handleOffChainProposal = useCallback(async () => {
     console.log('DEBUG', 'handleOffChainProposal');
@@ -738,9 +724,10 @@ const CreateProposalProvider: React.FC<Props> = ({
 
     await createProposal(metadata, params, handlePublishProposal);
   }, [
+    pluginClient,
     daoToken,
     getProposalCreationParams,
-    pluginClient,
+    createProposal,
     handlePublishProposal,
   ]);
 
@@ -777,7 +764,10 @@ const CreateProposalProvider: React.FC<Props> = ({
           isOpen={showTxModal}
           onClose={handleCloseModal}
           callback={handleOffChainProposal}
-          closeOnDrag={offchainGlobalState !== StepStatus.LOADING}
+          closeOnDrag={
+            creationProcessState !== TransactionState.LOADING ||
+            offchainGlobalState !== StepStatus.LOADING
+          }
           maxFee={maxFee}
           averageFee={averageFee}
           gasEstimationError={gasEstimationError}
