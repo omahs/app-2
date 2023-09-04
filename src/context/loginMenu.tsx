@@ -13,8 +13,6 @@ import React, {
 } from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import {useGlobalModalContext} from './globalModals';
-
 const LoginMenuContext = createContext<LoginMenuContextType | null>(null);
 
 type LoginMenuContextType = {
@@ -27,15 +25,9 @@ type LoginMenuContextType = {
 
 const LoginMenuProvider: FC<{children: ReactNode}> = ({children}) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const {open, close} = useGlobalModalContext();
 
   const navigate = useNavigate();
-  const {
-    address,
-    status,
-    isOnWrongNetwork,
-    isModalOpen: web3ModalIsShown,
-  } = useWallet();
+  const {status, isModalOpen: web3ModalIsShown} = useWallet();
 
   /*************************************************
    *             Callbacks and Handlers            *
@@ -70,20 +62,6 @@ const LoginMenuProvider: FC<{children: ReactNode}> = ({children}) => {
     )
       navigate(-1);
   }, [navigate, showLoginModal, status, web3ModalIsShown]);
-
-  useEffect(() => {
-    // show the wallet menu only if the user hasn't gone through the flow previously
-    // and is currently logged out; this allows user to log out mid flow with
-    // no lasting consequences considering status will be checked upon proposal creation
-    // If we want to keep user logged in (I'm in favor of), remove ref throughout component
-    // Fabrice F. - [12/07/2022]
-    if (!address && userWentThroughLoginFlowRef.current === false) {
-      setShowLoginModal(true);
-    } else {
-      if (isOnWrongNetwork) open('network');
-      else close('network');
-    }
-  }, [address, close, isOnWrongNetwork, open]);
 
   // close the LoginRequired modal when web3Modal is shown
   // update the reference whenever the web3Modal is shown

@@ -22,8 +22,12 @@ const ProtectedRoute: React.FC = () => {
   const {open, close, isGatingOpen} = useGlobalModalContext();
   const {address, status, isOnWrongNetwork} = useWallet();
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetailsQuery();
-  const {showLoginModal, handleCloseLoginModal, userWentThroughLoginFlowRef} =
-    useLoginMenuContext();
+  const {
+    showLoginModal,
+    handleOpenLoginModal,
+    handleCloseLoginModal,
+    userWentThroughLoginFlowRef,
+  } = useLoginMenuContext();
 
   const [pluginType, pluginAddress] = useMemo(
     () => [
@@ -116,6 +120,27 @@ const ProtectedRoute: React.FC = () => {
     isOnWrongNetwork,
     pluginType,
     status,
+    userWentThroughLoginFlowRef,
+  ]);
+
+  useEffect(() => {
+    // show the wallet menu only if the user hasn't gone through the flow previously
+    // and is currently logged out; this allows user to log out mid flow with
+    // no lasting consequences considering status will be checked upon proposal creation
+    // If we want to keep user logged in (I'm in favor of), remove ref throughout component
+    // Fabrice F. - [12/07/2022]
+    if (!address && userWentThroughLoginFlowRef.current === false) {
+      handleOpenLoginModal();
+    } else {
+      if (isOnWrongNetwork) open('network');
+      else close('network');
+    }
+  }, [
+    address,
+    close,
+    handleOpenLoginModal,
+    isOnWrongNetwork,
+    open,
     userWentThroughLoginFlowRef,
   ]);
 
