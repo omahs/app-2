@@ -5,9 +5,10 @@ import {
 } from '@aragon/sdk-client';
 import {ProposalMetadata} from '@aragon/sdk-client-common';
 import React, {useCallback, useMemo, useState} from 'react';
-import {useTranslation} from 'react-i18next';
 
 import {
+  OffchainPluginLocalStorageKeys,
+  OffchainPluginLocalStorageTypes,
   proposalToElection,
   UseCreateElectionProps,
 } from 'hooks/useVocdoniElection';
@@ -19,7 +20,6 @@ import {
   ErrAPI,
   UnpublishedElection,
 } from '@vocdoni/sdk';
-
 import {VoteValues} from '@aragon/sdk-client';
 
 // todo(kon): move this types somewhere else
@@ -51,9 +51,46 @@ type ICreateOffchainProposal = {
 };
 
 const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
-  const {t, i18n} = useTranslation();
-
   const [electionId, setElectionId] = useState('');
+
+  // todo(kon): only cache the proposal using local storage?
+  const cacheProposal = useCallback(
+    (proposalId: string, electionId: string) => {
+      console.log('DEBUG', 'Caching proposal', proposalId, electionId);
+      if (!electionId) return;
+
+      const proposal = {
+        [proposalId]: {
+          electionId: electionId,
+        },
+      } as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION];
+
+      const proposalsIds = localStorage.getItem(
+        OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION
+      );
+
+      if (proposalsIds === null) {
+        localStorage.setItem(
+          OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION,
+          JSON.stringify({
+            ...proposal,
+          } as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION])
+        );
+      } else {
+        const parsed = JSON.parse(
+          proposalsIds
+        ) as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION];
+        localStorage.setItem(
+          OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION,
+          JSON.stringify({
+            ...parsed,
+            ...proposal,
+          } as OffchainPluginLocalStorageTypes[OffchainPluginLocalStorageKeys.PROPOSAL_TO_ELECTION])
+        );
+      }
+    },
+    []
+  );
 
   const [steps, setSteps] = useState<OffchainProposalSteps>({
     REGISTER_VOCDONI_ACCOUNT: {
@@ -140,10 +177,12 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
         '',
         // Map choices from Aragon enum.
         // This is important to respect the order and the values
-        Object.keys(VoteValues).map((key, i) => ({
-          title: key,
-          value: i,
-        }))
+        Object.keys(VoteValues)
+          .filter(key => isNaN(Number(key)))
+          .map((key, i) => ({
+            title: key,
+            value: i,
+          }))
       );
       // todo(kon): handle how collect faucet have to work
       try {
