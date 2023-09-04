@@ -5,6 +5,7 @@ import {
 } from '@aragon/sdk-client';
 import {ProposalMetadata} from '@aragon/sdk-client-common';
 import React, {useCallback, useMemo, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 
 import {
   OffchainPluginLocalStorageKeys,
@@ -163,6 +164,16 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
 
   const {client: vocdoniClient, census3Client} = useVocdoniClient();
 
+  const collectFaucet = useCallback(
+    async (cost: number, account: AccountData) => {
+      if (account.balance < cost) {
+        account = await vocdoniClient.collectFaucetTokens();
+        await collectFaucet(cost, account);
+      }
+    },
+    [vocdoniClient]
+  );
+
   const createVocdoniElection = useCallback(
     async (electionData: UseCreateElectionProps) => {
       const election: UnpublishedElection = Election.from({
@@ -171,6 +182,7 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
         endDate: electionData.endDate,
         startDate: electionData.startDate,
         census: electionData.census,
+        maxCensusSize: electionData.census.size ?? undefined,
       });
       election.addQuestion(
         electionData.question,
@@ -185,19 +197,27 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
           }))
       );
       // todo(kon): handle how collect faucet have to work
-      try {
-        return await vocdoniClient.createElection(election);
-      } catch (e) {
-        // todo(kon): replace error handling
-        if ((e as string).includes('not enough balance to transfer')) {
-          console.log('DEBUG', 'error, collecting faucet', election);
-          // todo(kon): do an estimation and collect tokens as many as needed
-          await vocdoniClient.collectFaucetTokens();
-          console.log('DEBUG', 'faucet collected', election);
-          return await vocdoniClient.createElection(election);
-          console.log('DEBUG', 'election created after faucet collected');
-        } else throw e;
-      }
+      const cost = await vocdoniClient.estimateElectionCost(election);
+      const accountInfo = await vocdoniClient.fetchAccountInfo();
+      console.log('DEBUG', 'Estimated cost', cost, accountInfo);
+
+      await collectFaucet(cost, accountInfo);
+
+      console.log('DEBUG', 'Faucet collected, creating election:', election);
+      return await vocdoniClient.createElection(election);
+
+      // try {
+      // } catch (e) {
+      //   // todo(kon): replace error handling
+      //   if ((e as string).includes('not enough balance to transfer')) {
+      //     console.log('DEBUG', 'error, collecting faucet', election);
+      //     // todo(kon): do an estimation and collect tokens as many as needed
+      //     await vocdoniClient.collectFaucetTokens();
+      //     console.log('DEBUG', 'faucet collected', election);
+      //     return await vocdoniClient.createElection(election);
+      //     console.log('DEBUG', 'election created after faucet collected');
+      //   } else throw e;
+      // }
     },
     [vocdoniClient]
   );
@@ -256,12 +276,13 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
       metadata: ProposalMetadata,
       data: CreateMajorityVotingProposalParams,
       // todo(kon): change this when min sdk is ready
-      handleOnchainProposal: () => Promise<Error | undefined>
+      handleOnchainProposal: (electionId?: string) => Promise<Error | undefined>
     ) => {
       console.log(
         'DEBUG',
         'Start creating a proposal. Global state:',
-        globalState
+        globalState,
+        steps
       );
 
       // todo(kon): handle the click when global state is success to open the proposal again
@@ -295,13 +316,14 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
           );
         }
       );
+      setElectionId(electionId);
       console.log('DEBUG', 'Election created', electionId);
 
       // 3. Register the proposal onchain
       // todo(kon): Register election to the DAO
       await doStep(
         OffchainProposalStepId.CREATE_ONCHAIN_PROPOSAL,
-        handleOnchainProposal
+        async () => await handleOnchainProposal(electionId)
       );
       console.log('DEBUG', 'Proposal offchain created', electionId);
 
@@ -310,9 +332,7 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
         OffchainProposalStepId.PROPOSAL_IS_READY,
         StepStatus.SUCCESS
       );
-      console.log('DEBUG', 'All done!', electionId);
-
-      setElectionId(electionId);
+      console.log('DEBUG', 'All done!', globalState, electionId);
 
       // todo(kon): handle all process is finished (go to the proposal on the ui)
     },
@@ -323,10 +343,12 @@ const useCreateOffchainProposal = ({daoToken}: ICreateOffchainProposal) => {
       daoToken,
       doStep,
       globalState,
+      steps,
+      setElectionId,
     ]
   );
 
-  return {steps, globalState, createProposal, electionId};
+  return {steps, globalState, createProposal, electionId, cacheProposal};
 };
 
 export {useCreateOffchainProposal};
