@@ -41,10 +41,10 @@
     tslib "^2.3.0"
     zen-observable-ts "^1.2.0"
 
-"@aragon/ods@^0.2.10":
-  version "0.2.10"
-  resolved "https://registry.yarnpkg.com/@aragon/ods/-/ods-0.2.10.tgz#8a9e8a80035ea892ffff314a5e137904b6a105a0"
-  integrity sha512-PiWJ3G0SED/oISCyN/1e3Tpx7gFx2mHQzii88xw/yP6nbvzYi8cE1uoP9/LejPY6rSVSmJggftVa2XNt9SgNgg==
+"@aragon/ods@^0.2.12":
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/@aragon/ods/-/ods-0.2.13.tgz#ebf3c2a93a29a49b998f0996deea20601b4c2ab8"
+  integrity sha512-52PbLWtPe8xP6mHwK113qbopa/eRwJbxC20h4o6t6fr9KADndNBfe+9jCfOJ2OMc83M0wEqnvIyYutyMdscqlA==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.4"
     "@radix-ui/react-dropdown-menu" "^2.0.5"
@@ -4911,18 +4911,25 @@
     "@babel/plugin-transform-react-jsx-source" "^7.22.5"
     react-refresh "^0.14.0"
 
-"@vocdoni/proto@1.14.1":
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/@vocdoni/proto/-/proto-1.14.1.tgz#19891e5fa84b5ec65058f47652a7af0fe5f99b05"
-  integrity sha512-Fojio2im4JC8YN6x31mA94Z4d7HKK65mzIZLn8bW2+cHS3fS+SEkE8HHF+Q8IuGG+1vY1KIEDj6v+CT8qAlVKw==
+"@vocdoni/proto@1.15.3":
+  version "1.15.3"
+  resolved "https://registry.yarnpkg.com/@vocdoni/proto/-/proto-1.15.3.tgz#205fddbd4a754747ebcf5a87d85daee38e08a72f"
+  integrity sha512-2ieY2vm7IVpMuPRUEOuslWcqlUPfI0hTcTz5rReyYLIXEQ//tkjWUIQCa5c5eSo05+iPf7GPJMpkVBkOgH3kXw==
   dependencies:
     long "^5.2.1"
     protobufjs "^7.1.2"
 
-"@vocdoni/sdk@^0.0.18":
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.0.18.tgz#0b4689236c7cc3b8833b23f4b7f4e3183b3105a1"
-  integrity sha512-Qad/uSASNC22+LXYA1OcRnwmII9SjOelwZIuTX2jdZJiX3O0hC1gYd8kmMeIU6KjVYS6Em5N4wsh7qpYe8Pk+Q==
+"@vocdoni/react-providers@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@vocdoni/react-providers/-/react-providers-0.1.7.tgz#b1805af7dc61d48e97d991ee0223823e5f3ac6ae"
+  integrity sha512-OQ8bftWfKH2Ip4f+WVcPy6WCYQezZklURoQlNjHhAHGfgcD/4Mc68wfWeE7vdQRx+4eQODwOboEPt/0HrgThAA==
+  dependencies:
+    "@vocdoni/sdk" "^0.1.1"
+
+"@vocdoni/sdk@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.1.1.tgz#ebb40164c09a516a77f9222b92d912c578c224af"
+  integrity sha512-Z673X4lukKNO7EHFriI2JA0JVMfJ+AdS+UusawcZzNAdHAmCPdzrskjsL9MiYLRwOIYX+0osa/YsfnLvx/FwqA==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/address" "^5.7.0"
@@ -4932,13 +4939,15 @@
     "@ethersproject/providers" "^5.7.1"
     "@ethersproject/sha2" "^5.7.0"
     "@ethersproject/signing-key" "^5.7.0"
+    "@ethersproject/strings" "^5.7.0"
     "@ethersproject/units" "^5.7.0"
     "@ethersproject/wallet" "^5.7.0"
     "@size-limit/file" "^8.2.4"
-    "@vocdoni/proto" "1.14.1"
+    "@vocdoni/proto" "1.15.3"
     axios "0.27.2"
     blake2b "^2.1.4"
     iso-language-codes "^1.1.0"
+    readable-stream "^4.4.2"
     tiny-invariant "^1.3.1"
     tweetnacl "^1.0.3"
     wasmbuilder "^0.0.16"
@@ -5829,6 +5838,13 @@ abitype@0.9.3:
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.3.tgz#294d25288ee683d72baf4e1fed757034e3c8c277"
   integrity sha512-dz4qCQLurx97FQhnb/EIYTk/ldQ+oafEDUqC0VVIeQS1Q48/YWt/9YNfMmp9SLFqN41ktxny3c8aYxHjmFIB/w==
+
+abort-controller@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/abort-controller/-/abort-controller-3.0.0.tgz#eaf54d53b62bae4138e809ca225c8439a6efb392"
+  integrity sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==
+  dependencies:
+    event-target-shim "^5.0.0"
 
 abortcontroller-polyfill@^1.7.3:
   version "1.7.5"
@@ -10694,6 +10710,11 @@ event-stream@=3.3.4:
     split "0.3"
     stream-combiner "~0.0.4"
     through "~2.3.1"
+
+event-target-shim@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
+  integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
 eventemitter2@6.4.7:
   version "6.4.7"
@@ -16669,6 +16690,17 @@ readable-stream@^3.0.6, readable-stream@^3.1.1, readable-stream@^3.5.0, readable
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
+readable-stream@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-4.4.2.tgz#e6aced27ad3b9d726d8308515b9a1b98dc1b9d13"
+  integrity sha512-Lk/fICSyIhodxy1IDK2HazkeGjSmezAWX2egdtJnYhtzKEsBPJowlI6F6LPb5tqIQILrMbx22S5o3GuJavPusA==
+  dependencies:
+    abort-controller "^3.0.0"
+    buffer "^6.0.3"
+    events "^3.3.0"
+    process "^0.11.10"
+    string_decoder "^1.3.0"
+
 readable-stream@~1.0.15:
   version "1.0.34"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.0.34.tgz#125820e34bc842d2f2aaafafe4c2916ee32c157c"
@@ -18156,7 +18188,7 @@ string.prototype.trimstart@^1.0.6:
     define-properties "^1.1.4"
     es-abstract "^1.20.4"
 
-string_decoder@^1.1.1:
+string_decoder@^1.1.1, string_decoder@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.3.0.tgz#42f114594a46cf1a8e30b0a84f56c78c3edac21e"
   integrity sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==
