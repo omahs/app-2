@@ -45,10 +45,6 @@ import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
 import {useProviders} from './providers';
 import useOffchainVoting from '../hooks/useOffchainVoting';
-import {
-  OffchainPluginLocalStorageKeys,
-  OffchainPluginLocalStorageTypes,
-} from '../hooks/useVocdoniElection';
 
 //TODO: currently a context, but considering there might only ever be one child,
 // might need to turn it into a wrapper that passes props to proposal page
