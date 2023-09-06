@@ -30,7 +30,11 @@ import {ExecutionWidget} from 'components/executionWidget';
 import ResourceList from 'components/resourceList';
 import {Loading} from 'components/temporary';
 import {StyledEditorContent} from 'containers/reviewProposal';
-import {TerminalTabs, VotingTerminal} from 'containers/votingTerminal';
+import {
+  ProposalVoteResults,
+  TerminalTabs,
+  VotingTerminal,
+} from 'containers/votingTerminal';
 import {useGlobalModalContext} from 'context/globalModals';
 import {useNetwork} from 'context/network';
 import {useProposalTransactionContext} from 'context/proposalTransaction';
@@ -76,6 +80,12 @@ import {
   stripPlgnAdrFromProposalId,
 } from 'utils/proposals';
 import {Action, ProposalId} from 'utils/types';
+import {ElectionProvider, useElection} from '@vocdoni/react-providers';
+import useOffchainVoting from '../hooks/useOffchainVoting';
+import {format} from 'date-fns';
+import {getFormattedUtcOffset, KNOWN_FORMATS} from '../utils/date';
+import {formatUnits, IChoice} from '@vocdoni/sdk';
+import Big from 'big.js';
 
 // TODO: @Sepehr Please assign proper tags on action decoding
 // const PROPOSAL_TAGS = ['Finance', 'Withdraw'];
@@ -84,7 +94,36 @@ const PENDING_PROPOSAL_STATUS_INTERVAL = 1000 * 10;
 const PROPOSAL_STATUS_INTERVAL = 1000 * 60;
 const NumberFormatter = new Intl.NumberFormat('en-US');
 
-const Proposal: React.FC = () => {
+const Proposal = () => {
+  const {dao, id: urlId} = useParams();
+
+  const proposalId = useMemo(
+    () => (urlId ? new ProposalId(urlId) : undefined),
+    [urlId]
+  );
+
+  // todo(kon): when implemented change this to properly get the vocdoni electionId from DAO
+  const {getElectionId} = useOffchainVoting();
+
+  let electionId = '';
+  if (proposalId) {
+    electionId = getElectionId(proposalId.toString());
+  }
+
+  return (
+    <>
+      <ElectionProvider id={electionId}>
+        <ProposalPage proposalId={proposalId} />
+      </ElectionProvider>
+    </>
+  );
+};
+
+type IProposalPage = {
+  proposalId: ProposalId | undefined;
+};
+
+const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
   const {isDesktop} = useScreen();
@@ -92,11 +131,7 @@ const Proposal: React.FC = () => {
   const navigate = useNavigate();
   const fetchToken = useTokenAsync();
 
-  const {dao, id: urlId} = useParams();
-  const proposalId = useMemo(
-    () => (urlId ? new ProposalId(urlId) : undefined),
-    [urlId]
-  );
+  const {dao} = useParams();
 
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetailsQuery();
 
@@ -184,23 +219,36 @@ const Proposal: React.FC = () => {
     ],
   });
 
+  // todo(kon): delete this when needed
+  const offChain = true;
+  const {election: vocdoniElection} = useElection();
+  const title = offChain
+    ? vocdoniElection?.title.default
+    : proposal?.metadata.title;
+  const summary = offChain
+    ? vocdoniElection?.questions[0].title.default
+    : proposal?.metadata.summary;
+  const description = offChain
+    ? vocdoniElection?.description.default
+    : proposal?.metadata.description;
+
   /*************************************************
    *                     Hooks                     *
    *************************************************/
 
   // set editor data
   useEffect(() => {
-    if (proposal && editor) {
+    if (proposal && editor && description) {
       editor.commands.setContent(
         // Default list of allowed tags and attributes - https://www.npmjs.com/package/sanitize-html#default-options
-        sanitizeHtml(proposal.metadata.description, {
+        sanitizeHtml(description!, {
           // the disallowedTagsMode displays the disallowed tags to be rendered as a string
           disallowedTagsMode: 'recursiveEscape',
         }),
         true
       );
     }
-  }, [editor, proposal]);
+  }, [editor, proposal, description]);
 
   useEffect(() => {
     if (proposal?.status) {
@@ -398,9 +446,108 @@ const Proposal: React.FC = () => {
   /*************************************************
    *              Handlers and Callbacks           *
    *************************************************/
+
   // terminal props
   const mappedProps = useMemo(() => {
-    if (proposal)
+    if (proposal) {
+      // todo(kon): move this somewhere else
+      if (offChain && vocdoniElection && isErc20VotingProposal(proposal)) {
+        // Get mapped results
+        const percent = (result: number, total: number): number =>
+          total === 0 ? 0 : (Number(result) / total) * 100;
+        const calcResults = (result: number, decimals?: number) =>
+          decimals
+            ? parseInt(formatUnits(BigInt(result), decimals), 10)
+            : result;
+
+        const decimals = (vocdoniElection.meta as any)?.token?.decimals || 0;
+
+        const findChoiceResult = (choices: IChoice[], choiceName: string) => {
+          const choice = choices.find(
+            c => c.title.default.toLowerCase() === choiceName
+          );
+          const value = calcResults(Number(choice?.results), decimals) || 0;
+          return {
+            value,
+            percentage: percent(value, totals[0]),
+          };
+        };
+        const totals = vocdoniElection?.questions
+          .map(el =>
+            el.choices.reduce((acc, curr) => acc + Number(curr.results), 0)
+          )
+          .map((votes: number) => calcResults(votes, decimals));
+        const results: ProposalVoteResults = {
+          yes: findChoiceResult(vocdoniElection.questions[0].choices, 'yes'),
+          no: findChoiceResult(vocdoniElection.questions[0].choices, 'no'),
+          abstain: findChoiceResult(
+            vocdoniElection.questions[0].choices,
+            'abstain'
+          ),
+        };
+
+        // todo(kon): from here to down I have to check if the onChain proposal have this data or is all offchain
+
+        // Missing participation
+        const usedVotingWeight = Object.entries(results).reduce(
+          (acc, [, v]) => acc + Number(v.value),
+          0
+        );
+        const totalVotingWeight = vocdoniElection.census.weight;
+        const missingRaw = Big(formatUnits(usedVotingWeight, decimals))
+          .minus(
+            Big(formatUnits(totalVotingWeight!, decimals)).mul(
+              proposal.settings.minParticipation
+            )
+          )
+          .toNumber();
+
+        const supportThreshold = Math.round(
+          proposal.settings.supportThreshold * 100
+        );
+
+        // todo(kon): Quorum, this is supported?
+        // const minParticipation = t('votingTerminal.participationErc20', {
+        //   participation: minPart,
+        //   totalWeight,
+        //   tokenSymbol: token.symbol,
+        //   percentage: Math.round(proposal.settings.minParticipation * 100),
+        // });
+
+        const currentParticipation = t('votingTerminal.participationErc20', {
+          participation: usedVotingWeight,
+          totalWeight: totalVotingWeight,
+          tokenSymbol: proposal.token.symbol,
+          percentage: parseFloat(
+            Big(usedVotingWeight.toString())
+              .mul(100)
+              .div(totalVotingWeight!.toString())
+              .toFixed(2)
+          ),
+        });
+
+        const res = {
+          // minParticipation,
+          missingParticipation: missingRaw,
+          supportThreshold,
+          currentParticipation,
+          strategy: t('votingTerminal.tokenVoting'),
+          voteOptions: t('votingTerminal.yes+no'),
+          token: proposal.token,
+          results,
+          startDate: `${format(
+            vocdoniElection.startDate,
+            KNOWN_FORMATS.proposals
+          )}  ${getFormattedUtcOffset()}`,
+          endDate: `${format(
+            vocdoniElection.endDate,
+            KNOWN_FORMATS.proposals
+          )}  ${getFormattedUtcOffset()}`,
+        };
+
+        console.log('DEBUG', res);
+        return res;
+      }
       return getLiveProposalTerminalProps(
         t,
         proposal,
@@ -408,7 +555,8 @@ const Proposal: React.FC = () => {
         daoSettings,
         isMultisigProposal(proposal) ? (members as MultisigMember[]) : undefined
       );
-  }, [address, daoSettings, members, proposal, t]);
+    }
+  }, [address, daoSettings, members, proposal, t, offChain]);
 
   // get early execution status
   const canExecuteEarly = useMemo(
@@ -611,7 +759,7 @@ const Proposal: React.FC = () => {
             tag={tag}
           />
         )}
-        <ProposalTitle>{proposal?.metadata.title}</ProposalTitle>
+        <ProposalTitle>{title}</ProposalTitle>
         <ContentWrapper>
           {/* <BadgeContainer>
             {PROPOSAL_TAGS.map((tag: string) => (
@@ -632,7 +780,7 @@ const Proposal: React.FC = () => {
             />
           </ProposerLink>
         </ContentWrapper>
-        <SummaryText>{proposal?.metadata.summary}</SummaryText>
+        <SummaryText>{summary}</SummaryText>
         {proposal.metadata.description && !expandedProposal && (
           <ButtonText
             className="w-full tablet:w-max"
@@ -647,7 +795,7 @@ const Proposal: React.FC = () => {
 
       <ContentContainer expandedProposal={expandedProposal}>
         <ProposalContainer>
-          {proposal.metadata.description && expandedProposal && (
+          {description && expandedProposal && (
             <>
               <StyledEditorContent editor={editor} />
               <ButtonText
