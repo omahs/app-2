@@ -86,6 +86,7 @@ import {format} from 'date-fns';
 import {getFormattedUtcOffset, KNOWN_FORMATS} from '../utils/date';
 import {formatUnits, IChoice} from '@vocdoni/sdk';
 import Big from 'big.js';
+import {OffchainVotingTerminal} from '../containers/votingTerminal/offchainVotingTerminal';
 
 // TODO: @Sepehr Please assign proper tags on action decoding
 // const PROPOSAL_TAGS = ['Finance', 'Withdraw'];
@@ -741,6 +742,26 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
     return <Loading />;
   }
 
+  // Store the terminal to pass it to OffchainVotingTerminal if needed
+  const VTerminal = () => (
+    <VotingTerminal
+      status={proposal.status}
+      statusLabel={voteStatus}
+      selectedTab={terminalTab}
+      alertMessage={alertMessage}
+      onTabSelected={setTerminalTab}
+      onVoteClicked={onClick}
+      onCancelClicked={() => setVotingInProcess(false)}
+      voteButtonLabel={buttonLabel}
+      voteNowDisabled={voteNowDisabled}
+      votingInProcess={votingInProcess}
+      onVoteSubmitClicked={vote =>
+        handleSubmitVote(vote, (proposal as TokenVotingProposal).token?.address)
+      }
+      {...mappedProps}
+    />
+  );
+
   return (
     <Container>
       <HeaderContainer>
@@ -808,25 +829,16 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
             </>
           )}
 
-          <VotingTerminal
-            status={proposal.status}
-            statusLabel={voteStatus}
-            selectedTab={terminalTab}
-            alertMessage={alertMessage}
-            onTabSelected={setTerminalTab}
-            onVoteClicked={onClick}
-            onCancelClicked={() => setVotingInProcess(false)}
-            voteButtonLabel={buttonLabel}
-            voteNowDisabled={voteNowDisabled}
-            votingInProcess={votingInProcess}
-            onVoteSubmitClicked={vote =>
-              handleSubmitVote(
-                vote,
-                (proposal as TokenVotingProposal).token?.address
-              )
-            }
-            {...mappedProps}
-          />
+          {/*todo(kon): set the condition properly (if offchain, TokenVotingProposal*/}
+          {offChain ? (
+            <OffchainVotingTerminal
+              votingStatusLabel={voteStatus}
+              votingTerminal={<VTerminal />}
+              proposal={proposal as TokenVotingProposal}
+            />
+          ) : (
+            <VTerminal />
+          )}
 
           <ExecutionWidget
             pluginType={pluginType}
