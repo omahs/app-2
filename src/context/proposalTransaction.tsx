@@ -44,7 +44,8 @@ import {
 import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
 import {useProviders} from './providers';
-import useOffchainVoting from '../hooks/useOffchainVoting';
+import useOffchainVoting from './useOffchainVoting';
+import OffchainVotingModal from '../containers/transactionModals/offchainVotingModal';
 
 //TODO: currently a context, but considering there might only ever be one child,
 // might need to turn it into a wrapper that passes props to proposal page
@@ -150,7 +151,10 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
 
       setTokenAddress(tokenAddress);
       setShowVoteModal(true);
-      setVoteProcessState(TransactionState.WAITING);
+      // todo(kon): check how to avoid conflicting between offchain onchain voting states
+      setVoteProcessState(
+        offchainVoting ? undefined : TransactionState.WAITING
+      );
     },
     [urlId]
   );
@@ -337,7 +341,6 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
 
   // todo(kon): modify this
   const offchainVoting = true;
-  const {submitVote: submitOffchainVote} = useOffchainVoting();
 
   // handles vote submission/execution
   const handleVoteExecution = useCallback(async () => {
@@ -366,12 +369,6 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
         tryExecution: false,
       });
     } else {
-      // todo(kon): simple way of voting, use providers better
-      // It retrieves from local storage the vocdoni election id. Won't be this on the final implementation
-      // Not showing errors neither
-      if (offchainVoting) {
-        await submitOffchainVote(voteParams);
-      }
       voteSteps = (pluginClient as TokenVotingClient)?.methods.voteProposal({
         ...voteParams,
         proposalId: voteParams.proposalId,
@@ -528,42 +525,51 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
   /*************************************************
    *                    Render                     *
    *************************************************/
+  // todo(kon): handle this properly
   return (
     <ProposalTransactionContext.Provider value={value}>
       {children}
-      <PublishModal
-        title={
-          showExecuteModal
-            ? t('labels.signExecuteProposal')
-            : t('labels.signVote')
-        }
-        buttonLabel={
-          showExecuteModal
-            ? t('governance.proposals.buttons.execute')
-            : t('governance.proposals.buttons.vote')
-        }
-        state={
-          (showExecuteModal ? executeProcessState : voteProcessState) ||
-          TransactionState.WAITING
-        }
-        isOpen={showVoteModal || showExecuteModal}
-        onClose={
-          showExecuteModal ? handleCloseExecuteModal : handleCloseVoteModal
-        }
-        callback={
-          showExecuteModal ? handleProposalExecution : handleVoteExecution
-        }
-        closeOnDrag={
-          showExecuteModal
-            ? executeProcessState !== TransactionState.LOADING
-            : voteProcessState !== TransactionState.LOADING
-        }
-        maxFee={maxFee}
-        averageFee={averageFee}
-        tokenPrice={tokenPrice}
-        gasEstimationError={gasEstimationError}
-        disabledCallback={shouldDisableCallback}
-      />
+      {offchainVoting ? (
+        <OffchainVotingModal
+          vote={voteParams}
+          setShowVoteModal={setShowVoteModal}
+          showVoteModal={showVoteModal}
+        />
+      ) : (
+        <PublishModal
+          title={
+            showExecuteModal
+              ? t('labels.signExecuteProposal')
+              : t('labels.signVote')
+          }
+          buttonLabel={
+            showExecuteModal
+              ? t('governance.proposals.buttons.execute')
+              : t('governance.proposals.buttons.vote')
+          }
+          state={
+            (showExecuteModal ? executeProcessState : voteProcessState) ||
+            TransactionState.WAITING
+          }
+          isOpen={showVoteModal || showExecuteModal}
+          onClose={
+            showExecuteModal ? handleCloseExecuteModal : handleCloseVoteModal
+          }
+          callback={
+            showExecuteModal ? handleProposalExecution : handleVoteExecution
+          }
+          closeOnDrag={
+            showExecuteModal
+              ? executeProcessState !== TransactionState.LOADING
+              : voteProcessState !== TransactionState.LOADING
+          }
+          maxFee={maxFee}
+          averageFee={averageFee}
+          tokenPrice={tokenPrice}
+          gasEstimationError={gasEstimationError}
+          disabledCallback={shouldDisableCallback}
+        />
+      )}
     </ProposalTransactionContext.Provider>
   );
 };
