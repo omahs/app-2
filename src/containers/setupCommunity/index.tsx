@@ -9,6 +9,7 @@ import {MultisigWallets} from 'components/multisigWallets';
 import {FormSection} from 'containers/setupVotingForm';
 import {ToggleCheckList} from 'containers/setupVotingForm/multisig';
 import AddExistingToken from './addExistingToken';
+`import OffChainSelector from '../../components/offChainSelector';
 
 const SetupCommunityForm: React.FC = () => {
   const {t} = useTranslation();
@@ -115,15 +116,7 @@ const SetupCommunityForm: React.FC = () => {
                   {...(value === 'onChain' ? {type: 'active'} : {})}
                 />
 
-                <CheckboxListItem
-                  label={t('createDAO.step3.votingType.offChain.title')}
-                  helptext={t('createDAO.step3.votingType.offChain.subtitle')}
-                  onClick={() => {
-                    onChange('offChain');
-                  }}
-                  multiSelect={false}
-                  {...(value === 'offChain' ? {type: 'active'} : {})}
-                />
+                <OffChainSelector onChange={onChange} value={value} />
               </>
             )}
           />
