@@ -4919,17 +4919,17 @@
     long "^5.2.1"
     protobufjs "^7.1.2"
 
-"@vocdoni/react-providers@^0.1.7":
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/@vocdoni/react-providers/-/react-providers-0.1.7.tgz#b1805af7dc61d48e97d991ee0223823e5f3ac6ae"
-  integrity sha512-OQ8bftWfKH2Ip4f+WVcPy6WCYQezZklURoQlNjHhAHGfgcD/4Mc68wfWeE7vdQRx+4eQODwOboEPt/0HrgThAA==
+"@vocdoni/react-providers@^0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@vocdoni/react-providers/-/react-providers-0.1.8.tgz#39159aac6497832e5a9646d294c32055bae5e5d6"
+  integrity sha512-c5xLFtFsOjE5d/T1Kr2g5Qu7BebKCuy6bnfRiH7j5LgC0S052An6THnahDV+3umgpzLuncX4qM808J0fzQ3b1g==
   dependencies:
-    "@vocdoni/sdk" "^0.1.1"
+    "@vocdoni/sdk" "^0.3.0"
 
-"@vocdoni/sdk@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.1.1.tgz#ebb40164c09a516a77f9222b92d912c578c224af"
-  integrity sha512-Z673X4lukKNO7EHFriI2JA0JVMfJ+AdS+UusawcZzNAdHAmCPdzrskjsL9MiYLRwOIYX+0osa/YsfnLvx/FwqA==
+"@vocdoni/sdk@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@vocdoni/sdk/-/sdk-0.3.0.tgz#fa02565b60ab9c76b6201a797d153005e94ca551"
+  integrity sha512-70OP9dbv4MpomSpJ/os2wfgSGshkG1e0PzemDPlTTNl90OEvJaRXzISndX5E80c5eFjtEUIYiSk9W1q+xDomGg==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/address" "^5.7.0"
