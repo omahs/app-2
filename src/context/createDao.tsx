@@ -39,7 +39,14 @@ import {Dashboard} from 'utils/paths';
 import {useGlobalModalContext} from './globalModals';
 import {useNetwork} from './network';
 
-import {useClient as useVocdoniClient} from 'hooks/useVocdoniSdk';
+import {useClient as useVocdoniClient} from '@vocdoni/react-providers';
+
+import {
+  OffchainVotingClient,
+  OffchainVotingPluginInstall,
+} from '@vocdoni/offchain-voting';
+import {BigNumber} from '@ethersproject/bignumber';
+import {GaslessPluginVotingSettings} from '@vocdoni/offchain-voting/dist/js-client/src/types';
 
 const DEFAULT_TOKEN_DECIMALS = 18;
 
@@ -144,6 +151,47 @@ const CreateDaoProvider: React.FC = ({children}) => {
       }
     }
   };
+
+  const getOffchainPluginInstallParams = useCallback(
+    (votingSettings: VotingSettings): OffchainVotingPluginInstall => {
+      const {
+        isCustomToken,
+        committee,
+        tokenType,
+        committeeMinimumApproval,
+        executionExpirationHours,
+        executionExpirationDays,
+        executionExpirationMinutes,
+      } = getValues();
+
+      const vocdoniVotingSettings: GaslessPluginVotingSettings = {
+        expirationTime: BigNumber.from(
+          getSecondsFromDHM(
+            parseInt(executionExpirationDays),
+            parseInt(executionExpirationHours),
+            parseInt(executionExpirationMinutes)
+          )
+        ),
+        minTallyApprovals: Number(committeeMinimumApproval),
+        minDuration: BigNumber.from(votingSettings.minDuration),
+        minParticipation: votingSettings.minParticipation,
+        supportThreshold: votingSettings.supportThreshold,
+        minProposerVotingPower: votingSettings.minProposerVotingPower as bigint,
+        censusStrategy: '',
+      };
+
+      return {
+        committee: committee.map(wallet => wallet.address),
+        votingSettings: vocdoniVotingSettings,
+        ...((tokenType === 'governance-ERC20' || // token can be used as is
+          tokenType === 'ERC-20') && // token can/will be wrapped
+        !isCustomToken // not a new token (existing token)
+          ? {useToken: getErc20PluginParams()}
+          : {newToken: getNewErc20PluginParams()}),
+      };
+    },
+    [getValues]
+  );
 
   const getMultisigPluginInstallParams = useCallback((): [
     MultisigPluginInstallParams,
@@ -272,6 +320,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
       tokenType,
       isCustomToken,
       links,
+      votingType,
     } = getValues();
     const plugins: PluginInstallItem[] = [];
     switch (membership) {
@@ -288,20 +337,27 @@ const CreateDaoProvider: React.FC = ({children}) => {
       case 'token': {
         const [votingSettings, network] = getVoteSettings();
 
-        const tokenVotingPlugin =
-          TokenVotingClient.encoding.getPluginInstallItem(
-            {
-              votingSettings: votingSettings,
-              ...((tokenType === 'governance-ERC20' || // token can be used as is
-                tokenType === 'ERC-20') && // token can/will be wrapped
-              !isCustomToken // not a new token (existing token)
-                ? {useToken: getErc20PluginParams()}
-                : {newToken: getNewErc20PluginParams()}),
-            },
-            network
-          );
+        if (votingType === 'offChain') {
+          const params = getOffchainPluginInstallParams(votingSettings);
+          const offChainPlugin =
+            OffchainVotingClient.encoding.getPluginInstallItem(params, network);
+          plugins.push(offChainPlugin);
+        } else {
+          const tokenVotingPlugin =
+            TokenVotingClient.encoding.getPluginInstallItem(
+              {
+                votingSettings: votingSettings,
+                ...((tokenType === 'governance-ERC20' || // token can be used as is
+                  tokenType === 'ERC-20') && // token can/will be wrapped
+                !isCustomToken // not a new token (existing token)
+                  ? {useToken: getErc20PluginParams()}
+                  : {newToken: getNewErc20PluginParams()}),
+              },
+              network
+            );
 
-        plugins.push(tokenVotingPlugin);
+          plugins.push(tokenVotingPlugin);
+        }
         break;
       }
       default:
@@ -360,12 +416,13 @@ const CreateDaoProvider: React.FC = ({children}) => {
     error: gasEstimationError,
   } = usePollGasFee(estimateCreationFees, shouldPoll);
 
-  const {census3Client} = useVocdoniClient();
+  const {census3} = useVocdoniClient();
 
   // It creates the vocdoni census3 for a specific DAO
+  // todo(kon): dao address is not the token address
   const createDAOCensus3 = useCallback(async () => {
-    await census3Client.createToken(daoAddress, 'ERC20');
-  }, [census3Client, daoAddress]);
+    await census3.createToken(daoAddress, 'erc20');
+  }, [census3, daoAddress]);
 
   // run dao creation transaction
   const createDao = async () => {
@@ -444,7 +501,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
                 if (
                   votingType === 'offChain' &&
                   membership === 'token' &&
-                  !(await census3Client.getToken(step.address.toLowerCase()))
+                  !(await census3.getToken(step.address.toLowerCase()))
                 ) {
                   await createDAOCensus3();
                 }

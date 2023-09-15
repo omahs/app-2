@@ -62,12 +62,36 @@
     tailwindcss "^2.0.0"
     tailwindcss-fluid-type "^1.0.0"
 
-"@aragon/osx-ethers@1.3.0-rc0.2", "@aragon/osx-ethers@^1.3.0-rc0.2":
+"@aragon/osx-ethers@1.3.0-rc0":
+  version "1.3.0-rc0"
+  resolved "https://registry.yarnpkg.com/@aragon/osx-ethers/-/osx-ethers-1.3.0-rc0.tgz#f706b007f8e3c95418f6ba8dab7bdeeb97858378"
+  integrity sha512-iPTkjnmIToVc6x+4xfBByMskX0VhYrNvHlolsewLHz3wuJONx08dUODAxnMgU17X9H8UXxuLcApTf+KvhUezxg==
+  dependencies:
+    ethers "^5.6.2"
+
+"@aragon/osx-ethers@1.3.0-rc0.2", "@aragon/osx-ethers@^1.3.0-rc0", "@aragon/osx-ethers@^1.3.0-rc0.2":
   version "1.3.0-rc0.2"
   resolved "https://registry.yarnpkg.com/@aragon/osx-ethers/-/osx-ethers-1.3.0-rc0.2.tgz#820f325ee8514bc6e598135bba2501f124d92d31"
   integrity sha512-PpsmyZOBRQPElEsiLNkoGg/4j+oJn8SJC6S0oN837k5JofkleLbOdZgUmB0SHmL98hvcE157MoRZ4YM+IXbhhA==
   dependencies:
     ethers "^5.6.2"
+
+"@aragon/sdk-client-common@1.2.0-rc0":
+  version "1.2.0-rc0"
+  resolved "https://registry.yarnpkg.com/@aragon/sdk-client-common/-/sdk-client-common-1.2.0-rc0.tgz#642d294aa8faae4ddc1d121b4ba1df4c8d526fab"
+  integrity sha512-xzVBcNnY0FBdID1lD84L+krlOrIYX/ZOzluFWD4gdQr+5Mo1xc7UTazSUMiU5cvr8vD/dF2JrZHj8eWpW3j7nA==
+  dependencies:
+    "@aragon/osx-ethers" "^1.3.0-rc0"
+    "@aragon/sdk-common" "^1.5.0"
+    "@aragon/sdk-ipfs" "^1.1.0"
+    "@ethersproject/abstract-signer" "^5.5.0"
+    "@ethersproject/bignumber" "^5.6.0"
+    "@ethersproject/constants" "^5.6.0"
+    "@ethersproject/contracts" "^5.5.0"
+    "@ethersproject/providers" "^5.5.0"
+    "@ethersproject/wallet" "^5.6.0"
+    graphql "^16.5.0"
+    graphql-request "^4.3.0"
 
 "@aragon/sdk-client-common@^1.4.0-rc0":
   version "1.4.0-rc0"
@@ -105,7 +129,7 @@
     graphql "^16.5.0"
     graphql-request "^4.3.0"
 
-"@aragon/sdk-common@^1.5.0":
+"@aragon/sdk-common@1.5.0", "@aragon/sdk-common@^1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@aragon/sdk-common/-/sdk-common-1.5.0.tgz#321d5861a18d3d50b79aebb888ab77c830022be9"
   integrity sha512-3dV1ATZamBOaDhEPlXM1thIl6BzjerqArFjd0MvajEyjbVBkFFAVM5PZRSYs243o+91iSNdVPGFml+TSonCZTg==
@@ -2130,7 +2154,7 @@
   dependencies:
     "@ethersproject/bignumber" "^5.7.0"
 
-"@ethersproject/contracts@5.7.0", "@ethersproject/contracts@^5.0.0", "@ethersproject/contracts@^5.5.0":
+"@ethersproject/contracts@5.7.0", "@ethersproject/contracts@^5.0.0", "@ethersproject/contracts@^5.5.0", "@ethersproject/contracts@^5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/contracts/-/contracts-5.7.0.tgz#c305e775abd07e48aa590e1a877ed5c316f8bd1e"
   integrity sha512-5GJbzEU3X+d33CdfPhcyS+z8MzsTrBGk/sc+G+59+tPa9yFkl6HQ9D6L0QMgNTA9q8dT0XKxxkyp883XsQvbbg==
@@ -2233,7 +2257,7 @@
   dependencies:
     "@ethersproject/logger" "^5.7.0"
 
-"@ethersproject/providers@5.7.2", "@ethersproject/providers@^5.0.0", "@ethersproject/providers@^5.5.0", "@ethersproject/providers@^5.7.1":
+"@ethersproject/providers@5.7.2", "@ethersproject/providers@^5.0.0", "@ethersproject/providers@^5.5.0", "@ethersproject/providers@^5.7.1", "@ethersproject/providers@^5.7.2":
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.7.2.tgz#f8b1a4f275d7ce58cf0a2eec222269a08beb18cb"
   integrity sha512-g34EWZ1WWAVgr4aptGlVBF8mhl3VWjv+8hoAnzStu8Ah22VHBsuGzP17eb6xDVRzw895G4W7vvx60lFFur/1Rg==
@@ -4910,6 +4934,29 @@
     "@babel/plugin-transform-react-jsx-self" "^7.22.5"
     "@babel/plugin-transform-react-jsx-source" "^7.22.5"
     react-refresh "^0.14.0"
+
+"@vocdoni/offchain-voting-ethers@./vocdoni-offchain-voting-ethers-v0.0.2.tgz":
+  version "0.0.2"
+  resolved "./vocdoni-offchain-voting-ethers-v0.0.2.tgz#3e039243af486750fc114ea3e164e548d5918fbe"
+  dependencies:
+    ethers "^5.6.2"
+
+"@vocdoni/offchain-voting@./vocdoni-offchain-voting-v0.0.7.tgz":
+  version "0.0.7"
+  resolved "./vocdoni-offchain-voting-v0.0.7.tgz#fdcdabb61edea4a4b308c66db75db57eb1c87c53"
+  dependencies:
+    "@aragon/osx-ethers" "1.3.0-rc0"
+    "@aragon/sdk-client-common" "1.2.0-rc0"
+    "@aragon/sdk-common" "1.5.0"
+    "@ethersproject/abstract-signer" "^5.7.0"
+    "@ethersproject/bignumber" "^5.7.0"
+    "@ethersproject/constants" "^5.7.0"
+    "@ethersproject/contracts" "^5.7.0"
+    "@ethersproject/providers" "^5.7.2"
+    "@ethersproject/wallet" "^5.7.0"
+    "@vocdoni/offchain-voting-ethers" "./vocdoni-offchain-voting-ethers-v0.0.2.tgz"
+    graphql "^16.6.0"
+    graphql-request "4.3.0"
 
 "@vocdoni/proto@1.15.3":
   version "1.15.3"
@@ -11842,7 +11889,7 @@ graphql-anywhere@^4.2.7:
     ts-invariant "^0.3.2"
     tslib "^2.4.0"
 
-graphql-request@^4.3.0:
+graphql-request@4.3.0, graphql-request@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-4.3.0.tgz#b934e08fcae764aa2cdc697d3c821f046cb5dbf2"
   integrity sha512-2v6hQViJvSsifK606AliqiNiijb1uwWp6Re7o0RTyH+uRTv/u7Uqm2g4Fjq/LgZIzARB38RZEvVBFOQOVdlBow==
