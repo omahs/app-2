@@ -9,7 +9,7 @@ import {MultisigWallets} from 'components/multisigWallets';
 import {FormSection} from 'containers/setupVotingForm';
 import {ToggleCheckList} from 'containers/setupVotingForm/multisig';
 import AddExistingToken from './addExistingToken';
-`import OffChainSelector from '../../components/offChainSelector';
+import OffChainSelector from '../../components/offChainSelector';
 
 const SetupCommunityForm: React.FC = () => {
   const {t} = useTranslation();
@@ -79,7 +79,6 @@ const SetupCommunityForm: React.FC = () => {
                 multiSelect={false}
                 {...(value === 'multisig' ? {type: 'active'} : {})}
               />
-
               {/* Address List Dao has been disabled */}
               {/* <CheckboxListItem
                   label={t('createDAO.step3.walletMemberShip')}

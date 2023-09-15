@@ -83,7 +83,7 @@ const defaultValues = {
   eligibilityType: 'token' as CreateDaoFormData['eligibilityType'],
   eligibilityTokenAmount: 1,
   minimumTokenAmount: 1,
-  isCustomToken: true,
+  isCustomToken: false,
   durationDays: '1',
   durationHours: '0',
   durationMinutes: '0',
@@ -213,8 +213,9 @@ const CreateDAO: React.FC = () => {
           !tokenType ||
           tokenType === 'Unknown' ||
           tokenTotalSupply === 0
-        )
+        ) {
           return false;
+        }
         return true;
       }
     }
