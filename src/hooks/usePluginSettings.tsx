@@ -51,7 +51,7 @@ export function usePluginSettings(
       }
     }
 
-    getPluginSettings();
+    if (pluginAddress) getPluginSettings();
   }, [client?.methods, pluginAddress]);
 
   return {data, error, isLoading};

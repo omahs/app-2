@@ -1,4 +1,9 @@
-import {Erc20TokenDetails, TokenVotingMember} from '@aragon/sdk-client';
+import {
+  Erc20TokenDetails,
+  MultisigClient,
+  TokenVotingClient,
+  TokenVotingMember,
+} from '@aragon/sdk-client';
 import {QueryClient} from '@tanstack/react-query';
 import {useNetwork} from 'context/network';
 import {useProviders} from 'context/providers';
@@ -81,7 +86,11 @@ export const useDaoMembers = (
   useEffect(() => {
     async function fetchMembers() {
       try {
-        if (!pluginType) {
+        // todo(kon): use census 3 to get this
+        if (
+          !pluginType ||
+          pluginType === 'vocdoni-offchain-voting-test-3.plugin.dao.eth'
+        ) {
           setData([]);
           return;
         }
@@ -96,7 +105,8 @@ export const useDaoMembers = (
         ) {
           setIsLoading(true);
 
-          const response = await client?.methods.getMembers(pluginAddress);
+          const c = client as MultisigClient | TokenVotingClient;
+          const response = await c?.methods.getMembers(pluginAddress);
 
           if (!response) {
             setData([]);
