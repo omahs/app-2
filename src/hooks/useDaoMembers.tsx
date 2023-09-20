@@ -21,6 +21,10 @@ import {
   usePluginClient,
 } from './usePluginClient';
 import {useWallet} from './useWallet';
+import {
+  OffchainVotingClient,
+  GaslessVotingMember,
+} from '@vocdoni/offchain-voting';
 
 export type MultisigMember = {
   address: string;
@@ -93,9 +97,21 @@ export const useDaoMembers = (
     async function fetchMembers() {
       try {
         // todo(kon): use census 3 to get this
-        if (!pluginType || pluginType === OFFCHAIN_PLUGIN_NAME) {
+        if (!pluginType) {
           setData([]);
           return;
+        }
+
+        if (pluginType === OFFCHAIN_PLUGIN_NAME) {
+          const c = client as OffchainVotingClient;
+          const response: TokenVotingMember[] = await c?.methods.getMembers(
+            pluginAddress
+          );
+          if (!response) {
+            setData([]);
+            return;
+          }
+          setRawMembers(response);
         }
 
         // Fetch members from the subgraph for the multisig plugin and for the goerli, base
@@ -108,7 +124,10 @@ export const useDaoMembers = (
         ) {
           setIsLoading(true);
 
-          const c = client as MultisigClient | TokenVotingClient;
+          const c = client as
+            | MultisigClient
+            | TokenVotingClient
+            | OffchainVotingClient;
           const response = await c?.methods.getMembers(pluginAddress);
 
           if (!response) {
