@@ -15,7 +15,11 @@ import {formatUnits} from 'ethers/lib/utils';
 import {TokenHoldersResponse, getTokenHoldersPaged} from 'services/covalentAPI';
 import {HookData} from 'utils/types';
 import {useDaoToken} from './useDaoToken';
-import {PluginTypes, usePluginClient} from './usePluginClient';
+import {
+  OFFCHAIN_PLUGIN_NAME,
+  PluginTypes,
+  usePluginClient,
+} from './usePluginClient';
 import {useWallet} from './useWallet';
 
 export type MultisigMember = {
@@ -87,10 +91,7 @@ export const useDaoMembers = (
     async function fetchMembers() {
       try {
         // todo(kon): use census 3 to get this
-        if (
-          !pluginType ||
-          pluginType === 'vocdoni-offchain-voting-test-3.plugin.dao.eth'
-        ) {
+        if (!pluginType || pluginType === OFFCHAIN_PLUGIN_NAME) {
           setData([]);
           return;
         }
