@@ -79,7 +79,9 @@ export const useDaoMembers = (
   const {network} = useNetwork();
   const {api: provider} = useProviders();
 
-  const isTokenBased = pluginType === 'token-voting.plugin.dao.eth';
+  const isTokenBased =
+    pluginType === 'token-voting.plugin.dao.eth' ||
+    pluginType === OFFCHAIN_PLUGIN_NAME;
   const {data: daoToken} = useDaoToken(pluginAddress);
 
   const client = usePluginClient(pluginType);
