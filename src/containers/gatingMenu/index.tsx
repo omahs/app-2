@@ -13,7 +13,7 @@ import {
 } from 'containers/networkErrorMenu';
 import {useGlobalModalContext} from 'context/globalModals';
 import {useNetwork} from 'context/network';
-import {PluginTypes} from 'hooks/usePluginClient';
+import {OFFCHAIN_PLUGIN_NAME, PluginTypes} from 'hooks/usePluginClient';
 import WalletIcon from 'public/wallet.svg';
 import {Governance, Community} from 'utils/paths';
 import {
@@ -95,7 +95,8 @@ export const GatingMenu: React.FC<Props> = ({
     <ModalBottomSheetSwitcher isOpen={isGatingOpen}>
       <ModalBody>
         <StyledImage src={WalletIcon} />
-        {pluginType === 'token-voting.plugin.dao.eth' ? (
+        {pluginType === 'token-voting.plugin.dao.eth' ||
+        pluginType === OFFCHAIN_PLUGIN_NAME ? (
           <>
             {isDAOTokenWrapped ? (
               <WrappingRequiredContainer
