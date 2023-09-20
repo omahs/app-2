@@ -89,7 +89,9 @@ export const GatingMenu: React.FC<Props> = ({
 
   const {isDAOTokenWrapped} = useExistingToken({daoDetails, daoToken});
 
-  const isTokenAbsenceAlert = pluginType === 'token-voting.plugin.dao.eth';
+  const isTokenAbsenceAlert =
+    pluginType === 'token-voting.plugin.dao.eth' ||
+    pluginType === OFFCHAIN_PLUGIN_NAME;
 
   return (
     <ModalBottomSheetSwitcher isOpen={isGatingOpen}>
