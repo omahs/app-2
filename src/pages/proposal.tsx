@@ -105,10 +105,11 @@ const Proposal = () => {
 
   // todo(kon): when implemented change this to properly get the vocdoni electionId from DAO
   const {getElectionId} = useOffchainVoting();
-
-  let electionId = '';
+  const electionId =
+    'c5d2460186f70389325c3315e58929563604d02c21d6a930bca4020000000000';
   if (proposalId) {
-    electionId = getElectionId(proposalId.toString());
+    const id = stripPlgnAdrFromProposalId(proposalId?.toString());
+    // electionId = getElectionId(proposalId.toString());
   }
 
   return (
@@ -834,7 +835,9 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
             <OffchainVotingTerminal
               votingStatusLabel={voteStatus}
               votingTerminal={<VTerminal />}
-              proposal={proposal as TokenVotingProposal}
+              // proposal={proposal as TokenVotingProposal}
+              vocdoniElection={vocdoniElection}
+              proposalId={proposalId}
             />
           ) : (
             <VTerminal />

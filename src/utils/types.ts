@@ -13,6 +13,7 @@ import {BigNumber} from 'ethers';
 
 import {TimeFilter, TransferTypes} from './constants';
 import {Web3Address} from './library';
+import {stripPlgnAdrFromProposalId} from './proposals';
 
 /*************************************************
  *                   Finance types               *
@@ -507,5 +508,14 @@ export class ProposalId {
   /** The proposal id as a string */
   toString() {
     return this.id;
+  }
+
+  /**
+   * Strips proposal id of plugin address, when the id is with following format:  *0x4206cdbc...a675cae35_0x0*
+   * @returns object with plugin address and proposal id or undefined
+   */
+  stripPlgnAdrFromProposalId() {
+    const split = this.id.split('_');
+    return {address: split[0], proposal: Number(split[1]) || undefined};
   }
 }
