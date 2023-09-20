@@ -495,7 +495,7 @@ const CreateDaoProvider: React.FC = ({children}) => {
                 }),
               ]).then(async () => {
                 if (votingType === 'offChain' && membership === 'token') {
-                  await createToken(step.address[0]);
+                  await createToken(step.pluginAddresses[0]);
                 }
               });
               // After everything is
