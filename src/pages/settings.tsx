@@ -19,7 +19,7 @@ import MajorityVotingSettings from 'containers/settings/majorityVoting';
 import MultisigSettings from 'containers/settings/multisig';
 import {useNetwork} from 'context/network';
 import {useDaoDetailsQuery} from 'hooks/useDaoDetails';
-import {PluginTypes} from 'hooks/usePluginClient';
+import {OFFCHAIN_PLUGIN_NAME, PluginTypes} from 'hooks/usePluginClient';
 import useScreen from 'hooks/useScreen';
 import {CHAIN_METADATA} from 'utils/constants';
 import {EditSettings} from 'utils/paths';
@@ -138,6 +138,10 @@ export const PluginSettingsWrapper: React.FC<IPluginSettings> = ({
 
     case 'multisig.plugin.dao.eth':
       return <MultisigSettings daoDetails={daoDetails} />;
+
+    case OFFCHAIN_PLUGIN_NAME:
+      // todo(kon): This part needs to be designed
+      return <MajorityVotingSettings daoDetails={daoDetails} />;
 
     default:
       // TODO: need to be designed
