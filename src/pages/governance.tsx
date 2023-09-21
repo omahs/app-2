@@ -10,7 +10,7 @@ import {
 } from '@aragon/ods';
 import React, {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useNavigate} from 'react-router-dom';
+import {generatePath, useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
 
 import ProposalList from 'components/proposalList';
@@ -27,6 +27,8 @@ import useScreen from 'hooks/useScreen';
 import {htmlIn} from 'utils/htmlIn';
 import uniqBy from 'lodash/uniqBy';
 import {useGlobalModalContext} from 'context/globalModals';
+import {NewProposal} from 'utils/paths';
+import {useNetwork} from 'context/network';
 
 // The number of proposals displayed on each page
 const PROPOSALS_PER_PAGE = 6;
@@ -35,6 +37,7 @@ export const Governance: React.FC = () => {
   const {data: daoDetails, isLoading: isDaoLoading} = useDaoDetailsQuery();
   const {isMobile} = useScreen();
   const {open} = useGlobalModalContext();
+  const {network} = useNetwork();
 
   const [skip, setSkip] = useState(0);
   const [endReached, setEndReached] = useState(false);
@@ -82,7 +85,7 @@ export const Governance: React.FC = () => {
     trackEvent('governance_newProposalBtn_clicked', {
       dao_address: daoDetails?.address as string,
     });
-    navigate('new-proposal');
+    navigate(generatePath(NewProposal, {type: 'default'}));
   };
 
   const handleShowMoreClick = () => {
@@ -144,7 +147,13 @@ export const Governance: React.FC = () => {
             trackEvent('governance_newProposalBtn_clicked', {
               dao_address: daoDetails?.address,
             });
-            navigate('new-proposal');
+            navigate(
+              generatePath(NewProposal, {
+                type: 'default',
+                network,
+                dao: toDisplayEns(daoDetails?.ensDomain) || daoDetails?.address,
+              })
+            );
           },
         }}
         secondaryBtnProps={

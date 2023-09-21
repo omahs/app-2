@@ -2,13 +2,19 @@ import {IconLinkExternal, IconUpdate} from '@aragon/ods';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
+import {generatePath, useNavigate, useParams} from 'react-router-dom';
 
 import {StyledLink} from 'components/styledLink';
 import useScreen from 'hooks/useScreen';
+import {useNetwork} from 'context/network';
+import {NewProposal} from 'utils/paths';
 
 export const SettingsUpdateCard: React.FC = () => {
   const {t} = useTranslation();
   const {isDesktop} = useScreen();
+  const navigate = useNavigate();
+  const {network} = useNetwork();
+  const {dao} = useParams();
 
   if (isDesktop) {
     return (
@@ -27,6 +33,15 @@ export const SettingsUpdateCard: React.FC = () => {
             label={t('update.alert.ctaLabel')}
             type="neutral"
             iconRight={<IconLinkExternal />}
+            onClick={() =>
+              navigate(
+                generatePath(NewProposal, {
+                  type: 'os-update',
+                  network,
+                  dao: dao,
+                })
+              )
+            }
             //TODO add onclick/href
           />
         </div>
@@ -46,6 +61,15 @@ export const SettingsUpdateCard: React.FC = () => {
           label={t('update.alert.ctaLabel')}
           type="neutral"
           iconRight={<IconLinkExternal />}
+          onClick={() =>
+            navigate(
+              generatePath(NewProposal, {
+                type: 'os-update',
+                network,
+                dao: dao,
+              })
+            )
+          }
         />
       </ContentWrapper>
     </Container>

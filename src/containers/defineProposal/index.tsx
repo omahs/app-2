@@ -15,11 +15,24 @@ import {useWallet} from 'hooks/useWallet';
 import {StringIndexed} from 'utils/types';
 import {Controller, useFormContext} from 'react-hook-form';
 import {isOnlyWhitespace} from 'utils/library';
+import {UpdateListItem} from 'containers/updateListItem/updateListItem';
+import {useParams} from 'react-router-dom';
+import {PluginUpdateCard} from 'containers/UpdateGroup/PluginUpdateCard';
 
 const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
   const {address, ensAvatarUrl} = useWallet();
   const {control} = useFormContext();
+  const {type} = useParams();
+
+  if (type === 'os-update') {
+    return (
+      <UpdateGroupWrapper>
+        <UpdateListItem />
+        <UpdateListItem />
+      </UpdateGroupWrapper>
+    );
+  }
 
   return (
     <>
@@ -146,4 +159,8 @@ export function isValid(dirtyFields: StringIndexed, errors: StringIndexed) {
 
 const FormItem = styled.div.attrs({
   className: 'space-y-1.5',
+})``;
+
+const UpdateGroupWrapper = styled.div.attrs({
+  className: 'flex tablet:flex-row flex-col gap-y-1.5 gap-x-3',
 })``;

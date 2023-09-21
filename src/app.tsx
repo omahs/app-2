@@ -84,7 +84,7 @@ export const App: React.FC = () => {
                   element={<NewWithdrawPage />}
                 />
                 <Route
-                  path="governance/new-proposal"
+                  path="governance/new-proposal/:type"
                   element={<NewProposalPage />}
                 />
                 <Route element={<NewSettingsWrapper />}>
