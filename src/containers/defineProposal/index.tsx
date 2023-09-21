@@ -28,8 +28,26 @@ const DefineProposal: React.FC = () => {
   if (type === 'os-update') {
     return (
       <UpdateGroupWrapper>
-        <UpdateListItem />
-        <UpdateListItem />
+        <UpdateListItem
+          label={'Aragon OSx v1.3.0'}
+          helptext={'TBD inline release notes'}
+          LinkLabel={'TBD inline release notes'}
+          tagLabelNatural="Latest"
+          type={'default'}
+          onClick={() => null}
+          onClickActionSecondary={() => null}
+        />
+        <UpdateListItem
+          label={'Aragon OSx v1.3.0'}
+          helptext={'TBD inline release notes'}
+          LinkLabel={'TBD inline release notes'}
+          tagLabelNatural="Latest"
+          tagLabelInfo="Prepared"
+          type={'default'}
+          onClick={() => null}
+          onClickActionPrimary={() => null}
+          onClickActionSecondary={() => null}
+        />
       </UpdateGroupWrapper>
     );
   }
