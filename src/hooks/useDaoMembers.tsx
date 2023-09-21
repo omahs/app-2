@@ -124,11 +124,7 @@ export const useDaoMembers = (
         ) {
           setIsLoading(true);
 
-          const c = client as
-            | MultisigClient
-            | TokenVotingClient
-            | OffchainVotingClient;
-          const response = await c?.methods.getMembers(pluginAddress);
+          const response = await client?.methods.getMembers(pluginAddress);
 
           if (!response) {
             setData([]);
