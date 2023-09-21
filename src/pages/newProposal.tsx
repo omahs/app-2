@@ -16,6 +16,10 @@ export const NewProposal: React.FC = () => {
     mode: 'onChange',
     defaultValues: {
       links: [{name: '', url: ''}],
+      osUpdate: {
+        os: true,
+        plugin: true,
+      },
       startSwitch: 'now',
       durationSwitch: 'duration',
       actions: [],

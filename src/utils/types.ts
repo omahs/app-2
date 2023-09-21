@@ -543,6 +543,10 @@ export interface ProposalFormData {
   startTimeWarning: boolean;
   areSettingsLoading: boolean;
   links: Link[];
+  osUpdate?: {
+    os: boolean;
+    plugin: boolean;
+  };
 }
 
 export type ProposalSettingsFormData = ProposalFormData & {

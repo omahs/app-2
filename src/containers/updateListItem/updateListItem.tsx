@@ -19,13 +19,13 @@ export type CheckboxListItemProps = {
   label: string;
   helptext?: string;
   LinkLabel: string;
-  tagLabelNatural: string;
-  tagLabelInfo: string;
+  tagLabelNatural?: string;
+  tagLabelInfo?: string;
   disabled?: boolean;
   type?: 'default' | 'error' | 'active';
   onClick?: React.MouseEventHandler;
-  onClickActionPrimary: () => void;
-  onClickActionSecondary: () => void;
+  onClickActionPrimary?: () => void;
+  onClickActionSecondary?: () => void;
 };
 
 // TODO: This might be a component that
@@ -71,6 +71,7 @@ export const UpdateListItem: React.FC<CheckboxListItemProps> = ({
             <ButtonText
               label={'Select another version'}
               mode="secondary"
+              bgWhite
               size="medium"
               onClick={onClickActionSecondary}
             />

@@ -17,7 +17,6 @@ import {Controller, useFormContext} from 'react-hook-form';
 import {isOnlyWhitespace} from 'utils/library';
 import {UpdateListItem} from 'containers/updateListItem/updateListItem';
 import {useParams} from 'react-router-dom';
-import {PluginUpdateCard} from 'containers/UpdateGroup/PluginUpdateCard';
 
 const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
@@ -28,25 +27,44 @@ const DefineProposal: React.FC = () => {
   if (type === 'os-update') {
     return (
       <UpdateGroupWrapper>
-        <UpdateListItem
-          label={'Aragon OSx v1.3.0'}
-          helptext={'TBD inline release notes'}
-          LinkLabel={'TBD inline release notes'}
-          tagLabelNatural="Latest"
-          type={'default'}
-          onClick={() => null}
-          onClickActionSecondary={() => null}
-        />
-        <UpdateListItem
-          label={'Aragon OSx v1.3.0'}
-          helptext={'TBD inline release notes'}
-          LinkLabel={'TBD inline release notes'}
-          tagLabelNatural="Latest"
-          tagLabelInfo="Prepared"
-          type={'default'}
-          onClick={() => null}
-          onClickActionPrimary={() => null}
-          onClickActionSecondary={() => null}
+        <Controller
+          name="osUpdate"
+          rules={{required: 'Validate'}}
+          control={control}
+          render={({field: {onChange, value}}) => (
+            <>
+              <UpdateListItem
+                label={'Aragon OSx v1.3.0'}
+                helptext={'TBD inline release notes'}
+                LinkLabel={'TBD inline release notes'}
+                tagLabelNatural="Latest"
+                type={value?.os ? 'active' : 'default'}
+                onClick={() =>
+                  onChange({
+                    ...value,
+                    os: !value?.os,
+                  })
+                }
+                onClickActionSecondary={() => null}
+              />
+              <UpdateListItem
+                label={'Aragon OSx v1.3.0'}
+                helptext={'TBD inline release notes'}
+                LinkLabel={'TBD inline release notes'}
+                tagLabelNatural="Latest"
+                tagLabelInfo="Prepared"
+                type={value?.plugin ? 'active' : 'default'}
+                onClick={() =>
+                  onChange({
+                    ...value,
+                    plugin: !value?.plugin,
+                  })
+                }
+                onClickActionPrimary={() => null}
+                onClickActionSecondary={() => null}
+              />
+            </>
+          )}
         />
       </UpdateGroupWrapper>
     );
