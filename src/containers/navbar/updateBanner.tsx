@@ -2,7 +2,12 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 import {ButtonText, IconClose, IconUpdate} from '@aragon/ods';
-import {generatePath, useNavigate, useParams} from 'react-router-dom';
+import {
+  generatePath,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 import {useNetwork} from 'context/network';
 import {NewProposal} from 'utils/paths';
 import {featureFlags} from 'utils/featureFlags';
@@ -12,6 +17,14 @@ const UpdateBanner: React.FC = () => {
   const navigate = useNavigate();
   const {network} = useNetwork();
   const {dao} = useParams();
+  const location = useLocation();
+
+  if (
+    location.pathname.includes('new-proposal') ||
+    location.pathname.includes('settings') ||
+    location.pathname.includes('create')
+  )
+    return null;
 
   const daoUpdateEnabled =
     featureFlags.getValue('VITE_FEATURE_FLAG_OSX_UPDATES') === 'true';
