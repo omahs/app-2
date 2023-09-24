@@ -17,12 +17,32 @@ import {Controller, useFormContext} from 'react-hook-form';
 import {isOnlyWhitespace} from 'utils/library';
 import {UpdateListItem} from 'containers/updateListItem/updateListItem';
 import {useParams} from 'react-router-dom';
-
 const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
   const {address, ensAvatarUrl} = useWallet();
   const {control} = useFormContext();
   const {type} = useParams();
+
+  const UpdateItems = [
+    {
+      id: 'os',
+      label: 'Aragon OSx v1.3.0',
+      helptext: 'TBD inline release notes',
+      LinkLabel: 'TBD inline release notes',
+      tagLabelNatural: 'Latest',
+      onClickActionSecondary: () => null,
+    },
+    {
+      id: 'plugin',
+      label: 'Token voting v1.12',
+      helptext: 'TBD inline release notes',
+      LinkLabel: 'TBD inline release notes',
+      tagLabelNatural: 'Latest',
+      tagLabelInfo: 'Prepared',
+      onClickActionPrimary: () => null,
+      onClickActionSecondary: () => null,
+    },
+  ];
 
   if (type === 'os-update') {
     return (
@@ -33,36 +53,19 @@ const DefineProposal: React.FC = () => {
           control={control}
           render={({field: {onChange, value}}) => (
             <>
-              <UpdateListItem
-                label={'Aragon OSx v1.3.0'}
-                helptext={'TBD inline release notes'}
-                LinkLabel={'TBD inline release notes'}
-                tagLabelNatural="Latest"
-                type={value?.os ? 'active' : 'default'}
-                onClick={() =>
-                  onChange({
-                    ...value,
-                    os: !value?.os,
-                  })
-                }
-                onClickActionSecondary={() => null}
-              />
-              <UpdateListItem
-                label={'Aragon OSx v1.3.0'}
-                helptext={'TBD inline release notes'}
-                LinkLabel={'TBD inline release notes'}
-                tagLabelNatural="Latest"
-                tagLabelInfo="Prepared"
-                type={value?.plugin ? 'active' : 'default'}
-                onClick={() =>
-                  onChange({
-                    ...value,
-                    plugin: !value?.plugin,
-                  })
-                }
-                onClickActionPrimary={() => null}
-                onClickActionSecondary={() => null}
-              />
+              {UpdateItems.map((data, index) => (
+                <UpdateListItem
+                  key={index}
+                  {...data}
+                  type={value?.[data.id] ? 'active' : 'default'}
+                  onClick={() =>
+                    onChange({
+                      ...value,
+                      [data.id]: !value?.[data.id],
+                    })
+                  }
+                />
+              ))}
             </>
           )}
         />
@@ -74,7 +77,6 @@ const DefineProposal: React.FC = () => {
     <>
       <FormItem>
         <Label label={t('labels.author')} />
-
         <ButtonWallet
           label="You"
           src={ensAvatarUrl || address}

@@ -85,7 +85,13 @@ export const Governance: React.FC = () => {
     trackEvent('governance_newProposalBtn_clicked', {
       dao_address: daoDetails?.address as string,
     });
-    navigate(generatePath(NewProposal, {type: 'default'}));
+    navigate(
+      generatePath(NewProposal, {
+        type: 'default',
+        network,
+        dao: toDisplayEns(daoDetails?.ensDomain) || daoDetails?.address,
+      })
+    );
   };
 
   const handleShowMoreClick = () => {
@@ -143,18 +149,7 @@ export const Governance: React.FC = () => {
         primaryBtnProps={{
           label: t('governance.action'),
           iconLeft: <IconAdd />,
-          onClick: () => {
-            trackEvent('governance_newProposalBtn_clicked', {
-              dao_address: daoDetails?.address,
-            });
-            navigate(
-              generatePath(NewProposal, {
-                type: 'default',
-                network,
-                dao: toDisplayEns(daoDetails?.ensDomain) || daoDetails?.address,
-              })
-            );
-          },
+          onClick: handleNewProposalClick,
         }}
         secondaryBtnProps={
           displayDelegation

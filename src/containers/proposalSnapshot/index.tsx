@@ -83,7 +83,11 @@ const ProposalSnapshot: React.FC<Props> = ({
           label: t('TransactionModal.createProposal'),
           onClick: () =>
             navigate(
-              generatePath(NewProposal, {network, dao: daoAddressOrEns})
+              generatePath(NewProposal, {
+                type: 'default',
+                network,
+                dao: daoAddressOrEns,
+              })
             ),
         }}
         renderHtml
@@ -100,7 +104,13 @@ const ProposalSnapshot: React.FC<Props> = ({
         buttonText={t('newProposal.title')}
         orientation="horizontal"
         onClick={() =>
-          navigate(generatePath(NewProposal, {network, dao: daoAddressOrEns}))
+          navigate(
+            generatePath(NewProposal, {
+              type: 'default',
+              network,
+              dao: daoAddressOrEns,
+            })
+          )
         }
       />
 
