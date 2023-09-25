@@ -3,6 +3,8 @@ import {
   IconCheckboxDefault,
   IconCheckboxSelected,
   IconLinkExternal,
+  IconRadioDefault,
+  IconRadioSelected,
   Link,
   Tag,
 } from '@aragon/ods';
@@ -10,9 +12,16 @@ import React from 'react';
 import styled from 'styled-components';
 
 export const Icons = {
-  active: <IconCheckboxSelected />,
-  default: <IconCheckboxDefault />,
-  error: <IconCheckboxDefault />,
+  multiSelect: {
+    active: <IconCheckboxSelected />,
+    default: <IconCheckboxDefault />,
+    error: <IconCheckboxDefault />,
+  },
+  radio: {
+    active: <IconRadioSelected />,
+    default: <IconRadioDefault />,
+    error: <IconRadioDefault />,
+  },
 };
 
 export type CheckboxListItemProps = {
@@ -23,6 +32,7 @@ export type CheckboxListItemProps = {
   tagLabelInfo?: string;
   disabled?: boolean;
   type?: 'default' | 'error' | 'active';
+  multiSelect?: boolean;
   onClick?: React.MouseEventHandler;
   onClickActionPrimary?: (e: React.MouseEvent) => void;
   onClickActionSecondary?: (e: React.MouseEvent) => void;
@@ -37,6 +47,7 @@ export const UpdateListItem: React.FC<CheckboxListItemProps> = ({
   tagLabelInfo,
   disabled = false,
   type = 'default',
+  multiSelect = false,
   onClick,
   onClickActionPrimary,
   onClickActionSecondary,
@@ -53,30 +64,32 @@ export const UpdateListItem: React.FC<CheckboxListItemProps> = ({
               )}
               {tagLabelInfo && <Tag label={tagLabelInfo} colorScheme="info" />}
             </div>
-            {Icons[type]}
+            {Icons[multiSelect ? 'multiSelect' : 'radio'][type]}
           </HStack>
           <Helptext>{helptext}</Helptext>
           <Link label={LinkLabel} iconRight={<IconLinkExternal />} />
         </div>
-        <div className="flex flex-col gap-y-1.5 mt-3">
-          {onClickActionPrimary && (
-            <ButtonText
-              label={'Prepare plugin'}
-              mode="primary"
-              size="medium"
-              onClick={onClickActionPrimary}
-            />
-          )}
-          {onClickActionSecondary && (
-            <ButtonText
-              label={'Select another version'}
-              mode="secondary"
-              bgWhite
-              size="medium"
-              onClick={onClickActionSecondary}
-            />
-          )}
-        </div>
+        {(onClickActionPrimary || onClickActionSecondary) && (
+          <div className="flex flex-col gap-y-1.5 mt-3">
+            {onClickActionPrimary && (
+              <ButtonText
+                label={'Prepare plugin'}
+                mode="primary"
+                size="medium"
+                onClick={onClickActionPrimary}
+              />
+            )}
+            {onClickActionSecondary && (
+              <ButtonText
+                label={'Select another version'}
+                mode="secondary"
+                bgWhite
+                size="medium"
+                onClick={onClickActionSecondary}
+              />
+            )}
+          </div>
+        )}
       </Wrapper>
     </Container>
   );

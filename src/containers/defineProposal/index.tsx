@@ -6,7 +6,7 @@ import {
   TextareaWYSIWYG,
   TextInput,
 } from '@aragon/ods';
-import React, {MouseEventHandler} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 
@@ -17,11 +17,13 @@ import {Controller, useFormContext} from 'react-hook-form';
 import {isOnlyWhitespace} from 'utils/library';
 import {UpdateListItem} from 'containers/updateListItem/updateListItem';
 import {useParams} from 'react-router-dom';
+import {VersionSelectionMenu} from 'containers/versionSelectionMenu/versionSelectionMenu';
 const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
   const {address, ensAvatarUrl} = useWallet();
   const {control} = useFormContext();
   const {type} = useParams();
+  const [isOpen, setIsOpen] = useState(false);
 
   const UpdateItems = [
     {
@@ -40,7 +42,10 @@ const DefineProposal: React.FC = () => {
       tagLabelNatural: 'Latest',
       tagLabelInfo: 'Prepared',
       onClickActionPrimary: (e: React.MouseEvent) => e?.stopPropagation(),
-      onClickActionSecondary: (e: React.MouseEvent) => e?.stopPropagation(),
+      onClickActionSecondary: (e: React.MouseEvent) => {
+        setIsOpen(true);
+        e?.stopPropagation();
+      },
     },
   ];
 
@@ -58,6 +63,7 @@ const DefineProposal: React.FC = () => {
                   key={index}
                   {...data}
                   type={value?.[data.id] ? 'active' : 'default'}
+                  multiSelect
                   onClick={() =>
                     onChange({
                       ...value,
@@ -68,6 +74,12 @@ const DefineProposal: React.FC = () => {
               ))}
             </>
           )}
+        />
+        <VersionSelectionMenu
+          isOpen={isOpen}
+          handleCloseMenu={() => {
+            setIsOpen(false);
+          }}
         />
       </UpdateGroupWrapper>
     );
