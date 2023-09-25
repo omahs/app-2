@@ -32,7 +32,7 @@ const UpdateBanner: React.FC = () => {
   if (daoUpdateEnabled)
     return (
       <UpdateContainer>
-        <div />
+        <DummyElement />
         <MessageWrapper>
           <TextWrapper>
             <IconUpdate className="text-ui-0" />
@@ -62,6 +62,10 @@ const UpdateBanner: React.FC = () => {
   return null;
 };
 
+const DummyElement = styled.div.attrs({
+  className: 'tablet:block hidden',
+})``;
+
 const UpdateContainer = styled.div.attrs({
   className:
     'flex justify-between items-center py-1 px-3 bg-primary-400' as string,
@@ -72,7 +76,8 @@ const TextWrapper = styled.div.attrs({
 })``;
 
 const MessageWrapper = styled.div.attrs({
-  className: 'flex gap-x-3' as string,
+  className:
+    'block tablet:flex tablet:items-center tablet:space-x-3 tablet:space-y-0 space-y-1' as string,
 })``;
 
 export default UpdateBanner;

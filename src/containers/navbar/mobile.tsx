@@ -16,7 +16,6 @@ import useScreen from 'hooks/useScreen';
 import {useWallet} from 'hooks/useWallet';
 import MobileMenu from './mobileMenu';
 import NetworkIndicator from './networkIndicator';
-import UpdateBanner from './updateBanner';
 
 type MobileNavProps = {
   isProcess?: boolean;
@@ -42,7 +41,6 @@ const MobileNav: React.FC<MobileNavProps> = props => {
   return (
     <>
       <Container data-testid="navbar">
-        <UpdateBanner />
         <Menu>
           <FlexOne>
             {isMobile ? (

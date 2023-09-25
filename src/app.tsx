@@ -30,6 +30,7 @@ import '../i18n.config';
 import {ProposalSettingsFormData} from 'utils/types';
 import {GatingMenu} from 'containers/gatingMenu';
 import {DelegationGatingMenu} from 'containers/delegationGatingMenu';
+import UpdateBanner from 'containers/navbar/updateBanner';
 
 export const App: React.FC = () => {
   // TODO this needs to be inside a Routes component. Will be moved there with
@@ -179,6 +180,7 @@ const DaoWrapper: React.FC = () => {
 
   return (
     <GovTokensWrappingProvider>
+      <UpdateBanner />
       <Navbar />
       <div className="min-h-screen">
         <GridLayout>
