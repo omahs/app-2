@@ -6,7 +6,7 @@ import {
   TextareaWYSIWYG,
   TextInput,
 } from '@aragon/ods';
-import React from 'react';
+import React, {MouseEventHandler} from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 
@@ -30,7 +30,7 @@ const DefineProposal: React.FC = () => {
       helptext: 'TBD inline release notes',
       LinkLabel: 'TBD inline release notes',
       tagLabelNatural: 'Latest',
-      onClickActionSecondary: () => null,
+      onClickActionSecondary: (e: React.MouseEvent) => e?.stopPropagation(),
     },
     {
       id: 'plugin',
@@ -39,8 +39,8 @@ const DefineProposal: React.FC = () => {
       LinkLabel: 'TBD inline release notes',
       tagLabelNatural: 'Latest',
       tagLabelInfo: 'Prepared',
-      onClickActionPrimary: () => null,
-      onClickActionSecondary: () => null,
+      onClickActionPrimary: (e: React.MouseEvent) => e?.stopPropagation(),
+      onClickActionSecondary: (e: React.MouseEvent) => e?.stopPropagation(),
     },
   ];
 

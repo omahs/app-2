@@ -24,8 +24,8 @@ export type CheckboxListItemProps = {
   disabled?: boolean;
   type?: 'default' | 'error' | 'active';
   onClick?: React.MouseEventHandler;
-  onClickActionPrimary?: () => void;
-  onClickActionSecondary?: () => void;
+  onClickActionPrimary?: (e: React.MouseEvent) => void;
+  onClickActionSecondary?: (e: React.MouseEvent) => void;
 };
 
 // TODO: This might be a component that
