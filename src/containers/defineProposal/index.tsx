@@ -195,8 +195,27 @@ export default DefineProposal;
  * @param errors List of fields with errors
  * @returns Whether the screen is valid
  */
-export function isValid(dirtyFields: StringIndexed, errors: StringIndexed) {
+export function isValid(
+  dirtyFields: StringIndexed,
+  errors: StringIndexed,
+  type?: string,
+  osUpdate?: {
+    os: boolean;
+    plugin: boolean;
+  }
+) {
   // required fields not dirty
+
+  console.log(
+    'osUpdate',
+    osUpdate,
+    type,
+    type === 'os-update' && (osUpdate?.os || osUpdate?.plugin)
+  );
+
+  if (type === 'os-update' && (osUpdate?.os || osUpdate?.plugin)) return true;
+  else false;
+
   if (
     !dirtyFields.proposalTitle ||
     !dirtyFields.proposalSummary ||
