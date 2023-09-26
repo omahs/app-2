@@ -29,6 +29,7 @@ import uniqBy from 'lodash/uniqBy';
 import {useGlobalModalContext} from 'context/globalModals';
 import {NewProposal} from 'utils/paths';
 import {useNetwork} from 'context/network';
+import {featureFlags} from 'utils/featureFlags';
 
 // The number of proposals displayed on each page
 const PROPOSALS_PER_PAGE = 6;
@@ -45,8 +46,9 @@ export const Governance: React.FC = () => {
 
   const isTokenBasedDao =
     daoDetails?.plugins[0].id === 'token-voting.plugin.dao.eth';
-  const displayDelegation =
-    isTokenBasedDao && import.meta.env.VITE_FEATURE_FLAG_DELEGATION === 'true';
+  const enableDelegation =
+    isTokenBasedDao &&
+    featureFlags.getValue('VITE_FEATURE_FLAG_DELEGATION') === 'true';
 
   const {
     data: proposals,
@@ -131,7 +133,7 @@ export const Governance: React.FC = () => {
           onClick: handleNewProposalClick,
         }}
         secondaryButton={
-          displayDelegation
+          enableDelegation
             ? {
                 label: t('governance.actionSecondary'),
                 onClick: () => open('delegateVoting'),
@@ -152,7 +154,7 @@ export const Governance: React.FC = () => {
           onClick: handleNewProposalClick,
         }}
         secondaryBtnProps={
-          displayDelegation
+          enableDelegation
             ? {
                 label: t('governance.actionSecondary'),
                 onClick: () => open('delegateVoting'),

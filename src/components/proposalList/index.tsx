@@ -24,6 +24,7 @@ import {
 } from 'utils/proposals';
 import {ProposalListItem} from 'utils/types';
 import {useWallet} from 'hooks/useWallet';
+import {useUpdateProposal} from 'hooks/useUpdateProposal';
 
 type ProposalListProps = {
   proposals: Array<ProposalListItem>;
@@ -47,6 +48,23 @@ function isMultisigProposalListItem(
   if (!proposal) return false;
   return 'approvals' in proposal;
 }
+
+const ProposalItem: React.FC<{proposalId: string} & CardProposalProps> =
+  props => {
+    const {isAragonVerifiedUpdateProposal} = useUpdateProposal(
+      props.proposalId
+    );
+    const {t} = useTranslation();
+
+    return (
+      <CardProposal
+        {...props}
+        bannerContent={
+          isAragonVerifiedUpdateProposal ? t('update.proposal.bannerTitle') : ''
+        }
+      />
+    );
+  };
 
 const ProposalList: React.FC<ProposalListProps> = ({
   proposals,
@@ -108,7 +126,7 @@ const ProposalList: React.FC<ProposalListProps> = ({
   return (
     <div className="space-y-3" data-testid="proposalList">
       {mappedProposals.map(({id, ...p}) => (
-        <CardProposal {...p} key={id} />
+        <ProposalItem {...p} proposalId={id} key={id} />
       ))}
     </div>
   );

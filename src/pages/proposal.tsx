@@ -37,7 +37,7 @@ import {useProviders} from 'context/providers';
 import {useCache} from 'hooks/useCache';
 import {useClient} from 'hooks/useClient';
 import {useDaoDetailsQuery} from 'hooks/useDaoDetails';
-import {MultisigMember, useDaoMembers} from 'hooks/useDaoMembers';
+import {useDaoMembers} from 'hooks/useDaoMembers';
 import {useDaoProposal} from 'hooks/useDaoProposal';
 import {useMappedBreadcrumbs} from 'hooks/useMappedBreadcrumbs';
 import {PluginTypes, usePluginClient} from 'hooks/usePluginClient';
@@ -82,6 +82,7 @@ import {BigNumber} from 'ethers';
 import {usePastVotingPower} from 'services/aragon-sdk/queries/use-past-voting-power';
 import {Address} from 'viem';
 import {useBalance} from 'wagmi';
+import {UpdateVerificationCard} from 'containers/updateVerificationCard';
 
 // TODO: @Sepehr Please assign proper tags on action decoding
 // const PROPOSAL_TAGS = ['Finance', 'Withdraw'];
@@ -430,7 +431,7 @@ export const Proposal: React.FC = () => {
         proposal,
         address,
         votingSettings,
-        isMultisigProposal(proposal) ? (members as MultisigMember[]) : undefined
+        isMultisigProposal(proposal) ? members : undefined
       );
   }, [address, votingSettings, members, proposal, t]);
 
@@ -701,6 +702,12 @@ export const Proposal: React.FC = () => {
               />
             </>
           )}
+
+          {/* @todo: Add isUpdateProposal check once it's developed */}
+          <UpdateVerificationCard
+            proposal={proposal}
+            actions={decodedActions}
+          />
 
           <VotingTerminal
             status={proposalStatus}

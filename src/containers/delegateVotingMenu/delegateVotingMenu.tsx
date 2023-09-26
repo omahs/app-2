@@ -20,16 +20,29 @@ import {
   DelegateVotingFormField,
   IDelegateVotingFormValues,
 } from './delegateVotingUtils';
+import {aragonBackendQueryKeys} from 'services/aragon-backend/query-keys';
 
-const formSettings: UseFormProps<IDelegateVotingFormValues> = {
+const buildFormSettings = (
+  delegateAddress = ''
+): UseFormProps<IDelegateVotingFormValues> => ({
   mode: 'onChange',
   defaultValues: {
-    [DelegateVotingFormField.TOKEN_DELEGATE]: {address: '', ensName: ''},
+    [DelegateVotingFormField.TOKEN_DELEGATE]: {
+      address: delegateAddress,
+      ensName: '',
+    },
   },
-};
+});
 
 type DelegateVotingMenuState = {
+  /**
+   * Initialises the form in reclaim mode when set to true.
+   */
   reclaimMode?: boolean;
+  /**
+   * Initial address to be set on the delegate form field.
+   */
+  delegate?: string;
 };
 
 export const DelegateVotingMenu: React.FC = () => {
@@ -37,7 +50,7 @@ export const DelegateVotingMenu: React.FC = () => {
   const queryClient = useQueryClient();
   const {isOpen, close, open, modalState} =
     useGlobalModalContext<DelegateVotingMenuState>('delegateVoting');
-
+  const formSettings = buildFormSettings(modalState?.delegate);
   const formValues = useForm<IDelegateVotingFormValues>(formSettings);
   const {setValue, control} = formValues;
   const delegate = useWatch({
@@ -72,6 +85,7 @@ export const DelegateVotingMenu: React.FC = () => {
     {tokenAddress: daoToken?.address as string},
     {enabled: daoToken != null && !isOnWrongNetwork}
   );
+
   // The useDelegatee hook returns null when current delegate is connected address
   const currentDelegate =
     delegateData === null ? (address as string) : delegateData;
@@ -109,8 +123,17 @@ export const DelegateVotingMenu: React.FC = () => {
       address: baseParams.address,
       tokenAddress: daoToken?.address as string,
     });
+    const membersKey = aragonSdkQueryKeys.members({
+      pluginAddress: daoDetails?.plugins[0].instanceAddress as string,
+    });
+    const graphQlKey = aragonBackendQueryKeys.tokenHolders({
+      network: network as SupportedNetworks,
+      tokenAddress: daoToken?.address as string,
+    });
     queryClient.invalidateQueries(delegateKey);
     queryClient.invalidateQueries(votingPowerKey);
+    queryClient.invalidateQueries(membersKey);
+    queryClient.invalidateQueries(graphQlKey);
   };
 
   const handleDelegateTokensSuccess = async (
@@ -146,13 +169,23 @@ export const DelegateVotingMenu: React.FC = () => {
   };
 
   useEffect(() => {
-    if (currentDelegate != null) {
+    if (
+      currentDelegate != null &&
+      modalState?.delegate == null &&
+      !modalState?.reclaimMode
+    ) {
       setValue(DelegateVotingFormField.TOKEN_DELEGATE, {
         address: currentDelegate,
         ensName: currentDelegateEns,
       });
     }
-  }, [setValue, currentDelegate, currentDelegateEns]);
+  }, [
+    setValue,
+    currentDelegate,
+    currentDelegateEns,
+    modalState?.delegate,
+    modalState?.reclaimMode,
+  ]);
 
   // Set the token-delegate form field to connected address when the dialog
   // is opened in reclaim mode
@@ -160,18 +193,27 @@ export const DelegateVotingMenu: React.FC = () => {
     if (modalState?.reclaimMode && address != null) {
       setValue(DelegateVotingFormField.TOKEN_DELEGATE, {
         address,
-        ensName,
+        ensName: ensName ?? '',
       });
     }
   }, [modalState?.reclaimMode, address, ensName, setValue]);
+
+  // Update the token-delegate field when the delegate modal state is set
+  useEffect(() => {
+    if (modalState?.delegate != null) {
+      setValue(DelegateVotingFormField.TOKEN_DELEGATE, {
+        address: modalState.delegate,
+        ensName: '',
+      });
+    }
+  }, [modalState?.delegate, setValue]);
 
   // Open wrong-network menu when user is on the wrong network
   useEffect(() => {
     if (isConnected && isOpen && isOnWrongNetwork) {
       open('network');
-      close();
     }
-  }, [isConnected, isOpen, isOnWrongNetwork, open, close]);
+  }, [isConnected, isOpen, isOnWrongNetwork, open]);
 
   // Open gating menu when user has no tokens for this DAO
   useEffect(() => {
@@ -179,12 +221,19 @@ export const DelegateVotingMenu: React.FC = () => {
       isConnected &&
       isOpen &&
       !isLoadingBalance &&
+      !isOnWrongNetwork &&
       tokenBalance?.value === 0n
     ) {
       open('gating');
-      close();
     }
-  }, [isConnected, tokenBalance?.value, isLoadingBalance, isOpen, close, open]);
+  }, [
+    isConnected,
+    tokenBalance?.value,
+    isLoadingBalance,
+    isOnWrongNetwork,
+    isOpen,
+    open,
+  ]);
 
   if (!isConnected && isOpen) {
     return <LoginRequired isOpen={true} onClose={handleCloseLogin} />;

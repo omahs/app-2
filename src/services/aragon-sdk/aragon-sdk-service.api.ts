@@ -1,3 +1,5 @@
+import {PluginTypes} from 'hooks/usePluginClient';
+
 export interface IFetchDelegateeParams {
   tokenAddress: string;
 }
@@ -16,4 +18,9 @@ export interface IFetchVotingPowerParams {
 export interface IDelegateTokensParams {
   tokenAddress: string;
   delegatee: string;
+}
+
+export interface IFetchMembersParams {
+  pluginAddress: string;
+  pluginType?: PluginTypes;
 }
