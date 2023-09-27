@@ -13,7 +13,7 @@ import {BigNumber} from 'ethers';
 
 import {TimeFilter, TransferTypes} from './constants';
 import {Web3Address} from './library';
-import {stripPlgnAdrFromProposalId} from './proposals';
+import {GaslessVotingProposal} from '@vocdoni/offchain-voting';
 
 /*************************************************
  *                   Finance types               *
@@ -169,10 +169,14 @@ export type Erc20ProposalVote = {
   weight: bigint;
 };
 
-export type DetailedProposal = MultisigProposal | TokenVotingProposal;
+export type DetailedProposal =
+  | MultisigProposal
+  | TokenVotingProposal
+  | GaslessVotingProposal;
 export type ProposalListItem =
   | TokenVotingProposalListItem
-  | MultisigProposalListItem;
+  | MultisigProposalListItem
+  | GaslessVotingProposal;
 export type SupportedProposals = DetailedProposal | ProposalListItem;
 
 export type SupportedVotingSettings = MultisigVotingSettings | VotingSettings;
@@ -516,6 +520,10 @@ export class ProposalId {
    */
   stripPlgnAdrFromProposalId() {
     const split = this.id.split('_');
-    return {address: split[0], proposal: Number(split[1]) || undefined};
+    return {
+      address: split[0],
+      // Weird JS error, if you do Number(split[1]) and the number is `0x0` ir returns undefined...
+      proposal: split[1] === '0x0' ? Number(0) : Number(split[1]),
+    };
   }
 }

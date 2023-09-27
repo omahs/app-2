@@ -1,6 +1,7 @@
 import {useReactiveVar} from '@apollo/client';
 import {
   MultisigProposal,
+  ProposalQueryParams,
   ProposalSortBy,
   TokenVotingProposal,
 } from '@aragon/sdk-client';
@@ -39,7 +40,12 @@ import {
 } from 'utils/types';
 import {useDaoDetailsQuery} from './useDaoDetails';
 import {useDaoToken} from './useDaoToken';
-import {PluginTypes, usePluginClient} from './usePluginClient';
+import {
+  GaselessPluginName,
+  isOffchainVotingClient,
+  PluginTypes,
+  usePluginClient,
+} from './usePluginClient';
 
 /**
  * Retrieves list of proposals from SDK
@@ -84,6 +90,7 @@ export function useProposals(
 
   const isMultisigPlugin = type === 'multisig.plugin.dao.eth';
   const isTokenBasedPlugin = type === 'token-voting.plugin.dao.eth';
+  const isGaselessPlugin = type === GaselessPluginName;
 
   // return cache keys and variables based on the type of plugin;
   const getCachedProposalData = useCallback(() => {
@@ -203,6 +210,7 @@ export function useProposals(
 
   useEffect(() => {
     async function getDaoProposals() {
+      if (!client) return;
       try {
         if (skip === 0) {
           setIsLoading(true);
@@ -210,14 +218,20 @@ export function useProposals(
           setIsLoadingMore(true);
         }
 
-        const response = await client?.methods.getProposals({
-          daoAddressOrEns: daoAddress,
-          status,
-          limit,
-          skip,
-          sortBy: ProposalSortBy.CREATED_AT,
-          direction: SortDirection.DESC,
-        });
+        const response = isOffchainVotingClient(client!)
+          ? await client?.methods.getProposals(
+              daoDetails?.ensDomain || '',
+              daoDetails?.address || '',
+              daoDetails?.plugins[0].instanceAddress || ''
+            )
+          : await client?.methods.getProposals({
+              daoAddressOrEns: daoAddress,
+              status,
+              limit,
+              skip,
+              sortBy: ProposalSortBy.CREATED_AT,
+              direction: SortDirection.DESC,
+            });
 
         /**
          * NOTE: This needs to be removed once the SDK has taken cared
@@ -250,7 +264,8 @@ export function useProposals(
     if (
       daoAddress &&
       client?.methods &&
-      (isMultisigPlugin || (isTokenBasedPlugin && daoToken))
+      (isMultisigPlugin ||
+        ((isTokenBasedPlugin || isGaselessPlugin) && daoToken))
     ) {
       getDaoProposals();
     }

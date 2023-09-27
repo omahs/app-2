@@ -31,7 +31,21 @@ import {
 import {DetailedProposal, HookData, ProposalId} from 'utils/types';
 import {useDaoDetailsQuery} from './useDaoDetails';
 import {useDaoToken} from './useDaoToken';
-import {PluginTypes, usePluginClient} from './usePluginClient';
+import {
+  GaselessPluginName,
+  PluginTypes,
+  usePluginClient,
+} from './usePluginClient';
+import {
+  MultisigClient,
+  MultisigProposal,
+  TokenVotingClient,
+  TokenVotingProposal,
+} from '@aragon/sdk-client';
+import {
+  GaslessVotingProposal,
+  OffchainVotingClient,
+} from '@vocdoni/offchain-voting';
 
 /**
  * Retrieve a single detailed proposal
@@ -79,6 +93,7 @@ export const useDaoProposal = (
   const proposalGuid = proposalId?.makeGloballyUnique(pluginAddress);
   const isMultisigPlugin = pluginType === 'multisig.plugin.dao.eth';
   const isTokenBasedPlugin = pluginType === 'token-voting.plugin.dao.eth';
+  const isGaselessPlugin = pluginType === GaselessPluginName;
 
   // return cache keys and variables based on the type of plugin;
   const getCachedProposalData = useCallback(
@@ -148,9 +163,30 @@ export const useDaoProposal = (
           setIsLoading(true);
         }
 
-        let proposal = recalculateStatus(
-          await pluginClient?.methods.getProposal(proposalGuid)
-        );
+        let proposal:
+          | MultisigProposal
+          | TokenVotingProposal
+          | GaslessVotingProposal
+          | null
+          | undefined;
+
+        if (isGaselessPlugin) {
+          const {proposal: id} = proposalId!.stripPlgnAdrFromProposalId();
+          proposal = await (
+            pluginClient as OffchainVotingClient
+          )?.methods.getProposal(
+            daoDetails!.ensDomain,
+            daoAddress,
+            daoDetails!.plugins[0].instanceAddress,
+            id!
+          );
+        } else {
+          proposal = recalculateStatus(
+            await (
+              pluginClient as MultisigClient | TokenVotingClient
+            )?.methods.getProposal(proposalGuid)
+          );
+        }
 
         if (isTokenBasedProposal(proposal)) {
           proposal = {
@@ -210,9 +246,12 @@ export const useDaoProposal = (
     if (
       daoAddress &&
       proposalGuid &&
-      (isMultisigPlugin || (isTokenBasedPlugin && daoToken))
-    )
+      (isMultisigPlugin ||
+        (isTokenBasedPlugin && daoToken) ||
+        (isGaselessPlugin && daoToken))
+    ) {
       getDaoProposal(proposalGuid);
+    }
   }, [
     daoAddress,
     getCachedProposalData,
