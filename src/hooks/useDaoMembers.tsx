@@ -16,7 +16,7 @@ import {TokenHoldersResponse, getTokenHoldersPaged} from 'services/covalentAPI';
 import {HookData} from 'utils/types';
 import {useDaoToken} from './useDaoToken';
 import {
-  OFFCHAIN_PLUGIN_NAME,
+  GaselessPluginName,
   PluginTypes,
   usePluginClient,
 } from './usePluginClient';
@@ -85,7 +85,7 @@ export const useDaoMembers = (
 
   const isTokenBased =
     pluginType === 'token-voting.plugin.dao.eth' ||
-    pluginType === OFFCHAIN_PLUGIN_NAME;
+    pluginType === GaselessPluginName;
   const {data: daoToken} = useDaoToken(pluginAddress);
 
   const client = usePluginClient(pluginType);
@@ -102,7 +102,7 @@ export const useDaoMembers = (
           return;
         }
 
-        if (pluginType === OFFCHAIN_PLUGIN_NAME) {
+        if (pluginType === GaselessPluginName) {
           const c = client as OffchainVotingClient;
           const response: TokenVotingMember[] = await c?.methods.getMembers(
             pluginAddress
