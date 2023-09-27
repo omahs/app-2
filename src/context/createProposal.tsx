@@ -15,7 +15,13 @@ import {
 } from '@aragon/sdk-client-common';
 import {hexToBytes} from '@aragon/sdk-common';
 import {ethers} from 'ethers';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {useFormContext} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 import {generatePath, useNavigate} from 'react-router-dom';
@@ -75,6 +81,7 @@ import {usePrivacyContext} from './privacyContext';
 type Props = {
   showTxModal: boolean;
   setShowTxModal: (value: boolean) => void;
+  children: ReactNode;
 };
 
 const CreateProposalWrapper: React.FC<Props> = ({

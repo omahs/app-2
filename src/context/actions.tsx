@@ -1,4 +1,5 @@
 import React, {
+  ReactNode,
   createContext,
   useCallback,
   useContext,
@@ -23,6 +24,7 @@ type ActionsContextType = {
 
 type ActionsProviderProps = {
   daoId: string;
+  children: ReactNode;
 };
 
 const updatesMultisigVoting = (action: ActionItem) =>
@@ -39,7 +41,7 @@ const ActionsProvider: React.FC<ActionsProviderProps> = ({daoId, children}) => {
   const {control} = useFormContext();
   const {remove} = useFieldArray({control, name: 'actions'});
 
-  const addAction = useCallback(newAction => {
+  const addAction = useCallback((newAction: ActionItem) => {
     setActions(current => {
       const shouldAddEditMultisigAction =
         updatesMultisigVoting(newAction) && !hasEditMultisigAction(current);

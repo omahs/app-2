@@ -100,13 +100,13 @@ export const WCActionCard: React.FC<WCActionCardActionCardProps> = ({
   );
 };
 
-type ContentProps = Pick<WCActionCardActionCardProps, 'type'>;
+type ContentProps = WCActionCardActionCardProps['type'];
 
-const Content = styled.div.attrs(({type}: ContentProps) => ({
+const Content = styled.div.attrs<{type: ContentProps}>(({type}) => ({
   className: `px-2 desktop:px-3 p-3 border border-ui-100 border-t-0 space-y-2 desktop:space-y-3 rounded-b-xl ${
     type === 'action-builder' ? 'bg-ui-0' : 'bg-ui-50'
   }`,
-}))<ContentProps>``;
+}))<{type: ContentProps}>``;
 
 const FormGroup = styled.div.attrs({
   className: 'space-y-2 desktop:space-y-3',

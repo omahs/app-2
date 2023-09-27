@@ -25,7 +25,7 @@ import {format, formatDistanceToNow, Locale} from 'date-fns';
 import differenceInSeconds from 'date-fns/fp/differenceInSeconds';
 import * as Locales from 'date-fns/locale';
 import {BigNumber} from 'ethers';
-import {TFunction} from 'react-i18next';
+import {TFunction} from 'i18next';
 
 import {ProposalVoteResults} from 'containers/votingTerminal';
 import {

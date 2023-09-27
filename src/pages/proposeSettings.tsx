@@ -7,7 +7,7 @@ import {
 } from '@aragon/sdk-client';
 import {DaoAction, ProposalMetadata} from '@aragon/sdk-client-common';
 import {parseUnits} from 'ethers/lib/utils';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {ReactNode, useCallback, useEffect, useState} from 'react';
 import {useFormContext, useFormState} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 import {generatePath, useNavigate} from 'react-router-dom';
@@ -181,6 +181,7 @@ export const ProposeSettings: React.FC = () => {
 type Props = {
   showTxModal: boolean;
   setShowTxModal: (value: boolean) => void;
+  children: ReactNode;
 };
 
 // TODO: this is almost identical to CreateProposal wrapper, please merge if possible
