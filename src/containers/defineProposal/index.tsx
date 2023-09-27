@@ -13,7 +13,7 @@ import {useTranslation} from 'react-i18next';
 import AddLinks from 'components/addLinks';
 import {useWallet} from 'hooks/useWallet';
 import {StringIndexed} from 'utils/types';
-import {Controller, useFormContext} from 'react-hook-form';
+import {Controller, useFormContext, useWatch} from 'react-hook-form';
 import {isOnlyWhitespace} from 'utils/library';
 import {UpdateListItem} from 'containers/updateListItem/updateListItem';
 import {useParams} from 'react-router-dom';
@@ -22,6 +22,10 @@ const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
   const {address, ensAvatarUrl} = useWallet();
   const {control, setValue} = useFormContext();
+  const pluginVersion = useWatch({
+    name: 'pluginSelectedVersion',
+    control: control,
+  });
   const {type} = useParams();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,11 +41,15 @@ const DefineProposal: React.FC = () => {
     },
     {
       id: 'plugin',
-      label: 'Token voting v1.12',
+      label: `Token voting v${pluginVersion?.version}`,
       helptext: 'TBD inline release notes',
       LinkLabel: t('update.item.releaseNotesLabel'),
-      tagLabelNatural: t('update.item.tagLatest'),
-      tagLabelInfo: t('update.item.tagPrepared'),
+      ...(pluginVersion?.isLatest && {
+        tagLabelNatural: t('update.item.tagLatest'),
+      }),
+      ...(pluginVersion?.isPrepared && {
+        tagLabelInfo: t('update.item.tagPrepared'),
+      }),
       buttonPrimaryLabel: t('update.item.prepareCtaLabel'),
       buttonSecondaryLabel: t('update.item.versionCtaLabel'),
       onClickActionPrimary: (e: React.MouseEvent) => e?.stopPropagation(),
@@ -51,6 +59,14 @@ const DefineProposal: React.FC = () => {
       },
     },
   ];
+
+  useEffect(() => {
+    // TODO: This Should be removed with SDK update
+    setValue('pluginSelectedVersion', {
+      address: '0xadb2e0cc261fdfbf29ffd74102c91052a425e666',
+      version: '1.2',
+    });
+  }, [setValue]);
 
   useEffect(() => {
     if (type === 'os-update') {
@@ -64,37 +80,40 @@ const DefineProposal: React.FC = () => {
 
   if (type === 'os-update') {
     return (
-      <UpdateGroupWrapper>
-        <Controller
-          name="osUpdate"
-          rules={{required: 'Validate'}}
-          control={control}
-          render={({field: {onChange, value}}) => (
-            <>
-              {UpdateItems.map((data, index) => (
-                <UpdateListItem
-                  key={index}
-                  {...data}
-                  type={value?.[data.id] ? 'active' : 'default'}
-                  multiSelect
-                  onClick={() =>
-                    onChange({
-                      ...value,
-                      [data.id]: !value?.[data.id],
-                    })
-                  }
-                />
-              ))}
-            </>
-          )}
-        />
+      <UpdateContainer>
+        <UpdateGroupWrapper>
+          <Controller
+            name="osUpdate"
+            rules={{required: 'Validate'}}
+            control={control}
+            render={({field: {onChange, value}}) => (
+              <>
+                {UpdateItems.map((data, index) => (
+                  <UpdateListItem
+                    key={index}
+                    {...data}
+                    type={value?.[data.id] ? 'active' : 'default'}
+                    multiSelect
+                    onClick={() =>
+                      onChange({
+                        ...value,
+                        [data.id]: !value?.[data.id],
+                      })
+                    }
+                  />
+                ))}
+              </>
+            )}
+          />
+        </UpdateGroupWrapper>
         <VersionSelectionMenu
           isOpen={isOpen}
           handleCloseMenu={() => {
             setIsOpen(false);
           }}
         />
-      </UpdateGroupWrapper>
+        <AlertInline label={t('update.itemList.alertInfo')} mode="neutral" />
+      </UpdateContainer>
     );
   }
 
@@ -219,13 +238,6 @@ export function isValid(
 ) {
   // required fields not dirty
 
-  console.log(
-    'osUpdate',
-    osUpdate,
-    type,
-    type === 'os-update' && (osUpdate?.os || osUpdate?.plugin)
-  );
-
   if (type === 'os-update' && (osUpdate?.os || osUpdate?.plugin)) return true;
   else false;
 
@@ -245,4 +257,8 @@ const FormItem = styled.div.attrs({
 
 const UpdateGroupWrapper = styled.div.attrs({
   className: 'flex tablet:flex-row flex-col gap-y-1.5 gap-x-3',
+})``;
+
+const UpdateContainer = styled.div.attrs({
+  className: 'space-y-2',
 })``;

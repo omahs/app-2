@@ -2,6 +2,7 @@ import {ButtonText} from '@aragon/ods';
 import ModalBottomSheetSwitcher from 'components/modalBottomSheetSwitcher';
 import {UpdateListItem} from 'containers/updateListItem/updateListItem';
 import React from 'react';
+import {Controller, useFormContext} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 
@@ -16,6 +17,26 @@ export const VersionSelectionMenu: React.FC<CheckboxListItemProps> = ({
   handleCloseMenu,
 }) => {
   const {t} = useTranslation();
+  const {control} = useFormContext();
+
+  const versionList = [
+    {
+      version: '1.2',
+      address: '0xadb2e0cc261fdfbf29ffd74102c91052a425e666',
+      helptext: 'TBD inline release notes',
+      LinkLabel: t('update.item.releaseNotesLabel'),
+      tagLabelNatural: t('update.item.tagLatest'),
+      tagLabelInfo: t('update.item.tagPrepared'),
+      isLatest: true,
+      isPrepared: true,
+    },
+    {
+      version: '1.1',
+      address: '0xadb2e0cc261fdfbf29ffd74102c91052a425e666',
+      helptext: 'TBD inline release notes',
+      LinkLabel: t('update.item.releaseNotesLabel'),
+    },
+  ];
 
   return (
     <ModalBottomSheetSwitcher
@@ -25,24 +46,45 @@ export const VersionSelectionMenu: React.FC<CheckboxListItemProps> = ({
       subtitle={t('update.modalVersion.desc')}
     >
       <div className="grid gap-y-3 py-3 px-2">
-        <VersionListContainer>
-          <UpdateListItem
-            label={'Token voting v1.12'}
-            LinkLabel={'View release notes'}
-            tagLabelNatural="Latest"
-            tagLabelInfo="Prepared"
-          />
-          <UpdateListItem
-            label={'Token voting v1.12'}
-            LinkLabel={'View release notes'}
-          />
-        </VersionListContainer>
+        <Controller
+          name="pluginSelectedVersion"
+          rules={{required: 'Validate'}}
+          control={control}
+          defaultValue={{
+            address: '0xadb2e0cc261fdfbf29ffd74102c91052a425e666',
+            version: '1.2',
+          }}
+          render={({field: {onChange, value}}) => (
+            <>
+              <VersionListContainer>
+                {versionList.map((data, index) => (
+                  <UpdateListItem
+                    key={index}
+                    label={`Token voting v${data.version}`}
+                    {...data}
+                    type={
+                      value?.version === data.version ? 'active' : 'default'
+                    }
+                    onClick={() =>
+                      onChange({
+                        address: data.address,
+                        version: data.version,
+                        isLatest: data.isLatest,
+                        isPrepared: data.isPrepared,
+                      })
+                    }
+                  />
+                ))}
+              </VersionListContainer>
+            </>
+          )}
+        />
         <ActionContainer>
           <ButtonText
             label={t('update.modalVersion.ctaLabel')}
             mode="primary"
             size="large"
-            onClick={() => null}
+            onClick={handleCloseMenu}
           />
         </ActionContainer>
       </div>

@@ -547,6 +547,12 @@ export interface ProposalFormData {
     os: boolean;
     plugin: boolean;
   };
+  pluginSelectedVersion?: {
+    address: string;
+    version: string;
+    isLatest: boolean;
+    isPrepared: boolean;
+  };
 }
 
 export type ProposalSettingsFormData = ProposalFormData & {

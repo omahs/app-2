@@ -34,6 +34,7 @@ import {
 } from 'utils/date';
 import {getErc20VotingParticipation, getNonEmptyActions} from 'utils/proposals';
 import {ProposalResource, SupportedVotingSettings} from 'utils/types';
+import {UpdateVerificationCard} from 'containers/updateVerificationCard';
 
 type ReviewProposalProps = {
   defineProposalStepNumber: number;
@@ -243,6 +244,16 @@ const ReviewProposal: React.FC<ReviewProposalProps> = ({
               <StyledEditorContent editor={editor} />
             </>
           )}
+
+          {/* TODO: Add isUpdateProposal check once it's developed */}
+          <UpdateVerificationCard
+            actions={getNonEmptyActions(
+              values.actions,
+              isMultisigVotingSettings(votingSettings)
+                ? votingSettings
+                : undefined
+            )}
+          />
 
           <VotingTerminal
             breakdownTabDisabled

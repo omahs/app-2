@@ -12,7 +12,7 @@ import {useUpdateVerification} from 'hooks/useUpdateVerification';
 import {Action, DetailedProposal} from 'utils/types';
 
 export interface UpdateVerificationCardProps {
-  proposal: DetailedProposal;
+  proposal?: DetailedProposal;
   /** @todo Perform check of actions, once requirements are clear */
   actions: Array<Action | undefined> | undefined;
 }
