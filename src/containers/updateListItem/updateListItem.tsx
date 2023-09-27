@@ -33,6 +33,8 @@ export type CheckboxListItemProps = {
   disabled?: boolean;
   type?: 'default' | 'error' | 'active';
   multiSelect?: boolean;
+  buttonPrimaryLabel?: string;
+  buttonSecondaryLabel?: string;
   onClick?: React.MouseEventHandler;
   onClickActionPrimary?: (e: React.MouseEvent) => void;
   onClickActionSecondary?: (e: React.MouseEvent) => void;
@@ -48,6 +50,8 @@ export const UpdateListItem: React.FC<CheckboxListItemProps> = ({
   disabled = false,
   type = 'default',
   multiSelect = false,
+  buttonPrimaryLabel,
+  buttonSecondaryLabel,
   onClick,
   onClickActionPrimary,
   onClickActionSecondary,
@@ -69,19 +73,19 @@ export const UpdateListItem: React.FC<CheckboxListItemProps> = ({
           <Helptext>{helptext}</Helptext>
           <Link label={LinkLabel} iconRight={<IconLinkExternal />} />
         </div>
-        {(onClickActionPrimary || onClickActionSecondary) && (
+        {(buttonPrimaryLabel || buttonSecondaryLabel) && (
           <div className="flex flex-col gap-y-1.5 mt-3">
-            {onClickActionPrimary && (
+            {buttonPrimaryLabel && (
               <ButtonText
-                label={'Prepare plugin'}
+                label={buttonPrimaryLabel}
                 mode="primary"
                 size="medium"
                 onClick={onClickActionPrimary}
               />
             )}
-            {onClickActionSecondary && (
+            {buttonSecondaryLabel && (
               <ButtonText
-                label={'Select another version'}
+                label={buttonSecondaryLabel}
                 mode="secondary"
                 bgWhite
                 size="medium"

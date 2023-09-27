@@ -6,7 +6,7 @@ import {
   TextareaWYSIWYG,
   TextInput,
 } from '@aragon/ods';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {useTranslation} from 'react-i18next';
 
@@ -21,7 +21,7 @@ import {VersionSelectionMenu} from 'containers/versionSelectionMenu/versionSelec
 const DefineProposal: React.FC = () => {
   const {t} = useTranslation();
   const {address, ensAvatarUrl} = useWallet();
-  const {control} = useFormContext();
+  const {control, setValue} = useFormContext();
   const {type} = useParams();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,17 +30,20 @@ const DefineProposal: React.FC = () => {
       id: 'os',
       label: 'Aragon OSx v1.3.0',
       helptext: 'TBD inline release notes',
-      LinkLabel: 'TBD inline release notes',
-      tagLabelNatural: 'Latest',
+      LinkLabel: t('update.item.releaseNotesLabel'),
+      tagLabelNatural: t('update.item.tagLatest'),
+      buttonSecondaryLabel: t('update.item.versionCtaLabel'),
       onClickActionSecondary: (e: React.MouseEvent) => e?.stopPropagation(),
     },
     {
       id: 'plugin',
       label: 'Token voting v1.12',
       helptext: 'TBD inline release notes',
-      LinkLabel: 'TBD inline release notes',
-      tagLabelNatural: 'Latest',
-      tagLabelInfo: 'Prepared',
+      LinkLabel: t('update.item.releaseNotesLabel'),
+      tagLabelNatural: t('update.item.tagLatest'),
+      tagLabelInfo: t('update.item.tagPrepared'),
+      buttonPrimaryLabel: t('update.item.prepareCtaLabel'),
+      buttonSecondaryLabel: t('update.item.versionCtaLabel'),
       onClickActionPrimary: (e: React.MouseEvent) => e?.stopPropagation(),
       onClickActionSecondary: (e: React.MouseEvent) => {
         setIsOpen(true);
@@ -48,6 +51,16 @@ const DefineProposal: React.FC = () => {
       },
     },
   ];
+
+  useEffect(() => {
+    if (type === 'os-update') {
+      setValue('proposalTitle', 'Aragon Update');
+      setValue(
+        'proposalSummary',
+        'This is an update for your Aragon OSx based DAO. Review all the details and vote for it.'
+      );
+    }
+  }, [setValue, type]);
 
   if (type === 'os-update') {
     return (
