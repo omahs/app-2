@@ -205,9 +205,16 @@ const Proposal: React.FC<IProposalPage> = () => {
 
   const isGaseless = isGaselessProposal(proposal);
 
-  const title = proposal?.metadata.title;
-  const summary = proposal?.metadata.summary;
-  const description = proposal?.metadata.description;
+  const title = isGaseless
+    ? (proposal as GaslessVotingProposal)?.vochainMetadata.title.default
+    : proposal?.metadata.title;
+  const summary = isGaseless
+    ? (proposal as GaslessVotingProposal)?.vochainMetadata.questions[0].title
+        .default
+    : proposal?.metadata.summary;
+  const description = isGaseless
+    ? (proposal as GaslessVotingProposal)?.vochainMetadata.description.default
+    : proposal?.metadata.description;
 
   /*************************************************
    *                     Hooks                     *
