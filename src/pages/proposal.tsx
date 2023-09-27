@@ -76,7 +76,7 @@ import {
   getVoteStatus,
   isEarlyExecutable,
   isErc20VotingProposal,
-  isGaselessProposal,
+  isGaslessProposal,
   isMultisigProposal,
   stripPlgnAdrFromProposalId,
 } from 'utils/proposals';
@@ -203,36 +203,57 @@ const Proposal: React.FC<IProposalPage> = () => {
     ],
   });
 
-  const isGaseless = isGaselessProposal(proposal);
+  // offchain
+  // const [title, setTitle] = useState<string>('');
+  // const [summary, setSummary] = useState<string>('');
+  // const [description, setDescription] = useState<string>('');
+  // const [isGasless, setIsGasless] = useState(false);
 
-  const title = isGaseless
-    ? (proposal as GaslessVotingProposal)?.vochainMetadata.title.default
-    : proposal?.metadata.title;
-  const summary = isGaseless
-    ? (proposal as GaslessVotingProposal)?.vochainMetadata.questions[0].title
-        .default
-    : proposal?.metadata.summary;
-  const description = isGaseless
-    ? (proposal as GaslessVotingProposal)?.vochainMetadata.description.default
-    : proposal?.metadata.description;
+  // const title = isGaseless
+  //   ? (proposal as GaslessVotingProposal)?.vochainMetadata.title.default
+  //   : proposal?.metadata.title;
+  // const summary = isGaseless
+  //   ? (proposal as GaslessVotingProposal)?.vochainMetadata.questions[0].title
+  //       .default
+  //   : proposal?.metadata.summary;
+  // const description = isGaseless
+  //   ? (proposal as GaslessVotingProposal)?.vochainMetadata.description.default
+  //   : proposal?.metadata.description;
 
   /*************************************************
    *                     Hooks                     *
    *************************************************/
 
+  // useEffect(() => {
+  //   if (!proposal) return;
+  // if (isGaslessProposal(proposal)) {
+  //     setTitle(
+  //       (proposal as GaslessVotingProposal)?.vochainMetadata.title.default || ''
+  //     );
+  //     setDescription(
+  //       (proposal as GaslessVotingProposal)?.vochainMetadata.description
+  //         .default || ''
+  //     );
+  //   } else {
+  //     setTitle(proposal?.metadata.title || '');
+  //     setDescription(proposal?.metadata.description || '');
+  //   };
+  //   setSummary(proposal?.metadata.summary || '');
+  // }, [proposal]);
+
   // set editor data
   useEffect(() => {
-    if (proposal && editor && description) {
+    if (proposal && editor && proposal.metadata.description) {
       editor.commands.setContent(
         // Default list of allowed tags and attributes - https://www.npmjs.com/package/sanitize-html#default-options
-        sanitizeHtml(description!, {
+        sanitizeHtml(proposal.metadata.description!, {
           // the disallowedTagsMode displays the disallowed tags to be rendered as a string
           disallowedTagsMode: 'recursiveEscape',
         }),
         true
       );
     }
-  }, [editor, proposal, description]);
+  }, [editor, proposal]);
 
   useEffect(() => {
     if (proposal?.status) {
@@ -435,7 +456,7 @@ const Proposal: React.FC<IProposalPage> = () => {
   const mappedProps = useMemo(() => {
     if (proposal) {
       // todo(kon): move this somewhere else
-      if (isGaseless && isErc20VotingProposal(proposal)) {
+      if (isGaslessProposal(proposal) && isErc20VotingProposal(proposal)) {
         const gaslessProposal = proposal as GaslessVotingProposal;
         // Get mapped results
         const percent = (result: number, total: number): number =>
@@ -573,7 +594,7 @@ const Proposal: React.FC<IProposalPage> = () => {
         isMultisigProposal(proposal) ? (members as MultisigMember[]) : undefined
       );
     }
-  }, [address, daoSettings, members, proposal, t, isGaseless]);
+  }, [address, daoSettings, members, proposal, t]);
 
   // get early execution status
   const canExecuteEarly = useMemo(
@@ -616,7 +637,7 @@ const Proposal: React.FC<IProposalPage> = () => {
           // remove the call to strip plugin address when sdk returns proper plugin address
           stripPlgnAdrFromProposalId(a).toLowerCase() === address.toLowerCase()
       );
-    } else if (isGaseless) {
+    } else if (isGaslessProposal(proposal)) {
       return offchainAlreadyVote;
     } else {
       return proposal.votes.some(
@@ -625,7 +646,7 @@ const Proposal: React.FC<IProposalPage> = () => {
           voter.vote !== undefined
       );
     }
-  }, [address, isGaseless, offchainAlreadyVote, proposal]);
+  }, [address, offchainAlreadyVote, proposal]);
 
   // vote button and status
   const buttonLabel = useMemo(() => {
@@ -798,7 +819,7 @@ const Proposal: React.FC<IProposalPage> = () => {
             tag={tag}
           />
         )}
-        <ProposalTitle>{title}</ProposalTitle>
+        <ProposalTitle>{proposal?.metadata.title}</ProposalTitle>
         <ContentWrapper>
           {/* <BadgeContainer>
             {PROPOSAL_TAGS.map((tag: string) => (
@@ -819,7 +840,7 @@ const Proposal: React.FC<IProposalPage> = () => {
             />
           </ProposerLink>
         </ContentWrapper>
-        <SummaryText>{summary}</SummaryText>
+        <SummaryText>{proposal?.metadata.summary}</SummaryText>
         {proposal.metadata.description && !expandedProposal && (
           <ButtonText
             className="w-full tablet:w-max"
@@ -834,7 +855,7 @@ const Proposal: React.FC<IProposalPage> = () => {
 
       <ContentContainer expandedProposal={expandedProposal}>
         <ProposalContainer>
-          {description && expandedProposal && (
+          {proposal.metadata.description && expandedProposal && (
             <>
               <StyledEditorContent editor={editor} />
               <ButtonText
@@ -847,7 +868,7 @@ const Proposal: React.FC<IProposalPage> = () => {
             </>
           )}
 
-          {isGaseless ? (
+          {isGaslessProposal(proposal) ? (
             <OffchainVotingTerminal
               votingStatusLabel={voteStatus}
               votingTerminal={<VTerminal />}
