@@ -76,17 +76,18 @@ import {
   getVoteStatus,
   isEarlyExecutable,
   isErc20VotingProposal,
+  isGaselessProposal,
   isMultisigProposal,
   stripPlgnAdrFromProposalId,
 } from 'utils/proposals';
 import {Action, ProposalId} from 'utils/types';
-import {ElectionProvider, useElection} from '@vocdoni/react-providers';
-import useOffchainVoting from '../context/useOffchainVoting';
 import {format} from 'date-fns';
 import {getFormattedUtcOffset, KNOWN_FORMATS} from '../utils/date';
-import {formatUnits, IChoice} from '@vocdoni/sdk';
+import {formatUnits} from '@vocdoni/sdk';
 import Big from 'big.js';
 import {OffchainVotingTerminal} from '../containers/votingTerminal/offchainVotingTerminal';
+import {GaslessVotingProposal} from '@vocdoni/offchain-voting';
+import {useOffchainHasAlreadyVote} from '../context/useOffchainVoting';
 
 // TODO: @Sepehr Please assign proper tags on action decoding
 // const PROPOSAL_TAGS = ['Finance', 'Withdraw'];
@@ -95,37 +96,11 @@ const PENDING_PROPOSAL_STATUS_INTERVAL = 1000 * 10;
 const PROPOSAL_STATUS_INTERVAL = 1000 * 60;
 const NumberFormatter = new Intl.NumberFormat('en-US');
 
-const Proposal = () => {
-  const {dao, id: urlId} = useParams();
-
-  const proposalId = useMemo(
-    () => (urlId ? new ProposalId(urlId) : undefined),
-    [urlId]
-  );
-
-  // todo(kon): when implemented change this to properly get the vocdoni electionId from DAO
-  const {getElectionId} = useOffchainVoting();
-  const electionId =
-    'c5d2460186f70389325c3315e58929563604d02c21d6a930bca4020000000000';
-  if (proposalId) {
-    const id = stripPlgnAdrFromProposalId(proposalId?.toString());
-    // electionId = getElectionId(proposalId.toString());
-  }
-
-  return (
-    <>
-      <ElectionProvider id={electionId}>
-        <ProposalPage proposalId={proposalId} />
-      </ElectionProvider>
-    </>
-  );
-};
-
 type IProposalPage = {
   proposalId: ProposalId | undefined;
 };
 
-const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
+const Proposal: React.FC<IProposalPage> = () => {
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
   const {isDesktop} = useScreen();
@@ -133,7 +108,12 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
   const navigate = useNavigate();
   const fetchToken = useTokenAsync();
 
-  const {dao} = useParams();
+  const {dao, id: urlId} = useParams();
+
+  const proposalId = useMemo(
+    () => (urlId ? new ProposalId(urlId) : undefined),
+    [urlId]
+  );
 
   const {data: daoDetails, isLoading: detailsAreLoading} = useDaoDetailsQuery();
 
@@ -198,7 +178,9 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
     pluginType,
     proposal?.status as string
   );
-
+  const {hasAlreadyVote: offchainAlreadyVote} = useOffchainHasAlreadyVote({
+    proposal,
+  });
   const pluginClient = usePluginClient(pluginType);
 
   // ref used to hold "memories" of previous "state"
@@ -221,18 +203,11 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
     ],
   });
 
-  // todo(kon): delete this when needed
-  const offChain = true;
-  const {election: vocdoniElection} = useElection();
-  const title = offChain
-    ? vocdoniElection?.title.default
-    : proposal?.metadata.title;
-  const summary = offChain
-    ? vocdoniElection?.questions[0].title.default
-    : proposal?.metadata.summary;
-  const description = offChain
-    ? vocdoniElection?.description.default
-    : proposal?.metadata.description;
+  const isGaseless = isGaselessProposal(proposal);
+
+  const title = proposal?.metadata.title;
+  const summary = proposal?.metadata.summary;
+  const description = proposal?.metadata.description;
 
   /*************************************************
    *                     Hooks                     *
@@ -453,7 +428,8 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
   const mappedProps = useMemo(() => {
     if (proposal) {
       // todo(kon): move this somewhere else
-      if (offChain && vocdoniElection && isErc20VotingProposal(proposal)) {
+      if (isGaseless && isErc20VotingProposal(proposal)) {
+        const gaslessProposal = proposal as GaslessVotingProposal;
         // Get mapped results
         const percent = (result: number, total: number): number =>
           total === 0 ? 0 : (Number(result) / total) * 100;
@@ -462,50 +438,83 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
             ? parseInt(formatUnits(BigInt(result), decimals), 10)
             : result;
 
-        const decimals = (vocdoniElection.meta as any)?.token?.decimals || 0;
+        // todo(kon): get de decimals from the proper place and cast
+        const decimals =
+          (gaslessProposal.vochainMetadata as any)?.token?.decimals || 0;
 
-        const findChoiceResult = (choices: IChoice[], choiceName: string) => {
-          const choice = choices.find(
-            c => c.title.default.toLowerCase() === choiceName
-          );
-          const value = calcResults(Number(choice?.results), decimals) || 0;
-          return {
-            value,
-            percentage: percent(value, totals[0]),
-          };
-        };
-        const totals = vocdoniElection?.questions
-          .map(el =>
-            el.choices.reduce((acc, curr) => acc + Number(curr.results), 0)
-          )
-          .map((votes: number) => calcResults(votes, decimals));
-        const results: ProposalVoteResults = {
-          yes: findChoiceResult(vocdoniElection.questions[0].choices, 'yes'),
-          no: findChoiceResult(vocdoniElection.questions[0].choices, 'no'),
-          abstain: findChoiceResult(
-            vocdoniElection.questions[0].choices,
-            'abstain'
-          ),
-        };
+        // todo(kon): this code below is how I calculate the votes with the vochain election info
+        // Now i am using directly the min sdk
+        // const findChoiceResult = (choices: IChoice[], choiceName: string) => {
+        //   const choice = choices.find(
+        //     c => c.title.default.toLowerCase() === choiceName
+        //   );
+        //   const value = calcResults(Number(choice?.results), decimals) || 0;
+        //   return {
+        //     value,
+        //     percentage: percent(value, totals[0]),
+        //   };
+        // };
+        // const totals = vocdoniElection?.questions
+        //   .map(el =>
+        //     el.choices.reduce((acc, curr) => acc + Number(curr.results), 0)
+        //   )
+        //   .map((votes: number) => calcResults(votes, decimals));
+        // const results: ProposalVoteResults = {
+        //   yes: findChoiceResult(vocdoniElection.questions[0].choices, 'yes'),
+        //   no: findChoiceResult(vocdoniElection.questions[0].choices, 'no'),
+        //   abstain: findChoiceResult(
+        //     vocdoniElection.questions[0].choices,
+        //     'abstain'
+        //   ),
+        // };
 
-        // todo(kon): from here to down I have to check if the onChain proposal have this data or is all offchain
-
-        // Missing participation
-        const usedVotingWeight = Object.entries(results).reduce(
-          (acc, [, v]) => acc + Number(v.value),
+        const sum = gaslessProposal?.tallyVochain.reduce(
+          (acc, curr) => acc + Number(curr),
           0
         );
-        const totalVotingWeight = vocdoniElection.census.weight;
-        const missingRaw = Big(formatUnits(usedVotingWeight, decimals))
-          .minus(
-            Big(formatUnits(totalVotingWeight!, decimals)).mul(
-              proposal.settings.minParticipation
-            )
-          )
-          .toNumber();
+        const total = calcResults(sum, decimals);
+
+        const getVoteResults = (
+          index: number
+        ): {
+          value: number;
+          percentage: number;
+        } => {
+          const value =
+            calcResults(
+              Number(gaslessProposal.tallyVochain[index]),
+              decimals
+            ) || 0;
+          const percentage = percent(
+            Number(gaslessProposal.tallyVochain[index]),
+            total
+          );
+          return {value, percentage};
+        };
+        // todo(kon): fill this from enum position
+        const results: ProposalVoteResults = {
+          yes: getVoteResults(0),
+          no: getVoteResults(1),
+          abstain: getVoteResults(2),
+        };
+
+        // Missing participation
+        const usedVotingWeight = Object.entries(
+          gaslessProposal.tallyVochain
+        ).reduce((acc, [, v]) => acc + Number(v), 0);
+        // const totalVotingWeight = gaslessProposal.census.weight;
+        const totalVotingWeight = 0; // todo(kon): what is this
+        // const missingRaw = Big(formatUnits(usedVotingWeight, decimals))
+        //   .minus(
+        //     Big(formatUnits(totalVotingWeight!, decimals)).mul(
+        //       gaslessProposal.settings.minParticipation
+        //     )
+        //   )
+        //   .toNumber();
+        const missingRaw = 0; // todo(kon): this is the missing weight to vote
 
         const supportThreshold = Math.round(
-          proposal.settings.supportThreshold * 100
+          gaslessProposal.settings.supportThreshold * 100
         );
 
         // todo(kon): Quorum, this is supported?
@@ -519,7 +528,7 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
         const currentParticipation = t('votingTerminal.participationErc20', {
           participation: usedVotingWeight,
           totalWeight: totalVotingWeight,
-          tokenSymbol: proposal.token.symbol,
+          // tokenSymbol: vocprosal.,
           percentage: parseFloat(
             Big(usedVotingWeight.toString())
               .mul(100)
@@ -535,19 +544,18 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
           currentParticipation,
           strategy: t('votingTerminal.tokenVoting'),
           voteOptions: t('votingTerminal.yes+no'),
-          token: proposal.token,
+          // token: vocprosal.token,
           results,
           startDate: `${format(
-            vocdoniElection.startDate,
+            gaslessProposal.startDate,
             KNOWN_FORMATS.proposals
           )}  ${getFormattedUtcOffset()}`,
           endDate: `${format(
-            vocdoniElection.endDate,
+            gaslessProposal.endDate,
             KNOWN_FORMATS.proposals
           )}  ${getFormattedUtcOffset()}`,
         };
 
-        console.log('DEBUG', res);
         return res;
       }
       return getLiveProposalTerminalProps(
@@ -558,7 +566,7 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
         isMultisigProposal(proposal) ? (members as MultisigMember[]) : undefined
       );
     }
-  }, [address, daoSettings, members, proposal, t, offChain]);
+  }, [address, daoSettings, members, proposal, t, isGaseless]);
 
   // get early execution status
   const canExecuteEarly = useMemo(
@@ -601,6 +609,8 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
           // remove the call to strip plugin address when sdk returns proper plugin address
           stripPlgnAdrFromProposalId(a).toLowerCase() === address.toLowerCase()
       );
+    } else if (isGaseless) {
+      return offchainAlreadyVote;
     } else {
       return proposal.votes.some(
         voter =>
@@ -608,7 +618,7 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
           voter.vote !== undefined
       );
     }
-  }, [address, proposal]);
+  }, [address, isGaseless, offchainAlreadyVote, proposal]);
 
   // vote button and status
   const buttonLabel = useMemo(() => {
@@ -830,14 +840,13 @@ const ProposalPage: React.FC<IProposalPage> = ({proposalId}: IProposalPage) => {
             </>
           )}
 
-          {/*todo(kon): set the condition properly (if offchain, TokenVotingProposal*/}
-          {offChain ? (
+          {isGaseless ? (
             <OffchainVotingTerminal
               votingStatusLabel={voteStatus}
               votingTerminal={<VTerminal />}
-              // proposal={proposal as TokenVotingProposal}
-              vocdoniElection={vocdoniElection}
-              proposalId={proposalId}
+              proposal={proposal}
+              // vocdoniElection={vocdoniElection}
+              // proposalId={proposalId}
             />
           ) : (
             <VTerminal />

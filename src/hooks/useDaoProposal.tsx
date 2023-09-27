@@ -24,6 +24,7 @@ import {customJSONReplacer} from 'utils/library';
 import {
   augmentProposalWithCachedExecution,
   augmentProposalWithCachedVote,
+  isGaselessProposal,
   isMultisigProposal,
   isTokenBasedProposal,
   recalculateStatus,
@@ -234,6 +235,9 @@ export const useDaoProposal = (
               preferences?.functional
             )
           );
+        } else if (isGaselessProposal(proposal!)) {
+          // If is a gaseless proposal just store it without cache it
+          setData(proposal);
         }
       } catch (err) {
         console.error(err);
@@ -255,7 +259,6 @@ export const useDaoProposal = (
   }, [
     daoAddress,
     getCachedProposalData,
-    pluginClient?.methods,
     pluginType,
     preferences?.functional,
     proposalGuid,
@@ -264,6 +267,10 @@ export const useDaoProposal = (
     daoToken,
     isMultisigPlugin,
     isTokenBasedPlugin,
+    isGaselessPlugin,
+    proposalId,
+    pluginClient,
+    daoDetails,
   ]);
 
   return {data, error, isLoading};
