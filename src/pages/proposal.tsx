@@ -877,7 +877,7 @@ const Proposal: React.FC<IProposalPage> = () => {
               votingTerminal={<VTerminal />}
               proposal={proposal}
               // vocdoniElection={vocdoniElection}
-              // proposalId={proposalId}
+              proposalId={proposalId}
             />
           ) : (
             <VTerminal />
