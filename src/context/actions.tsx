@@ -17,7 +17,7 @@ type ActionsContextType = {
   actions: ActionItem[];
   selectedActionIndex: number;
   setSelectedActionIndex: React.Dispatch<React.SetStateAction<number>>;
-  addAction: (value: ActionItem) => void;
+  addAction: (value: ActionItem, allowDuplicate?: boolean) => void;
   duplicateAction: (index: number) => void;
   removeAction: (index: number) => void;
 };
