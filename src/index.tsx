@@ -97,7 +97,11 @@ const root = createRoot(document.getElementById('root')!);
 
 root.render(
   <React.StrictMode>
-    <StyleSheetManager shouldForwardProp={isPropValid}>
+    <StyleSheetManager
+      shouldForwardProp={(propName, elementToBeRendered) =>
+        typeof elementToBeRendered === 'string' ? isPropValid(propName) : true
+      }
+    >
       <QueryClientProvider client={queryClient}>
         <PrivacyContextProvider>
           <Router>
