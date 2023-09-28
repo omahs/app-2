@@ -21,7 +21,7 @@ import {
   getErc20Results,
   isErc20VotingProposal,
   stripPlgnAdrFromProposalId,
-  isGaselessProposal,
+  isGaslessProposal,
 } from 'utils/proposals';
 import {ProposalListItem} from 'utils/types';
 import {useWallet} from 'hooks/useWallet';
@@ -278,7 +278,7 @@ export function proposal2CardProps(
     } else {
       return {...props, ...specificProps};
     }
-  } else if (isGaselessProposal(proposal)) {
+  } else if (isGaslessProposal(proposal)) {
     const specificProps = {
       voteTitle: t('governance.proposals.voteTitle'),
       stateLabel: PROPOSAL_STATE_LABELS,

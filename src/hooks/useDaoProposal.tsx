@@ -24,7 +24,7 @@ import {customJSONReplacer} from 'utils/library';
 import {
   augmentProposalWithCachedExecution,
   augmentProposalWithCachedVote,
-  isGaselessProposal,
+  isGaslessProposal,
   isMultisigProposal,
   isTokenBasedProposal,
   recalculateStatus,
@@ -235,7 +235,7 @@ export const useDaoProposal = (
               preferences?.functional
             )
           );
-        } else if (isGaselessProposal(proposal!)) {
+        } else if (isGaslessProposal(proposal!)) {
           // If is a gaseless proposal just store it without cache it
           setData(proposal);
         }
