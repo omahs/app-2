@@ -21,7 +21,11 @@ import {useParams} from 'react-router-dom';
 
 import PublishModal from 'containers/transactionModals/publishModal';
 import {useDaoDetailsQuery} from 'hooks/useDaoDetails';
-import {PluginTypes, usePluginClient} from 'hooks/usePluginClient';
+import {
+  GaselessPluginName,
+  PluginTypes,
+  usePluginClient,
+} from 'hooks/usePluginClient';
 import {usePollGasFee} from 'hooks/usePollGasfee';
 import {useWallet} from 'hooks/useWallet';
 import {
@@ -44,7 +48,6 @@ import {
 import {useNetwork} from './network';
 import {usePrivacyContext} from './privacyContext';
 import {useProviders} from './providers';
-import useOffchainVoting from './useOffchainVoting';
 import OffchainVotingModal from '../containers/transactionModals/offchainVotingModal';
 
 //TODO: currently a context, but considering there might only ever be one child,
@@ -110,6 +113,8 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
       pluginType: daoDetails?.plugins[0].id as PluginTypes,
     };
   }, [daoDetails?.plugins]);
+
+  const offchainVoting = pluginType === GaselessPluginName;
 
   const pluginClient = usePluginClient(
     daoDetails?.plugins[0].id as PluginTypes
@@ -338,9 +343,6 @@ const ProposalTransactionProvider: React.FC<Props> = ({children}) => {
       preferences?.functional,
     ]
   );
-
-  // todo(kon): modify this
-  const offchainVoting = true;
 
   // handles vote submission/execution
   const handleVoteExecution = useCallback(async () => {

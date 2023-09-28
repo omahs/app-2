@@ -88,6 +88,7 @@ import Big from 'big.js';
 import {OffchainVotingTerminal} from '../containers/votingTerminal/offchainVotingTerminal';
 import {GaslessVotingProposal} from '@vocdoni/offchain-voting';
 import {useOffchainHasAlreadyVote} from '../context/useOffchainVoting';
+import {useDaoToken} from '../hooks/useDaoToken';
 
 // TODO: @Sepehr Please assign proper tags on action decoding
 // const PROPOSAL_TAGS = ['Finance', 'Withdraw'];
@@ -171,12 +172,15 @@ const Proposal: React.FC<IProposalPage> = () => {
     intervalInMills
   );
 
+  const {data: token} = useDaoToken(pluginAddress);
+
   const {data: canVote} = useWalletCanVote(
     address,
     proposalId!,
     pluginAddress,
     pluginType,
-    proposal?.status as string
+    proposal?.status as string,
+    isGaslessProposal(proposal) ? proposal.vochainProposalId : undefined
   );
   const {hasAlreadyVote: offchainAlreadyVote} = useOffchainHasAlreadyVote({
     proposal,
@@ -456,7 +460,7 @@ const Proposal: React.FC<IProposalPage> = () => {
   const mappedProps = useMemo(() => {
     if (proposal) {
       // todo(kon): move this somewhere else
-      if (isGaslessProposal(proposal) && isErc20VotingProposal(proposal)) {
+      if (isGaslessProposal(proposal)) {
         const gaslessProposal = proposal as GaslessVotingProposal;
         // Get mapped results
         const percent = (result: number, total: number): number =>
@@ -496,8 +500,8 @@ const Proposal: React.FC<IProposalPage> = () => {
         //   ),
         // };
 
-        const sum = gaslessProposal?.tallyVochain.reduce(
-          (acc, curr) => acc + Number(curr),
+        const sum = gaslessProposal?.tallyVochain[0].reduce(
+          (acc, curr) => acc + curr,
           0
         );
         const total = calcResults(sum, decimals);
@@ -509,16 +513,14 @@ const Proposal: React.FC<IProposalPage> = () => {
           percentage: number;
         } => {
           const value =
-            calcResults(
-              Number(gaslessProposal.tallyVochain[index]),
-              decimals
-            ) || 0;
+            calcResults(gaslessProposal.tallyVochain[0][index], decimals) || 0;
           const percentage = percent(
-            Number(gaslessProposal.tallyVochain[index]),
+            gaslessProposal.tallyVochain[0][index],
             total
           );
           return {value, percentage};
         };
+
         // todo(kon): fill this from enum position
         const results: ProposalVoteResults = {
           yes: getVoteResults(0),
@@ -527,19 +529,22 @@ const Proposal: React.FC<IProposalPage> = () => {
         };
 
         // Missing participation
+        // todo(kon): this is already calculated at sum attribute
         const usedVotingWeight = Object.entries(
-          gaslessProposal.tallyVochain
-        ).reduce((acc, [, v]) => acc + Number(v), 0);
-        // const totalVotingWeight = gaslessProposal.census.weight;
-        const totalVotingWeight = 0; // todo(kon): what is this
-        // const missingRaw = Big(formatUnits(usedVotingWeight, decimals))
-        //   .minus(
-        //     Big(formatUnits(totalVotingWeight!, decimals)).mul(
-        //       gaslessProposal.settings.minParticipation
-        //     )
-        //   )
-        //   .toNumber();
-        const missingRaw = 0; // todo(kon): this is the missing weight to vote
+          gaslessProposal.tallyVochain[0]
+        ).reduce((acc, [, v]) => acc + v, 0);
+
+        const totalVotingWeight = gaslessProposal.vochainMetadata.census.weight;
+
+        const missingRaw = Big(
+          formatUnits(usedVotingWeight.toString(), decimals)
+        )
+          .minus(
+            Big(formatUnits(totalVotingWeight!.toString(), decimals)).mul(
+              gaslessProposal.settings.minParticipation
+            )
+          )
+          .toNumber();
 
         const supportThreshold = Math.round(
           gaslessProposal.settings.supportThreshold * 100
@@ -565,14 +570,14 @@ const Proposal: React.FC<IProposalPage> = () => {
           ),
         });
 
-        const res = {
+        return {
           // minParticipation,
           missingParticipation: missingRaw,
           supportThreshold,
           currentParticipation,
           strategy: t('votingTerminal.tokenVoting'),
           voteOptions: t('votingTerminal.yes+no'),
-          // token: vocprosal.token,
+          token: token,
           results,
           startDate: `${format(
             gaslessProposal.startDate,
@@ -583,8 +588,6 @@ const Proposal: React.FC<IProposalPage> = () => {
             KNOWN_FORMATS.proposals
           )}  ${getFormattedUtcOffset()}`,
         };
-
-        return res;
       }
       return getLiveProposalTerminalProps(
         t,
@@ -594,7 +597,7 @@ const Proposal: React.FC<IProposalPage> = () => {
         isMultisigProposal(proposal) ? (members as MultisigMember[]) : undefined
       );
     }
-  }, [address, daoSettings, members, proposal, t]);
+  }, [address, daoSettings, members, proposal, t, token]);
 
   // get early execution status
   const canExecuteEarly = useMemo(
