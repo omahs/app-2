@@ -544,7 +544,7 @@ export const Proposal: React.FC = () => {
         voteNowDisabled: false,
         onClick: () => {
           if (isMultisigDAO) {
-            handleSubmitVote(VoteValues.YES);
+            handleSubmitVote({vote: VoteValues.YES});
           } else {
             setVotingInProcess(true);
           }
@@ -728,10 +728,11 @@ export const Proposal: React.FC = () => {
             voteNowDisabled={voteNowDisabled}
             votingInProcess={votingInProcess}
             onVoteSubmitClicked={vote =>
-              handleSubmitVote(
+              handleSubmitVote({
                 vote,
-                (proposal as TokenVotingProposal).token?.address
-              )
+                replacement: voted || voteSubmitted,
+                token: (proposal as TokenVotingProposal).token?.address,
+              })
             }
             {...mappedProps}
           />
