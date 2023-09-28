@@ -214,14 +214,14 @@ const Proposal: React.FC<IProposalPage> = () => {
   // const [isGasless, setIsGasless] = useState(false);
 
   // const title = isGaseless
-  //   ? (proposal as GaslessVotingProposal)?.vochainMetadata.title.default
+  //   ? (proposal as GaslessVotingProposal)?.vochain.metadata.title.default
   //   : proposal?.metadata.title;
   // const summary = isGaseless
-  //   ? (proposal as GaslessVotingProposal)?.vochainMetadata.questions[0].title
+  //   ? (proposal as GaslessVotingProposal)?.vochain.metadata.questions[0].title
   //       .default
   //   : proposal?.metadata.summary;
   // const description = isGaseless
-  //   ? (proposal as GaslessVotingProposal)?.vochainMetadata.description.default
+  //   ? (proposal as GaslessVotingProposal)?.vochain.metadata.description.default
   //   : proposal?.metadata.description;
 
   /*************************************************
@@ -232,10 +232,10 @@ const Proposal: React.FC<IProposalPage> = () => {
   //   if (!proposal) return;
   // if (isGaslessProposal(proposal)) {
   //     setTitle(
-  //       (proposal as GaslessVotingProposal)?.vochainMetadata.title.default || ''
+  //       (proposal as GaslessVotingProposal)?.vochain.metadata.title.default || ''
   //     );
   //     setDescription(
-  //       (proposal as GaslessVotingProposal)?.vochainMetadata.description
+  //       (proposal as GaslessVotingProposal)?.vochain.metadata.description
   //         .default || ''
   //     );
   //   } else {
@@ -462,18 +462,6 @@ const Proposal: React.FC<IProposalPage> = () => {
       // todo(kon): move this somewhere else
       if (isGaslessProposal(proposal)) {
         const gaslessProposal = proposal as GaslessVotingProposal;
-        // Get mapped results
-        const percent = (result: number, total: number): number =>
-          total === 0 ? 0 : (Number(result) / total) * 100;
-        const calcResults = (result: number, decimals?: number) =>
-          decimals
-            ? parseInt(formatUnits(BigInt(result), decimals), 10)
-            : result;
-
-        // todo(kon): get de decimals from the proper place and cast
-        const decimals =
-          (gaslessProposal.vochainMetadata as any)?.token?.decimals || 0;
-
         // todo(kon): this code below is how I calculate the votes with the vochain election info
         // Now i am using directly the min sdk
         // const findChoiceResult = (choices: IChoice[], choiceName: string) => {
@@ -499,42 +487,51 @@ const Proposal: React.FC<IProposalPage> = () => {
         //     'abstain'
         //   ),
         // };
+        // Get mapped results
+        const percent = (result: number, total: number): number =>
+          total === 0 ? 0 : (result / total) * 100;
+        const calcResults = (result: bigint, decimals?: number): number =>
+          decimals
+            ? parseInt(formatUnits(BigInt(result), decimals), 10)
+            : Number(result);
 
-        const sum = gaslessProposal?.tallyVochain[0].reduce(
-          (acc, curr) => acc + curr,
-          0
+        // todo(kon): get de decimals from the proper place and cast
+        const decimals =
+          (gaslessProposal.vochain.metadata as any)?.token?.decimals || 0;
+
+        const usedVotingWeight = gaslessProposal.vochain.tally.value.reduce(
+          (acc, y) => acc + y
         );
-        const total = calcResults(sum, decimals);
+        const total = calcResults(usedVotingWeight, decimals);
 
         const getVoteResults = (
-          index: number
+          res: bigint
         ): {
           value: number;
           percentage: number;
         } => {
           const value =
-            calcResults(gaslessProposal.tallyVochain[0][index], decimals) || 0;
-          const percentage = percent(
-            gaslessProposal.tallyVochain[0][index],
-            total
-          );
+            calcResults(
+              /* tslint:disable-next-line */
+              res,
+              decimals
+            ) || 0;
+          const percentage = percent(Number(res), total);
           return {value, percentage};
         };
 
         // todo(kon): fill this from enum position
         const results: ProposalVoteResults = {
-          yes: getVoteResults(0),
-          no: getVoteResults(1),
-          abstain: getVoteResults(2),
+          yes: getVoteResults(gaslessProposal.vochain.tally.parsed['yes']),
+          no: getVoteResults(gaslessProposal.vochain.tally.parsed['no']),
+          abstain: getVoteResults(
+            gaslessProposal.vochain.tally.parsed['abstain']
+          ),
         };
 
         // Missing participation
         // todo(kon): this is already calculated at sum attribute
-        const usedVotingWeight = Object.entries(
-          gaslessProposal.tallyVochain[0]
-        ).reduce((acc, [, v]) => acc + v, 0);
-
-        const totalVotingWeight = gaslessProposal.vochainMetadata.census.weight;
+        const totalVotingWeight = gaslessProposal.vochain.metadata.census.weight;
 
         const missingRaw = Big(
           formatUnits(usedVotingWeight.toString(), decimals)
