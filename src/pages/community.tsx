@@ -77,7 +77,7 @@ export const Community: React.FC = () => {
     (daoDetails?.plugins[0].id as PluginTypes) === 'multisig.plugin.dao.eth';
 
   const sortLabel = isMobile
-    ? undefined
+    ? ''
     : sort === 'delegations'
     ? t('community.sortByDelegations.selected')
     : t('community.sortByVotingPower.selected');
