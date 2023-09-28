@@ -40,7 +40,7 @@ const ConfigureActions: React.FC<ConfigureActionsProps> = ({
   const {dao: daoAddressOrEns} = useParams();
   const {t} = useTranslation();
   const {open} = useGlobalModalContext();
-  const {actions, addAction, removeAction} = useActionsContext();
+  const {actions, addAction} = useActionsContext();
   const {data: possibleActions} = useDaoActions(daoAddressOrEns ?? '');
 
   const allowedActions = useMemo(() => {
@@ -61,7 +61,7 @@ const ConfigureActions: React.FC<ConfigureActionsProps> = ({
         addAction({name: actionType}, false);
       }
     });
-  }, [actions, addAction, removeAction, initialActions]);
+  }, [actions, addAction, initialActions]);
 
   const handleAddNewActionClick = () => {
     if (onAddNewActionClick) {
