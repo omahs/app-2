@@ -78,7 +78,7 @@ export const UpdateVerificationCard: React.FC<UpdateVerificationCardProps> =
             <Link
               label={shortenAddress(daoAddress)}
               type="neutral"
-              href={`${CHAIN_METADATA[network].explorer}/address/${daoAddress}`}
+              href={`${CHAIN_METADATA[network].explorer}address/${daoAddress}`}
               iconRight={<IconLinkExternal />}
             />
           </Row>
@@ -93,7 +93,7 @@ export const UpdateVerificationCard: React.FC<UpdateVerificationCardProps> =
             <Link
               label={shortenAddress(pluginRegistryAddress)}
               type="neutral"
-              href={`${CHAIN_METADATA[network].explorer}/address/${pluginRegistryAddress}`}
+              href={`${CHAIN_METADATA[network].explorer}address/${pluginRegistryAddress}`}
               iconRight={<IconLinkExternal />}
             />
           </Row>
@@ -108,7 +108,7 @@ export const UpdateVerificationCard: React.FC<UpdateVerificationCardProps> =
             <Link
               label={shortenAddress(pluginSetupProcessorAddress)}
               type="neutral"
-              href={`${CHAIN_METADATA[network].explorer}/address/${pluginSetupProcessorAddress}`}
+              href={`${CHAIN_METADATA[network].explorer}address/${pluginSetupProcessorAddress}`}
               iconRight={<IconLinkExternal />}
             />
           </Row>
