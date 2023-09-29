@@ -262,7 +262,7 @@ export const Dashboard: React.FC = () => {
           <HeaderDao
             daoName={liveDao.metadata.name}
             daoEnsName={toDisplayEns(liveDao.ensDomain)}
-            // daoAddress={liveDao.address}
+            daoAddress={liveDao.address}
             daoAvatar={liveDao?.metadata?.avatar}
             daoUrl={`app.aragon.org/#/daos/${network}/${liveAddressOrEns}`}
             description={liveDao.metadata.description}
@@ -273,7 +273,7 @@ export const Dashboard: React.FC = () => {
             daoChain={CHAIN_METADATA[network].name}
             daoType={daoType}
             favorited={isFavoritedDao}
-            // onCopy={onCopy}
+            onCopy={onCopy}
             onFavoriteClick={() =>
               handleFavoriteClick({
                 address: liveDao.address.toLowerCase(),
