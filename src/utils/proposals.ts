@@ -557,7 +557,7 @@ export function getLiveProposalTerminalProps(
       approvals: proposal.approvals,
       minApproval: proposal.settings.minApprovals,
       voters: [...mappedMembers.values()],
-      strategy: t('votingTerminal.multisig'),
+      strategy: t('votingTerminal.multisig.strategy'),
       voteOptions: t('votingTerminal.approve'),
       startDate: `${format(
         proposal.startDate,
