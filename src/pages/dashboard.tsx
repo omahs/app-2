@@ -162,12 +162,13 @@ export const Dashboard: React.FC = () => {
     removePendingDaoMutation,
   ]);
 
-  const handleClipboardActions = useCallback(async () => {
-    await navigator.clipboard.writeText(
-      `https://app.aragon.org/#/daos/${network}/${liveAddressOrEns}`
-    );
-    alert(t('alert.chip.inputCopied'));
-  }, [alert, liveAddressOrEns, network, t]);
+  const onCopy = useCallback(
+    async (copyContent: string) => {
+      await navigator.clipboard.writeText(copyContent);
+      alert(t('alert.chip.inputCopied'));
+    },
+    [alert, t]
+  );
 
   const handleFavoriteClick = useCallback(
     async (dao: NavigationDao) => {
@@ -261,6 +262,7 @@ export const Dashboard: React.FC = () => {
           <HeaderDao
             daoName={liveDao.metadata.name}
             daoEnsName={toDisplayEns(liveDao.ensDomain)}
+            // daoAddress={liveDao.address}
             daoAvatar={liveDao?.metadata?.avatar}
             daoUrl={`app.aragon.org/#/daos/${network}/${liveAddressOrEns}`}
             description={liveDao.metadata.description}
@@ -271,7 +273,7 @@ export const Dashboard: React.FC = () => {
             daoChain={CHAIN_METADATA[network].name}
             daoType={daoType}
             favorited={isFavoritedDao}
-            copiedOnClick={handleClipboardActions}
+            // onCopy={onCopy}
             onFavoriteClick={() =>
               handleFavoriteClick({
                 address: liveDao.address.toLowerCase(),
