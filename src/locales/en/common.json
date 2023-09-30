@@ -641,7 +641,7 @@
       "description": "Provide the information voters will need to make their decision here.",
       "title": "Title",
       "titlePlaceholder": "Give your proposal a title",
-      "summaryPlaceholder": "Describe your proposal in 2-3 sentences. This will appear in in the proposal overview.",
+      "summaryPlaceholder": "Describe your proposal in 2-3 sentences. This will appear in the proposal overview.",
       "proposal": "Proposal",
       "body": "Body",
       "proposalPlaceholder": "Write the body of the proposal here."
@@ -693,7 +693,7 @@
       "newTokenSubtitle": "No, I would like to create a token.",
       "existingToken": {
         "title": "Import your existing token",
-        "description": "Import the existing ERC-20 token  that your community uses for governance. We recommend to read about why this is important in {{link}}.",
+        "description": "Import the existing ERC-20 token that your community uses for governance. We recommend to read about why this is important in {{link}}.",
         "descriptionLinkLabel": "our guide",
         "questionLabel": "Does your community already have an ERC-20 token to govern your DAO?",
         "answerNegative": "No",
@@ -710,7 +710,7 @@
         "verificationGovernanceSupported": "Supported",
         "verificationAlertWarningTitle": "Requires wrapping",
         "verificationAlertCriticalTitle": "Not supported token",
-        "verificationAlertWarningDescription": "This token must be wrapped by its holders to be participate in your DAO's governance.\n\nToken holders can wrap their tokens within the Aragon App at any time to receive equivalent governance tokens (1 {{tokenSymbol}} = 1 {{gTokenSymbol}}). These can then be used to vote on proposals in your DAO. They can unwrap at any time to receive their original tokens.",
+        "verificationAlertWarningDescription": "This token must be wrapped by its holders to participate in your DAO's governance.\n\nToken holders can wrap their tokens within the Aragon App at any time to receive equivalent governance tokens (1 {{tokenSymbol}} = 1 {{gTokenSymbol}}). These can then be used to vote on proposals in your DAO. They can unwrap at any time to receive their original tokens.",
         "verificationAlertCriticalDescription": "This token is not supported in the Aragon App. Try a different token or specify that you don't have a governance token yet.",
         "descriptionLinkURL": "https://aragon.org/how-to/import-existing-tokens",
         "verificationLabelBlockchain": "Blockchain",
@@ -726,7 +726,7 @@
       "multisigMembersWalletAlert": "Your connected wallet was automatically added to the list. You can remove it if you like.",
       "multisigEligibilityTitle": "Proposal creation",
       "multisigEligibilitySubtitle": "Specify who is permitted to create proposals.",
-      "multisigEligibilityMobileTitle": "Who is elegible?",
+      "multisigEligibilityMobileTitle": "Who is eligible?",
       "multisigEligibilityAlert": "With anyone being able to propose, there is a risk of proposal spam. Consider only authorized addresses.",
       "tokenName": "Token name",
       "tokenMembershipSubtitle": "Tokens act as voting chips. The more tokens you hold, the more weight your vote has. 1 token equals 1 vote.",
@@ -864,7 +864,7 @@
         "desc": "This action must be executed within a specified duration. Even if the proposal passes, it may be too late to successfully execute."
       },
       "addFirstActionTitle": "Add first Action",
-      "addFirstActionDesc": "Add your very first optional action if you wish to peform on-chain executions",
+      "addFirstActionDesc": "Add your very first optional action if you wish to perform on-chain executions",
       "alertInfo": "Based on the voting options setup, it is only possible to add actions to the option \"Yes\".",
       "stepCounter": "Step {{x}} of {{x}}",
       "actionAlertWarning": {
@@ -1207,7 +1207,7 @@
       "footerAlertCriticalApprove": "Error while approving your tokens. Try again.",
       "footerAlertCriticalWrap": "Error while wrapping your tokens. Try again.",
       "successTitle": "Tokens successfully wrapped",
-      "successDesc": "You have received {{amount}}  {{gTokenSymbol}} in your wallet. You are now a member of the DAO can use these tokens to participate in governance.",
+      "successDesc": "You have received {{amount}}  {{gTokenSymbol}} in your wallet. You are now a member of the DAO and can use these tokens to participate in governance.",
       "successCtaLabel": "See community",
       "successBtnSecondaryLabel": "Add token symbol",
       "inputAmountBalanceWrapped": "Your balance: {{amount}} g{{tokenSymbol}}",
@@ -1575,7 +1575,7 @@
     },
     "alert": {
       "title": "Aragon OSx updates are available.",
-      "desc": "New versions of Aragon smart contracts are available. Updating your DAO requires a proposal to be a created and passed.",
+      "desc": "New versions of Aragon smart contracts are available. Updating your DAO requires a proposal to be created and passed.",
       "ctaLabel": "View updates"
     },
     "reviewUpdates": {
